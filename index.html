@@ -23,7 +23,6 @@
             align-items: center;
         }
 
-        /* Ảnh Cover */
         .cover-photo {
             width: 100%;
             max-width: 1200px;
@@ -105,6 +104,34 @@
         tr:nth-child(even) { background-color: #fafafa; }
         tr:hover { background-color: #f1f1f1; }
 
+        /* Style cho nhãn cự ly */
+        .dist-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .dist-elite {
+            background-color: #8b0000;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+
+        .dist-long {
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            background-color: #fff5f5;
+        }
+
+        .dist-short {
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+            background-color: #f0f2ff;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -145,7 +172,6 @@
 </head>
 <body>
 
-<!-- Anh chèn link ảnh cover vào thuộc tính src dưới đây -->
 <img src="LINK_ANH_CỦA_ANH_Ở_ĐÂY" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
 
 <div class="container">
@@ -211,7 +237,6 @@
     function renderTable(rows) {
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1);
-        
         const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
 
         const idxName = getIdx(['họ và tên', 'họ tên', 'tên']);
@@ -226,7 +251,6 @@
         bodyData.sort((a, b) => {
             const distA = (a[idxDistance] || "").trim().toLowerCase();
             const distB = (b[idxDistance] || "").trim().toLowerCase();
-            
             const isEliteA = distA.includes("elite");
             const isEliteB = distB.includes("elite");
 
@@ -238,10 +262,7 @@
             const numB = getNum(distB);
 
             if (numB !== numA) return numB - numA;
-            
-            const nameA = (a[idxName] || "").trim();
-            const nameB = (b[idxName] || "").trim();
-            return nameA.localeCompare(nameB, 'vi');
+            return (a[idxName] || "").trim().localeCompare((b[idxName] || "").trim(), 'vi');
         });
 
         let bodyHtml = '';
@@ -250,16 +271,24 @@
         bodyData.forEach((row) => {
             count++;
             let name = row[idxName].trim().replace(/^"|"$/g, '');
+            let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
+            let distLower = distRaw.toLowerCase();
+            
+            // Xử lý Class màu sắc cho cự ly
+            let distClass = "dist-short";
+            if (distLower.includes("elite")) {
+                distClass = "dist-elite";
+            } else {
+                const num = parseFloat(distRaw.replace(/[^0-9.]/g, '')) || 0;
+                if (num >= 10) distClass = "dist-long";
+            }
+
             let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
-            let yearOnly = '---';
-            const matchYear = birthVal.match(/\d{4}/);
-            yearOnly = matchYear ? matchYear[0] : '---';
+            let matchYear = birthVal.match(/\d{4}/);
+            let yearOnly = matchYear ? matchYear[0] : '---';
 
             let phoneVal = (row[idxPhone] || '').trim().replace(/^"|"$/g, '').replace(/\s/g, '');
-            let hiddenPhone = '---';
-            if (phoneVal.length >= 4) {
-                hiddenPhone = `xxx.xxx.${phoneVal.slice(-4)}`;
-            }
+            let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
 
             bodyHtml += `<tr>
                 <td>${count}</td>
@@ -268,7 +297,7 @@
                 <td>${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                 <td style="font-family: monospace; letter-spacing: 1px;">${hiddenPhone}</td>
                 <td>${(row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '')}</td>
-                <td style="font-weight:700; color:var(--primary-color);">${(row[idxDistance] || '---').replace(/^"|"$/g, '')}</td>
+                <td><span class="dist-badge ${distClass}">${distRaw}</span></td>
             </tr>`;
         });
 
