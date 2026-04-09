@@ -113,7 +113,7 @@
                 <tr>
                     <th style="width: 50px;">STT</th>
                     <th>Họ và Tên</th>
-                    <th>Ngày sinh</th>
+                    <th>Năm sinh</th>
                     <th>Giới tính</th>
                     <th>Câu lạc bộ</th>
                     <th>Cự ly</th>
@@ -127,21 +127,17 @@
 </div>
 
 <script>
-    // Link TSV mới của anh
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
 
     async function fetchData() {
         try {
             const response = await fetch(tsvUrl);
             const text = await response.text();
-            
-            // Tách dữ liệu bằng dấu Tab (\t) thay vì dấu phẩy
             const rows = text.split('\n').map(row => row.split('\t'));
-            
             if (rows.length > 1) renderTable(rows);
         } catch (error) {
             console.error('Lỗi:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="6" style="text-align:center;">Lỗi tải dữ liệu TSV. Anh kiểm tra lại link nhé!</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="6" style="text-align:center;">Lỗi tải dữ liệu. Anh kiểm tra lại link nhé!</td></tr>';
         }
     }
 
@@ -149,7 +145,6 @@
         const header = rows[0].map(h => h.toLowerCase().trim());
         const body = rows.slice(1);
         
-        // Tự động tìm vị trí cột theo từ khóa
         const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
 
         const idxName = getIdx(['họ và tên', 'họ tên', 'tên']);
@@ -162,14 +157,25 @@
         let count = 0;
 
         body.forEach((row) => {
-            const name = row[idxName] ? row[idxName].trim().replace(/^"|"$/g, '') : "";
+            let name = row[idxName] ? row[idxName].trim().replace(/^"|"$/g, '') : "";
             
-            if (name !== "" && name !== "họ và tên") {
+            if (name !== "" && name.toLowerCase() !== "họ và tên") {
                 count++;
+
+                // Xử lý chỉ lấy Năm sinh:
+                let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
+                let yearOnly = '---';
+                
+                // Nếu định dạng là DD/MM/YYYY hoặc tương tự, lấy 4 ký tự cuối
+                if (birthVal.length >= 4) {
+                    const match = birthVal.match(/\d{4}/); // Tìm chuỗi 4 số liên tiếp
+                    yearOnly = match ? match[0] : '---';
+                }
+
                 bodyHtml += `<tr>
                     <td>${count}</td>
                     <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
-                    <td>${(row[idxBirth] || '---').replace(/^"|"$/g, '')}</td>
+                    <td>${yearOnly}</td>
                     <td>${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                     <td>${(row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '')}</td>
                     <td style="font-weight:700; color:var(--primary-color);">${(row[idxDistance] || '---').replace(/^"|"$/g, '')}</td>
