@@ -59,7 +59,6 @@
 
         .update-time { color: #666; font-style: italic; }
         
-        /* Cấu hình kéo dài không giới hạn */
         .table-wrapper {
             overflow-x: auto;
             max-height: none; 
@@ -81,7 +80,7 @@
             font-weight: 600;
             white-space: nowrap;
             position: sticky;
-            top: 0; /* Giữ tiêu đề ở trên cùng khi cuộn trang */
+            top: 0;
         }
 
         td {
@@ -101,11 +100,10 @@
             font-size: 18px;
         }
 
-        /* Responsive cho điện thoại */
         @media (max-width: 600px) {
-            .container { padding: 15px; border-radius: 0; }
-            .header h1 { font-size: 20px; }
-            th, td { padding: 10px; font-size: 12px; }
+            .container { padding: 10px; border-radius: 0; }
+            .header h1 { font-size: 18px; }
+            th, td { padding: 8px; font-size: 12px; }
             body { padding: 0; }
         }
     </style>
@@ -126,13 +124,18 @@
     <div class="table-wrapper">
         <table id="runner-table">
             <thead>
-                <tr id="table-header">
-                    <!-- Tiêu đề sẽ tự động đổ vào đây -->
+                <tr>
+                    <th>STT</th>
+                    <th>Họ và Tên</th>
+                    <th>Ngày sinh</th>
+                    <th>Giới tính</th>
+                    <th>Câu lạc bộ</th>
+                    <th>Cự ly</th>
                 </tr>
             </thead>
             <tbody id="table-body">
                 <tr>
-                    <td colspan="20" class="loading">Đang cập nhật danh sách vận động viên...</td>
+                    <td colspan="6" class="loading">Đang cập nhật danh sách vận động viên...</td>
                 </tr>
             </tbody>
         </table>
@@ -140,7 +143,6 @@
 </div>
 
 <script>
-    // Link CSV từ Google Sheets của anh
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKUIOMpx6TaSgNcWiKma6qtf_Yf0_tbpgvdIIzDeLAw76ZFVIbACfih90OoDF78WiXf_d9esRdY06J/pub?gid=1353301806&single=true&output=csv';
 
     async function fetchData() {
@@ -148,10 +150,9 @@
             const response = await fetch(csvUrl);
             const data = await response.text();
             
-            // Xử lý dữ liệu CSV, hỗ trợ cả trường hợp có dấu ngoặc kép trong nội dung
             const rows = data.split('\n').map(row => {
                 const re = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-                return row.split(re).map(cell => cell.replace(/^"|"$/g, ''));
+                return row.split(re).map(cell => cell.replace(/^"|"$/g, '').trim());
             });
             
             if (rows.length > 0) {
@@ -159,7 +160,7 @@
             }
         } catch (error) {
             console.error('Lỗi kết nối:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="20" style="text-align:center; padding:20px;">Không thể tải dữ liệu. Anh vui lòng kiểm tra lại kết nối internet hoặc link CSV.</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Không thể tải dữ liệu. Anh vui lòng kiểm tra lại link CSV.</td></tr>';
         }
     }
 
@@ -167,26 +168,43 @@
         const header = rows[0];
         const body = rows.slice(1);
         
-        // Vẽ tiêu đề bảng (Lấy từ dòng 1 của Sheets)
-        const headerHtml = header.map(h => `<th>${h.trim()}</th>`).join('');
-        document.getElementById('table-header').innerHTML = headerHtml;
+        // Xác định vị trí cột dựa trên tiêu đề trong Google Sheets của anh
+        // Em lọc theo từ khóa để tự động tìm đúng cột dù anh có chèn thêm cột khác
+        const idxName = header.findIndex(h => h.includes("Họ và tên"));
+        const idxGender = header.findIndex(h => h.includes("Giới tính"));
+        const idxDay = header.findIndex(h => h.includes("Ngày"));
+        const idxMonth = header.findIndex(h => h.includes("tháng"));
+        const idxYear = header.findIndex(h => h.includes("năm sinh"));
+        const idxClub = header.findIndex(h => h.includes("Câu lạc bộ"));
+        const idxDistance = header.findIndex(h => h.includes("Cự ly"));
 
-        // Vẽ nội dung các hàng
         let bodyHtml = '';
-        body.forEach(row => {
-            if (row.length >= header.length && row[0].trim() !== "") {
-                bodyHtml += `<tr>${row.map(cell => `<td>${cell.trim()}</td>`).join('')}</tr>`;
+        let count = 0;
+
+        body.forEach((row) => {
+            if (row.length >= header.length && row[idxName]) {
+                count++;
+                // Ghép Ngày - Tháng - Năm sinh lại cho gọn
+                const birthDate = `${row[idxDay]}/${row[idxMonth]}/${row[idxYear]}`;
+                
+                bodyHtml += `<tr>
+                    <td>${count}</td>
+                    <td style="font-weight:600;">${row[idxName]}</td>
+                    <td>${birthDate}</td>
+                    <td>${row[idxGender]}</td>
+                    <td>${row[idxClub] || 'Cá nhân'}</td>
+                    <td style="font-weight:700; color:var(--primary-color);">${row[idxDistance]}</td>
+                </tr>`;
             }
         });
 
         document.getElementById('table-body').innerHTML = bodyHtml;
-        document.getElementById('count').innerText = `Tổng số: ${body.filter(r => r[0].trim() !== "").length} vận động viên`;
+        document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
-    // Khởi chạy và đặt lịch cập nhật tự động (120 giây/lần)
     fetchData();
-    setInterval(fetchData, 120000);
+    setInterval(fetchData, 60000); // Cập nhật sau mỗi 60 giây
 </script>
 
 </body>
