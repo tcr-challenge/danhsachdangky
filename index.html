@@ -11,6 +11,7 @@
             --secondary-color: #1a237e; 
             --bg-color: #f4f7f6;
             --text-color: #333;
+            --elite-color: #b8860b; /* Màu vàng sậm cho dễ đọc trên nền trắng */
         }
 
         body {
@@ -104,33 +105,10 @@
         tr:nth-child(even) { background-color: #fafafa; }
         tr:hover { background-color: #f1f1f1; }
 
-        /* Style cho nhãn cự ly */
-        .dist-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-weight: 700;
-            text-align: center;
-            min-width: 60px;
-        }
-
-        .dist-elite {
-            background-color: #8b0000;
-            color: #ffd700;
-            border: 1px solid #ffd700;
-        }
-
-        .dist-long {
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            background-color: #fff5f5;
-        }
-
-        .dist-short {
-            color: var(--secondary-color);
-            border: 1px solid var(--secondary-color);
-            background-color: #f0f2ff;
-        }
+        /* Classes chỉ đổi màu chữ cự ly */
+        .color-elite { color: var(--elite-color); font-weight: 700; }
+        .color-5km { color: var(--primary-color); font-weight: 700; }
+        .color-3km { color: var(--secondary-color); font-weight: 700; }
 
         .loading {
             text-align: center;
@@ -274,13 +252,14 @@
             let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
             let distLower = distRaw.toLowerCase();
             
-            // Xử lý Class màu sắc cho cự ly
-            let distClass = "dist-short";
+            // Xử lý Class màu sắc cho chữ cự ly
+            let distClass = "";
             if (distLower.includes("elite")) {
-                distClass = "dist-elite";
-            } else {
-                const num = parseFloat(distRaw.replace(/[^0-9.]/g, '')) || 0;
-                if (num >= 10) distClass = "dist-long";
+                distClass = "color-elite";
+            } else if (distLower.includes("5")) {
+                distClass = "color-5km";
+            } else if (distLower.includes("3")) {
+                distClass = "color-3km";
             }
 
             let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
@@ -297,7 +276,7 @@
                 <td>${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                 <td style="font-family: monospace; letter-spacing: 1px;">${hiddenPhone}</td>
                 <td>${(row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '')}</td>
-                <td><span class="dist-badge ${distClass}">${distRaw}</span></td>
+                <td><span class="${distClass}">${distRaw}</span></td>
             </tr>`;
         });
 
