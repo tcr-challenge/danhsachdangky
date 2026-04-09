@@ -19,7 +19,8 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
@@ -29,7 +30,7 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .header {
@@ -88,10 +89,40 @@
             color: var(--primary-color);
         }
 
+        /* Phần thông tin liên hệ nằm ngoài container */
+        .footer-info {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            padding: 20px;
+            color: #444;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 50px;
+        }
+
+        .footer-info h2 {
+            font-size: 18px;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .footer-info a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-info a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
-            .container { padding: 10px; }
+            .container { padding: 15px 10px; }
             th, td { padding: 12px 8px; font-size: 12px; }
             .header h1 { font-size: 20px; }
+            .footer-info { font-size: 13px; padding: 10px; }
         }
     </style>
 </head>
@@ -126,6 +157,17 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="footer-info">
+    <h2>THÔNG TIN LIÊN HỆ</h2>
+    <p><strong>Ban tổ chức giải chạy Chào mừng Lễ hội truyền thống Đình làng Thượng Cát 2026 - Lần thứ I</strong></p>
+    <p>Ông Nguyễn Anh Tuấn: <strong>0968 814 606</strong> - Trưởng ban tổ chức giải chạy - Chủ nhiệm CLB Thượng Cát Runners</p>
+    <p>
+        Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">vnshort.com/WL5A</a> | 
+        Nhóm chạy bộ TCR: <a href="https://vnshort.com/HJAh" target="_blank">vnshort.com/HJAh</a> | 
+        Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a>
+    </p>
 </div>
 
 <script>
@@ -165,7 +207,7 @@
             if (name !== "" && name.toLowerCase() !== "họ và tên") {
                 count++;
 
-                // 1. Xử lý Năm sinh
+                // Xử lý Năm sinh
                 let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
                 let yearOnly = '---';
                 if (birthVal.length >= 4) {
@@ -173,7 +215,7 @@
                     yearOnly = matchYear ? matchYear[0] : '---';
                 }
 
-                // 2. Xử lý Số điện thoại (Ẩn số đầu, hiện 4 số cuối)
+                // Xử lý Số điện thoại
                 let phoneVal = (row[idxPhone] || '').trim().replace(/^"|"$/g, '').replace(/\s/g, '');
                 let hiddenPhone = '---';
                 if (phoneVal.length >= 4) {
