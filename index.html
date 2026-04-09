@@ -25,11 +25,12 @@
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             background: #fff;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
         }
 
         .header {
@@ -41,7 +42,7 @@
 
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 28px;
             color: var(--secondary-color);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -52,50 +53,60 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            font-size: 0.9em;
+            font-size: 0.95em;
+            padding: 0 5px;
         }
 
         .update-time { color: #666; font-style: italic; }
         
+        /* Cấu hình kéo dài không giới hạn */
         .table-wrapper {
             overflow-x: auto;
+            max-height: none; 
+            border: none;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            background: white;
         }
 
         th {
             background-color: var(--secondary-color);
             color: white;
             text-align: left;
-            padding: 12px 15px;
+            padding: 15px;
             font-weight: 600;
             white-space: nowrap;
+            position: sticky;
+            top: 0; /* Giữ tiêu đề ở trên cùng khi cuộn trang */
         }
 
         td {
             padding: 12px 15px;
             border-bottom: 1px solid #eee;
+            font-size: 14px;
         }
 
         tr:nth-child(even) { background-color: #fafafa; }
-        tr:hover { background-color: #f1f1f1; transition: 0.3s; }
+        tr:hover { background-color: #f1f1f1; transition: 0.2s; }
 
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             font-weight: bold;
             color: var(--primary-color);
+            font-size: 18px;
         }
 
         /* Responsive cho điện thoại */
         @media (max-width: 600px) {
-            .container { padding: 15px; }
-            .header h1 { font-size: 18px; }
-            th, td { padding: 8px 10px; font-size: 13px; }
+            .container { padding: 15px; border-radius: 0; }
+            .header h1 { font-size: 20px; }
+            th, td { padding: 10px; font-size: 12px; }
+            body { padding: 0; }
         }
     </style>
 </head>
@@ -104,11 +115,11 @@
 <div class="container">
     <div class="header">
         <h1>Danh Sách Đăng Ký Giải Chạy Lễ Hội</h1>
-        <p style="margin-top: 5px; font-weight: 600;">Thượng Cát Runners phối hợp cùng BTC Lễ Hội</p>
+        <p style="margin-top: 8px; font-weight: 600; color: #555;">Thượng Cát Runners phối hợp cùng BTC Lễ Hội</p>
     </div>
 
     <div class="status-bar">
-        <div id="count" style="font-weight: bold; color: var(--secondary-color);">Đang tải dữ liệu...</div>
+        <div id="count" style="font-weight: bold; color: var(--secondary-color);">Đang kết nối dữ liệu...</div>
         <div class="update-time" id="update-time"></div>
     </div>
 
@@ -116,11 +127,12 @@
         <table id="runner-table">
             <thead>
                 <tr id="table-header">
-                    </tr>
+                    <!-- Tiêu đề sẽ tự động đổ vào đây -->
+                </tr>
             </thead>
             <tbody id="table-body">
                 <tr>
-                    <td colspan="10" class="loading">Đang cập nhật danh sách mới nhất...</td>
+                    <td colspan="20" class="loading">Đang cập nhật danh sách vận động viên...</td>
                 </tr>
             </tbody>
         </table>
@@ -128,21 +140,26 @@
 </div>
 
 <script>
-    // Link đã được chuyển sang định dạng CSV để code đọc được
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKUIOMpx6TaSgNcWiKma6qtf_Yf0_tbpgvdIIzDeLAw76ZFVIbACfih90OoDF78WiXf_d9esRdY06J/pub?gid=1353301806&single=true&output=tsv';
+    // Link CSV từ Google Sheets của anh
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKUIOMpx6TaSgNcWiKma6qtf_Yf0_tbpgvdIIzDeLAw76ZFVIbACfih90OoDF78WiXf_d9esRdY06J/pub?gid=1353301806&single=true&output=csv';
 
     async function fetchData() {
         try {
             const response = await fetch(csvUrl);
             const data = await response.text();
-            const rows = data.split('\n').map(row => row.split(','));
+            
+            // Xử lý dữ liệu CSV, hỗ trợ cả trường hợp có dấu ngoặc kép trong nội dung
+            const rows = data.split('\n').map(row => {
+                const re = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                return row.split(re).map(cell => cell.replace(/^"|"$/g, ''));
+            });
             
             if (rows.length > 0) {
                 renderTable(rows);
             }
         } catch (error) {
-            console.error('Lỗi:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="10">Không thể tải dữ liệu. Vui lòng kiểm tra kết nối.</td></tr>';
+            console.error('Lỗi kết nối:', error);
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="20" style="text-align:center; padding:20px;">Không thể tải dữ liệu. Anh vui lòng kiểm tra lại kết nối internet hoặc link CSV.</td></tr>';
         }
     }
 
@@ -150,24 +167,24 @@
         const header = rows[0];
         const body = rows.slice(1);
         
-        // Vẽ tiêu đề
+        // Vẽ tiêu đề bảng (Lấy từ dòng 1 của Sheets)
         const headerHtml = header.map(h => `<th>${h.trim()}</th>`).join('');
         document.getElementById('table-header').innerHTML = headerHtml;
 
-        // Vẽ nội dung
-        const bodyHtml = body.map(row => {
-            if (row.length === header.length) {
-                return `<tr>${row.map(cell => `<td>${cell.trim()}</td>`).join('')}</tr>`;
+        // Vẽ nội dung các hàng
+        let bodyHtml = '';
+        body.forEach(row => {
+            if (row.length >= header.length && row[0].trim() !== "") {
+                bodyHtml += `<tr>${row.map(cell => `<td>${cell.trim()}</td>`).join('')}</tr>`;
             }
-            return '';
-        }).join('');
+        });
 
         document.getElementById('table-body').innerHTML = bodyHtml;
-        document.getElementById('count').innerText = `Tổng số: ${body.length} vận động viên`;
-        document.getElementById('update-time').innerText = `Cập nhật lúc: ${new Date().toLocaleTimeString()}`;
+        document.getElementById('count').innerText = `Tổng số: ${body.filter(r => r[0].trim() !== "").length} vận động viên`;
+        document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
-    // Tự động tải lại sau mỗi 2 phút
+    // Khởi chạy và đặt lịch cập nhật tự động (120 giây/lần)
     fetchData();
     setInterval(fetchData, 120000);
 </script>
