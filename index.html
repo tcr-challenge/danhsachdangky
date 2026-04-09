@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</title>
+    <title>Danh Sách Đăng Ký - Giải Chạy Đình Làng Thượng Cát 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,10 +17,22 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        /* Ảnh Cover */
+        .cover-photo {
+            width: 100%;
+            max-width: 1200px;
+            height: auto;
+            min-height: 200px;
+            background: #ddd;
+            display: block;
+            border-bottom: 5px solid var(--primary-color);
+            object-fit: cover;
         }
 
         .container {
@@ -28,16 +40,15 @@
             max-width: 1200px;
             background: #fff;
             padding: 30px;
-            border-radius: 12px;
+            box-sizing: border-box;
+            border-radius: 0 0 12px 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             margin-bottom: 30px;
         }
 
         .header {
             text-align: center;
-            border-bottom: 3px solid var(--primary-color);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
+            margin-bottom: 30px;
         }
 
         .header h1 {
@@ -45,6 +56,16 @@
             font-size: 26px;
             color: var(--secondary-color);
             text-transform: uppercase;
+            line-height: 1.3;
+            font-weight: 800;
+        }
+
+        .header .sub-title {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+            font-weight: 500;
         }
 
         .status-bar {
@@ -53,6 +74,8 @@
             align-items: center;
             margin-bottom: 15px;
             font-size: 0.95em;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
         }
 
         .table-wrapper { overflow-x: auto; }
@@ -89,7 +112,6 @@
             color: var(--primary-color);
         }
 
-        /* Phần thông tin liên hệ nằm ngoài container */
         .footer-info {
             width: 100%;
             max-width: 900px;
@@ -114,24 +136,25 @@
             font-weight: 600;
         }
 
-        .footer-info a:hover {
-            text-decoration: underline;
-        }
-
         @media (max-width: 600px) {
-            .container { padding: 15px 10px; }
-            th, td { padding: 12px 8px; font-size: 12px; }
             .header h1 { font-size: 20px; }
-            .footer-info { font-size: 13px; padding: 10px; }
+            .header .sub-title { font-size: 14px; }
+            th, td { padding: 12px 8px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
+<!-- Anh chèn link ảnh cover vào thuộc tính src dưới đây -->
+<img src="LINK_ANH_CỦA_ANH_Ở_ĐÂY" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
+
 <div class="container">
     <div class="header">
-        <h1>Danh Sách Đăng Ký Giải Chạy Lễ Hội</h1>
-        <p style="margin-top: 8px; font-weight: 600; color: #555;">Giải chạy được tổ chức bởi THƯỢNG CÁT RUNNERS - TCR </br> Dưới sự chỉ đạo và đồng hành của BTC Lễ hội Đình làng Thượng Cát</p>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
+        <div class="sub-title">
+            Giải chạy được tổ chức bởi THƯỢNG CÁT RUNNERS - TCR<br>
+            Dưới sự chỉ đạo và đồng hành của BTC Lễ hội Đình làng Thượng Cát
+        </div>
     </div>
 
     <div class="status-bar">
@@ -181,13 +204,13 @@
             if (rows.length > 1) renderTable(rows);
         } catch (error) {
             console.error('Lỗi:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="7" style="text-align:center;">Lỗi tải dữ liệu. Anh kiểm tra lại link nhé!</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="7" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
         }
     }
 
     function renderTable(rows) {
         const header = rows[0].map(h => h.toLowerCase().trim());
-        const body = rows.slice(1);
+        let bodyData = rows.slice(1);
         
         const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
 
@@ -198,41 +221,55 @@
         const idxClub = getIdx(['câu lạc bộ', 'clb', 'đơn vị']);
         const idxDistance = getIdx(['cự ly', 'cu ly']);
 
+        bodyData = bodyData.filter(row => row[idxName] && row[idxName].trim() !== "");
+
+        bodyData.sort((a, b) => {
+            const distA = (a[idxDistance] || "").trim().toLowerCase();
+            const distB = (b[idxDistance] || "").trim().toLowerCase();
+            
+            const isEliteA = distA.includes("elite");
+            const isEliteB = distB.includes("elite");
+
+            if (isEliteA && !isEliteB) return -1;
+            if (!isEliteA && isEliteB) return 1;
+
+            const getNum = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
+            const numA = getNum(distA);
+            const numB = getNum(distB);
+
+            if (numB !== numA) return numB - numA;
+            
+            const nameA = (a[idxName] || "").trim();
+            const nameB = (b[idxName] || "").trim();
+            return nameA.localeCompare(nameB, 'vi');
+        });
+
         let bodyHtml = '';
         let count = 0;
 
-        body.forEach((row) => {
-            let name = row[idxName] ? row[idxName].trim().replace(/^"|"$/g, '') : "";
-            
-            if (name !== "" && name.toLowerCase() !== "họ và tên") {
-                count++;
+        bodyData.forEach((row) => {
+            count++;
+            let name = row[idxName].trim().replace(/^"|"$/g, '');
+            let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
+            let yearOnly = '---';
+            const matchYear = birthVal.match(/\d{4}/);
+            yearOnly = matchYear ? matchYear[0] : '---';
 
-                // Xử lý Năm sinh
-                let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
-                let yearOnly = '---';
-                if (birthVal.length >= 4) {
-                    const matchYear = birthVal.match(/\d{4}/);
-                    yearOnly = matchYear ? matchYear[0] : '---';
-                }
-
-                // Xử lý Số điện thoại
-                let phoneVal = (row[idxPhone] || '').trim().replace(/^"|"$/g, '').replace(/\s/g, '');
-                let hiddenPhone = '---';
-                if (phoneVal.length >= 4) {
-                    let lastFour = phoneVal.slice(-4);
-                    hiddenPhone = `xxx.xxx.${lastFour}`;
-                }
-
-                bodyHtml += `<tr>
-                    <td>${count}</td>
-                    <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
-                    <td>${yearOnly}</td>
-                    <td>${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
-                    <td style="font-family: monospace; letter-spacing: 1px;">${hiddenPhone}</td>
-                    <td>${(row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '')}</td>
-                    <td style="font-weight:700; color:var(--primary-color);">${(row[idxDistance] || '---').replace(/^"|"$/g, '')}</td>
-                </tr>`;
+            let phoneVal = (row[idxPhone] || '').trim().replace(/^"|"$/g, '').replace(/\s/g, '');
+            let hiddenPhone = '---';
+            if (phoneVal.length >= 4) {
+                hiddenPhone = `xxx.xxx.${phoneVal.slice(-4)}`;
             }
+
+            bodyHtml += `<tr>
+                <td>${count}</td>
+                <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
+                <td>${yearOnly}</td>
+                <td>${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
+                <td style="font-family: monospace; letter-spacing: 1px;">${hiddenPhone}</td>
+                <td>${(row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '')}</td>
+                <td style="font-weight:700; color:var(--primary-color);">${(row[idxDistance] || '---').replace(/^"|"$/g, '')}</td>
+            </tr>`;
         });
 
         document.getElementById('table-body').innerHTML = bodyHtml;
