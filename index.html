@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #d32f2f; /* Màu đỏ lễ hội */
-            --secondary-color: #1a237e; /* Màu xanh Thượng Cát Runners */
+            --primary-color: #d32f2f; 
+            --secondary-color: #1a237e; 
             --bg-color: #f4f7f6;
             --text-color: #333;
         }
@@ -61,8 +61,6 @@
         
         .table-wrapper {
             overflow-x: auto;
-            max-height: none; 
-            border: none;
         }
 
         table {
@@ -70,6 +68,7 @@
             border-collapse: collapse;
             margin-top: 10px;
             background: white;
+            min-width: 600px;
         }
 
         th {
@@ -79,8 +78,6 @@
             padding: 15px;
             font-weight: 600;
             white-space: nowrap;
-            position: sticky;
-            top: 0;
         }
 
         td {
@@ -103,7 +100,7 @@
         @media (max-width: 600px) {
             .container { padding: 10px; border-radius: 0; }
             .header h1 { font-size: 18px; }
-            th, td { padding: 8px; font-size: 12px; }
+            th, td { padding: 10px 8px; font-size: 12px; }
             body { padding: 0; }
         }
     </style>
@@ -125,7 +122,7 @@
         <table id="runner-table">
             <thead>
                 <tr>
-                    <th>STT</th>
+                    <th style="width: 50px;">STT</th>
                     <th>Họ và Tên</th>
                     <th>Ngày sinh</th>
                     <th>Giới tính</th>
@@ -148,52 +145,77 @@
     async function fetchData() {
         try {
             const response = await fetch(csvUrl);
-            const data = await response.text();
+            const text = await response.text();
             
-            const rows = data.split('\n').map(row => {
-                const re = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-                return row.split(re).map(cell => cell.replace(/^"|"$/g, '').trim());
-            });
+            // Xử lý dữ liệu CSV chuyên sâu hơn để tránh lỗi hiển thị lung tung
+            const rows = parseCSV(text);
             
             if (rows.length > 0) {
                 renderTable(rows);
             }
         } catch (error) {
-            console.error('Lỗi kết nối:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Không thể tải dữ liệu. Anh vui lòng kiểm tra lại link CSV.</td></tr>';
+            console.error('Lỗi:', error);
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Không thể tải dữ liệu. Anh kiểm tra lại link nhé!</td></tr>';
         }
     }
 
+    // Hàm bóc tách CSV chuyên dụng
+    function parseCSV(str) {
+        const arr = [];
+        let quote = false;
+        for (let row = col = c = 0; c < str.length; c++) {
+            let cc = str[c], nc = str[c+1];
+            arr[row] = arr[row] || [];
+            arr[row][col] = arr[row][col] || '';
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+            arr[row][col] += cc;
+        }
+        return arr;
+    }
+
     function renderTable(rows) {
-        const header = rows[0];
+        const header = rows[0].map(h => h.toLowerCase().trim());
         const body = rows.slice(1);
         
-        // Xác định vị trí cột dựa trên tiêu đề trong Google Sheets của anh
-        // Em lọc theo từ khóa để tự động tìm đúng cột dù anh có chèn thêm cột khác
-        const idxName = header.findIndex(h => h.includes("Họ và tên"));
-        const idxGender = header.findIndex(h => h.includes("Giới tính"));
-        const idxDay = header.findIndex(h => h.includes("Ngày"));
-        const idxMonth = header.findIndex(h => h.includes("tháng"));
-        const idxYear = header.findIndex(h => h.includes("năm sinh"));
-        const idxClub = header.findIndex(h => h.includes("Câu lạc bộ"));
-        const idxDistance = header.findIndex(h => h.includes("Cự ly"));
+        // Tìm vị trí chính xác của từng cột dựa trên từ khóa
+        const findIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
+
+        const idxName = findIdx(['họ và tên', 'ho va ten', 'họ tên']);
+        const idxGender = findIdx(['giới tính', 'gioi tinh']);
+        const idxDay = findIdx(['ngày']);
+        const idxMonth = findIdx(['tháng']);
+        const idxYear = findIdx(['năm sinh', 'nam sinh']);
+        const idxClub = findIdx(['câu lạc bộ', 'clb', 'don vi']);
+        const idxDistance = findIdx(['cự ly', 'cu ly']);
 
         let bodyHtml = '';
         let count = 0;
 
         body.forEach((row) => {
-            if (row.length >= header.length && row[idxName]) {
+            if (row[idxName] && row[idxName].trim() !== "") {
                 count++;
-                // Ghép Ngày - Tháng - Năm sinh lại cho gọn
-                const birthDate = `${row[idxDay]}/${row[idxMonth]}/${row[idxYear]}`;
+                
+                // Gộp ngày tháng năm sinh nếu có đủ thông tin
+                const d = row[idxDay] || '';
+                const m = row[idxMonth] || '';
+                const y = row[idxYear] || '';
+                const birthDate = (d || m || y) ? `${d}/${m}/${y}` : '---';
+                
+                // Câu lạc bộ
+                const club = row[idxClub] ? row[idxClub].trim() : 'Cá nhân';
                 
                 bodyHtml += `<tr>
                     <td>${count}</td>
-                    <td style="font-weight:600;">${row[idxName]}</td>
+                    <td style="font-weight:600; color:var(--secondary-color);">${row[idxName].trim()}</td>
                     <td>${birthDate}</td>
-                    <td>${row[idxGender]}</td>
-                    <td>${row[idxClub] || 'Cá nhân'}</td>
-                    <td style="font-weight:700; color:var(--primary-color);">${row[idxDistance]}</td>
+                    <td>${row[idxGender] || '---'}</td>
+                    <td>${club}</td>
+                    <td style="font-weight:700; color:var(--primary-color);">${row[idxDistance] || '---'}</td>
                 </tr>`;
             }
         });
@@ -204,7 +226,7 @@
     }
 
     fetchData();
-    setInterval(fetchData, 60000); // Cập nhật sau mỗi 60 giây
+    setInterval(fetchData, 60000); 
 </script>
 
 </body>
