@@ -14,8 +14,8 @@
             --text-color: #333;
             --elite-color: #b8860b;
             --bg-elite: rgba(184, 134, 11, 0.08);
-            --bg-5km: rgba(211, 47, 47, 0.05);
-            --bg-3km: rgba(26, 35, 126, 0.05);
+            --bg-4km: rgba(211, 47, 47, 0.05);
+            --bg-2km: rgba(26, 35, 126, 0.05);
         }
 
         body {
@@ -124,8 +124,8 @@
         }
 
         tr.row-elite { background-color: var(--bg-elite) !important; }
-        tr.row-5km { background-color: var(--bg-5km) !important; }
-        tr.row-3km { background-color: var(--bg-3km) !important; }
+        tr.row-4km { background-color: var(--bg-4km) !important; }
+        tr.row-2km { background-color: var(--bg-2km) !important; }
         
         tr.group-divider td {
             border-bottom: 3px solid #555 !important;
@@ -134,8 +134,8 @@
         tr:hover { filter: brightness(0.95); }
 
         .color-elite { color: var(--elite-color); font-weight: 700; }
-        .color-5km { color: var(--primary-color); font-weight: 700; }
-        .color-3km { color: var(--secondary-color); font-weight: 700; }
+        .color-4km { color: var(--primary-color); font-weight: 700; }
+        .color-2km { color: var(--secondary-color); font-weight: 700; }
 
         .mobile-only { display: none; }
 
@@ -215,7 +215,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦT THỨ I</h1>
         <div class="sub-title">
             Powered by THUONG CAT RUNNERS - TCR
         </div>
@@ -225,9 +225,9 @@
         <div id="summary" class="summary-box">
             <span>Nhóm Elite: ...</span>
             <span>|</span>
-            <span>Nhóm 5KM: ...</span>
+            <span>Nhóm 4KM: ...</span>
             <span>|</span>
-            <span>Nhóm 3KM: ...</span>
+            <span>Nhóm 2KM: ...</span>
         </div>
         
         <div class="count-info">
@@ -323,7 +323,7 @@
 
         let bodyHtml = '';
         let count = 0;
-        let countElite = 0; let count5km = 0; let count3km = 0;
+        let countElite = 0; let count4km = 0; let count2km = 0;
 
         bodyData.forEach((row, index) => {
             count++;
@@ -338,16 +338,16 @@
 
             if (distLower.includes("elite")) {
                 distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++;
-            } else if (distLower.includes("5")) {
-                distClass = "color-5km"; rowClass = "row-5km"; currentDistGroup = "5km"; count5km++;
-            } else if (distLower.includes("3")) {
-                distClass = "color-3km"; rowClass = "row-3km"; currentDistGroup = "3km"; count3km++;
+            } else if (distLower.includes("4")) {
+                distClass = "color-4km"; rowClass = "row-4km"; currentDistGroup = "4km"; count4km++;
+            } else if (distLower.includes("2")) {
+                distClass = "color-2km"; rowClass = "row-2km"; currentDistGroup = "2km"; count2km++;
             }
 
             let isEndOfGroup = false;
             if (index < bodyData.length - 1) {
                 let nextDist = (bodyData[index+1][idxDistance] || "").toLowerCase();
-                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("5") ? "5km" : "3km");
+                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("4") ? "4km" : "2km");
                 if (currentDistGroup !== nextGroup) isEndOfGroup = true;
             }
 
@@ -375,9 +375,9 @@
         document.getElementById('summary').innerHTML = `
             <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
             <span>|</span>
-            <span>Nhóm 5KM: <span class="color-5km">${count5km}</span></span>
+            <span>Nhóm 4KM: <span class="color-4km">${count4km}</span></span>
             <span>|</span>
-            <span>Nhóm 3KM: <span class="color-3km">${count3km}</span></span>
+            <span>Nhóm 2KM: <span class="color-2km">${count2km}</span></span>
         `;
         document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
