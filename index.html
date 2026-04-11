@@ -215,7 +215,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦT THỨ I</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">
             Powered by THUONG CAT RUNNERS - TCR
         </div>
@@ -332,6 +332,16 @@
             let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
             let distLower = distRaw.toLowerCase();
             
+            // Xử lý hiển thị rút gọn: Chỉ lấy phần "4KM" hoặc "2KM"
+            let displayDist = distRaw;
+            if (distLower.includes("4000") || distLower.includes("4km")) {
+                displayDist = "4KM";
+            } else if (distLower.includes("2000") || distLower.includes("2km")) {
+                displayDist = "2KM";
+            } else if (distLower.includes("elite")) {
+                displayDist = "Elite";
+            }
+
             let currentDistGroup = "";
             let distClass = "";
             let rowClass = "";
@@ -363,10 +373,10 @@
                 <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                 <td class="hide-mobile">${hiddenPhone}</td>
                 <td class="hide-mobile">${clubRaw}</td>
-                <td class="hide-mobile"><span class="${distClass}">${distRaw}</span></td>
+                <td class="hide-mobile"><span class="${distClass}">${displayDist}</span></td>
                 <td class="mobile-only">
                     <div style="font-weight:500;">${clubRaw}</div>
-                    <div class="${distClass}" style="font-size:12px;">${distRaw}</div>
+                    <div class="${distClass}" style="font-size:12px;">${displayDist}</div>
                 </td>
             </tr>`;
         });
