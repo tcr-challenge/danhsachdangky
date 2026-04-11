@@ -72,6 +72,18 @@
             font-weight: 500;
         }
 
+        .announcement {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: rgba(211, 47, 47, 0.1);
+            border-left: 5px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 15px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+
         .status-bar {
             display: block;
             margin-bottom: 15px;
@@ -151,6 +163,7 @@
             .footer-column:last-child { border-bottom: none; }
             .summary-box { gap: 10px; font-size: 12px; }
             .header h1 { font-size: 18px; }
+            .announcement { font-size: 13px; padding: 10px; }
         }
 
         .footer-info {
@@ -218,6 +231,9 @@
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">
             Powered by THUONG CAT RUNNERS - TCR
+        </div>
+        <div class="announcement">
+            📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
     </div>
 
@@ -332,7 +348,6 @@
             let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
             let distLower = distRaw.toLowerCase();
             
-            // Xử lý hiển thị rút gọn: Chỉ lấy phần "4KM" hoặc "2KM"
             let displayDist = distRaw;
             if (distLower.includes("4000") || distLower.includes("4km")) {
                 displayDist = "4KM";
