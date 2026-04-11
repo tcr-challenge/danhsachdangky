@@ -109,8 +109,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
         }
 
         .table-wrapper { overflow-x: auto; }
@@ -155,72 +153,27 @@
 
         .mobile-only { display: none; }
 
+        /* FIX LỖI LỆCH CỘT TRÊN MOBILE */
         @media (max-width: 768px) {
             .container { padding: 15px; }
             table { min-width: 100%; table-layout: fixed; }
             .hide-mobile { display: none; }
             .mobile-only { display: block; font-size: 12px; margin-top: 2px; }
+            
+            /* Chia tỉ lệ cột: STT (15%), Họ Tên (45%), CLB/Cự ly (40%) */
             th:nth-child(1), td:nth-child(1) { width: 15%; text-align: center; padding: 10px 5px; }
             th:nth-child(2), td:nth-child(2) { width: 45%; padding: 10px 8px; }
             th.mobile-only, td.mobile-only { width: 40%; padding: 10px 8px; display: table-cell !important; }
+
             .header h1 { font-size: 18px; }
             .announcement { font-size: 12px; padding: 8px; }
             .summary-box { gap: 8px; font-size: 11px; padding: 8px; }
         }
 
-        /* IN PDF TRANG TRÍ */
-        @media print {
-            body { background-color: #fff; padding: 0; margin: 0; }
-            .cover-photo, .announcement, .status-bar, .btn-print-wrapper { display: none !important; }
-            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
-            
-            .print-page-wrapper {
-                page-break-after: always;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                padding: 40px;
-                box-sizing: border-box;
-            }
-
-            .print-header {
-                text-align: center;
-                border-bottom: 2px solid #000;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-
-            .print-header h1 { font-size: 18px; color: #000; text-transform: uppercase; margin: 0; }
-            
-            .print-group-title {
-                font-size: 16px;
-                font-weight: bold;
-                margin-bottom: 10px;
-                text-align: left;
-            }
-
-            table { width: 100%; border: 1px solid #000; border-collapse: collapse; }
-            th { background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #000; padding: 8px; font-size: 12px; }
-            td { border: 1px solid #000; color: #000 !important; padding: 6px 8px; font-size: 11px; }
-            
-            .hide-mobile { display: table-cell !important; }
-            .mobile-only { display: none !important; }
-
-            .print-footer {
-                margin-top: auto;
-                padding-top: 15px;
-                border-top: 1px solid #000;
-                font-size: 10px;
-                display: flex;
-                justify-content: space-between;
-                color: #333;
-            }
-        }
-
         .footer-info {
             width: 100%;
             max-width: 1000px;
-            margin-bottom: 20px;
+            margin-bottom: 60px;
             padding: 25px;
             box-sizing: border-box;
         }
@@ -250,30 +203,26 @@
             color: #444;
         }
 
-        .footer-column p { margin: 8px 0; }
-        .footer-divider { width: 1px; background-color: #ccc; margin: 0 10px; }
-        .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
-
-        .btn-print-wrapper {
-            text-align: center;
-            margin-bottom: 40px;
+        .footer-column p {
+            margin: 8px 0;
         }
 
-        .btn-print-icon {
-            background: none;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: #666;
-            transition: all 0.2s;
+        .footer-divider {
+            width: 1px;
+            background-color: #ccc;
+            margin: 0 10px;
         }
 
-        .btn-print-icon:hover {
-            background: #eee;
+        .footer-info a {
             color: var(--primary-color);
-            border-color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .footer-info a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -282,48 +231,71 @@
 <img src="images/banner.jpg" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
 
 <div class="container">
-    <div class="header" id="main-header">
+    <div class="header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
-        <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
+        <div class="sub-title">
+            Powered by THUONG CAT RUNNERS - TCR
+        </div>
         <div class="announcement">
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
     </div>
 
     <div class="status-bar">
-        <div id="summary" class="summary-box"></div>
+        <div id="summary" class="summary-box">
+            <span>Nhóm Elite: ...</span>
+            <span>|</span>
+            <span>Nhóm 4KM: ...</span>
+            <span>|</span>
+            <span>Nhóm 2KM: ...</span>
+        </div>
+        
         <div class="count-info">
             <div id="count" style="font-weight: bold; color: var(--secondary-color);">Đang kết nối dữ liệu...</div>
             <div id="update-time" style="color: #666; font-style: italic;"></div>
         </div>
     </div>
 
-    <div class="table-wrapper" id="content-to-render">
-        </div>
-</div>
-
-<div class="footer-info">
-    <div id="contact-info-block">
-        <h2>THÔNG TIN LIÊN HỆ</h2>
-        <div class="footer-grid">
-            <div class="footer-column">
-                <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
-                <p>Trưởng BTC: <strong>Nguyễn Anh Tuấn</strong> - 0968 814 606</p>
-                <p>Facebook: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners</a></p>
-                <p>Nhóm Zalo: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
-            </div>
-            <div class="footer-divider"></div>
-            <div class="footer-column">
-                <p><strong>LỄ HỘI ĐÌNH LÀNG THƯỢNG CÁT</strong></p>
-                <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a></p>
-                <p>Địa điểm: Đình làng Thượng Cát, Bắc Từ Liêm, Hà Nội</p>
-            </div>
-        </div>
+    <div class="table-wrapper">
+        <table id="runner-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">STT</th>
+                    <th>Họ và Tên</th>
+                    <th class="hide-mobile">Năm sinh</th>
+                    <th class="hide-mobile">Giới tính</th>
+                    <th class="hide-mobile">Số điện thoại</th>
+                    <th class="hide-mobile">Câu lạc bộ</th>
+                    <th class="hide-mobile">Cự ly</th>
+                    <th class="mobile-only">CLB / Cự ly</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr><td colspan="8" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div class="btn-print-wrapper">
-    <button class="btn-print-icon" onclick="window.print()" title="In danh sách">🖨️</button>
+<div class="footer-info">
+    <h2>THÔNG TIN LIÊN HỆ</h2>
+    <div class="footer-grid">
+        <div class="footer-column">
+            <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
+            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
+            <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
+            <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
+            <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
+        </div>
+        
+        <div class="footer-divider"></div>
+
+        <div class="footer-column">
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
+            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
+            <p>Bản đồ chỉ đường đi: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -337,123 +309,111 @@
             if (rows.length > 1) renderTable(rows);
         } catch (error) {
             console.error('Lỗi:', error);
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
         }
     }
 
     function renderTable(rows) {
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1);
-        const getIdx = (k) => header.findIndex(h => k.some(x => h.includes(x)));
+        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
 
         const idxName = getIdx(['họ và tên', 'họ tên', 'tên']);
         const idxGender = getIdx(['giới tính']);
-        const idxBirth = getIdx(['năm sinh', 'sinh']);
-        const idxPhone = getIdx(['số điện thoại', 'sđt']);
-        const idxClub = getIdx(['câu lạc bộ', 'clb']);
-        const idxDistance = getIdx(['cự ly']);
+        const idxBirth = getIdx(['ngày sinh', 'năm sinh', 'sinh']);
+        const idxPhone = getIdx(['số điện thoại', 'sđt', 'phone']);
+        const idxClub = getIdx(['câu lạc bộ', 'clb', 'đơn vị']);
+        const idxDistance = getIdx(['cự ly', 'cu ly']);
 
         bodyData = bodyData.filter(row => row[idxName] && row[idxName].trim() !== "");
 
-        const groups = { "Elite": [], "4KM": [], "2KM": [] };
-        bodyData.forEach(row => {
-            const dist = (row[idxDistance] || "").toLowerCase();
-            if (dist.includes("elite")) groups["Elite"].push(row);
-            else if (dist.includes("4")) groups["4KM"].push(row);
-            else if (dist.includes("2")) groups["2KM"].push(row);
+        bodyData.sort((a, b) => {
+            const distA = (a[idxDistance] || "").trim().toLowerCase();
+            const distB = (b[idxDistance] || "").trim().toLowerCase();
+            const isEliteA = distA.includes("elite");
+            const isEliteB = distB.includes("elite");
+            if (isEliteA && !isEliteB) return -1;
+            if (!isEliteA && isEliteB) return 1;
+            const getNum = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
+            const numA = getNum(distA);
+            const numB = getNum(distB);
+            if (numB !== numA) return numB - numA;
+            return (a[idxName] || "").trim().localeCompare((b[idxName] || "").trim(), 'vi');
         });
 
-        const container = document.getElementById('content-to-render');
-        container.innerHTML = '';
-        let globalCount = 0;
+        let bodyHtml = '';
+        let count = 0;
+        let countElite = 0; let count4km = 0; let count2km = 0;
 
-        for (const [groupName, runners] of Object.entries(groups)) {
-            if (runners.length === 0) continue;
+        bodyData.forEach((row, index) => {
+            count++;
+            let name = row[idxName].trim().replace(/^"|"$/g, '');
+            let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
+            let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
+            let distLower = distRaw.toLowerCase();
+            
+            let displayDist = distRaw;
+            if (distLower.includes("4000") || distLower.includes("4km")) {
+                displayDist = "4KM";
+            } else if (distLower.includes("2000") || distLower.includes("2km")) {
+                displayDist = "2KM";
+            } else if (distLower.includes("elite")) {
+                displayDist = "Elite";
+            }
 
-            // Tạo bọc cho từng nhóm để ngắt trang khi in
-            const pageWrapper = document.createElement('div');
-            pageWrapper.className = 'print-page-wrapper';
+            let currentDistGroup = "";
+            let distClass = "";
+            let rowClass = "";
 
-            // Nội dung Header cho bản in
-            const printHeader = document.createElement('div');
-            printHeader.className = 'print-header';
-            printHeader.innerHTML = `<h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>`;
-            pageWrapper.appendChild(printHeader);
+            if (distLower.includes("elite")) {
+                distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++;
+            } else if (distLower.includes("4")) {
+                distClass = "color-4km"; rowClass = "row-4km"; currentDistGroup = "4km"; count4km++;
+            } else if (distLower.includes("2")) {
+                distClass = "color-2km"; rowClass = "row-2km"; currentDistGroup = "2km"; count2km++;
+            }
 
-            const groupTitle = document.createElement('div');
-            groupTitle.className = 'print-group-title';
-            groupTitle.innerText = `CỰ LY: ${groupName}`;
-            pageWrapper.appendChild(groupTitle);
+            let isEndOfGroup = false;
+            if (index < bodyData.length - 1) {
+                let nextDist = (bodyData[index+1][idxDistance] || "").toLowerCase();
+                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("4") ? "4km" : "2km");
+                if (currentDistGroup !== nextGroup) isEndOfGroup = true;
+            }
 
-            const table = document.createElement('table');
-            table.innerHTML = `
-                <thead>
-                    <tr>
-                        <th style="width: 40px;">STT</th>
-                        <th>Họ và Tên</th>
-                        <th class="hide-mobile" style="width: 60px;">Năm sinh</th>
-                        <th class="hide-mobile" style="width: 70px;">Giới tính</th>
-                        <th class="hide-mobile">Số điện thoại</th>
-                        <th class="hide-mobile">Câu lạc bộ</th>
-                        <th class="hide-mobile" style="width: 60px;">Cự ly</th>
-                        <th class="mobile-only">CLB / Cự ly</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            `;
-            const tbody = table.querySelector('tbody');
+            let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
+            let yearOnly = birthVal.match(/\d{4}/) ? birthVal.match(/\d{4}/)[0] : '---';
+            let phoneVal = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
+            let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
 
-            runners.forEach((row, index) => {
-                globalCount++;
-                let name = row[idxName].trim();
-                let club = (row[idxClub] || 'Cá nhân').trim();
-                let phone = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
-                
-                // Hiển thị đầy đủ số điện thoại khi in
-                let displayPhone = phone || '---';
-                // Web thì ẩn bớt cho bảo mật (tùy chọn, ở đây em để đầy đủ theo ý anh)
-                
-                tbody.innerHTML += `
-                    <tr class="row-${groupName.toLowerCase()}">
-                        <td style="text-align:center;">${index + 1}</td>
-                        <td style="font-weight:600;">${name}</td>
-                        <td class="hide-mobile" style="text-align:center;">${row[idxBirth] || '---'}</td>
-                        <td class="hide-mobile" style="text-align:center;">${row[idxGender] || '---'}</td>
-                        <td class="hide-mobile">${displayPhone}</td>
-                        <td class="hide-mobile">${club}</td>
-                        <td class="hide-mobile" style="text-align:center; font-weight:bold;">${groupName}</td>
-                        <td class="mobile-only">
-                            <div>${club}</div>
-                            <div style="font-size:11px; font-weight:bold;">${groupName}</div>
-                        </td>
-                    </tr>
-                `;
-            });
-            pageWrapper.appendChild(table);
+            bodyHtml += `<tr class="${rowClass} ${isEndOfGroup ? 'group-divider' : ''}">
+                <td>${count}</td>
+                <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
+                <td class="hide-mobile">${yearOnly}</td>
+                <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
+                <td class="hide-mobile">${hiddenPhone}</td>
+                <td class="hide-mobile">${clubRaw}</td>
+                <td class="hide-mobile"><span class="${distClass}">${displayDist}</span></td>
+                <td class="mobile-only">
+                    <div style="font-weight:500;">${clubRaw}</div>
+                    <div class="${distClass}" style="font-size:12px;">${displayDist}</div>
+                </td>
+            </tr>`;
+        });
 
-            // Footer liên hệ cho bản in
-            const printFooter = document.createElement('div');
-            printFooter.className = 'print-footer';
-            printFooter.innerHTML = `
-                <div>BTC: Nguyễn Anh Tuấn - 0968 814 606</div>
-                <div>Powered by Thuong Cat Runners (TCR)</div>
-                <div>Trang: ${groupName}</div>
-            `;
-            pageWrapper.appendChild(printFooter);
-
-            container.appendChild(pageWrapper);
-        }
-
+        document.getElementById('table-body').innerHTML = bodyHtml;
         document.getElementById('summary').innerHTML = `
-            <span>Elite: <b>${groups["Elite"].length}</b></span> | 
-            <span>4KM: <b>${groups["4KM"].length}</b></span> | 
-            <span>2KM: <b>${groups["2KM"].length}</b></span>
+            <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
+            <span>|</span>
+            <span>Nhóm 4KM: <span class="color-4km">${count4km}</span></span>
+            <span>|</span>
+            <span>Nhóm 2KM: <span class="color-2km">${count2km}</span></span>
         `;
-        document.getElementById('count').innerText = `Tổng số: ${globalCount} vận động viên`;
+        document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
     fetchData();
-    setInterval(fetchData, 60000);
+    setInterval(fetchData, 60000); 
 </script>
 
 </body>
