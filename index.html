@@ -109,7 +109,26 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
+
+        .btn-print {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn-print:hover { background-color: #1b5e20; }
 
         .table-wrapper { overflow-x: auto; }
 
@@ -153,21 +172,48 @@
 
         .mobile-only { display: none; }
 
-        /* FIX LỖI LỆCH CỘT TRÊN MOBILE */
         @media (max-width: 768px) {
             .container { padding: 15px; }
             table { min-width: 100%; table-layout: fixed; }
             .hide-mobile { display: none; }
             .mobile-only { display: block; font-size: 12px; margin-top: 2px; }
-            
-            /* Chia tỉ lệ cột: STT (15%), Họ Tên (45%), CLB/Cự ly (40%) */
             th:nth-child(1), td:nth-child(1) { width: 15%; text-align: center; padding: 10px 5px; }
             th:nth-child(2), td:nth-child(2) { width: 45%; padding: 10px 8px; }
             th.mobile-only, td.mobile-only { width: 40%; padding: 10px 8px; display: table-cell !important; }
-
             .header h1 { font-size: 18px; }
             .announcement { font-size: 12px; padding: 8px; }
             .summary-box { gap: 8px; font-size: 11px; padding: 8px; }
+        }
+
+        /* STYLE DÀNH RIÊNG CHO KHI IN */
+        @media print {
+            body { background-color: #fff; }
+            .btn-print, .announcement, .cover-photo, .sub-title, .status-bar, .footer-info { display: none !important; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            .header h1 { font-size: 20px; margin-bottom: 20px; }
+            
+            /* Tự động ngắt trang khi gặp class print-page-break */
+            .print-page-break {
+                page-break-before: always;
+                margin-top: 30px;
+            }
+
+            table { min-width: 100%; table-layout: auto; border: 1px solid #000; }
+            th { background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #000; }
+            td { border: 1px solid #000; color: #000 !important; }
+            .hide-mobile { display: table-cell !important; }
+            .mobile-only { display: none !important; }
+            
+            /* Tiêu đề nhóm khi in */
+            .print-group-header {
+                font-size: 18px;
+                font-weight: bold;
+                margin: 20px 0 10px 0;
+                text-align: left;
+                text-transform: uppercase;
+                border-bottom: 2px solid #000;
+                padding-bottom: 5px;
+            }
         }
 
         .footer-info {
@@ -230,7 +276,7 @@
 
 <img src="images/banner.jpg" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
 
-<div class="container">
+<div class="container" id="printable-content">
     <div class="header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">
@@ -252,28 +298,33 @@
         
         <div class="count-info">
             <div id="count" style="font-weight: bold; color: var(--secondary-color);">Đang kết nối dữ liệu...</div>
+            <button class="btn-print" onclick="window.print()">
+                🖨️ In danh sách (Tách nhóm)
+            </button>
             <div id="update-time" style="color: #666; font-style: italic;"></div>
         </div>
     </div>
 
     <div class="table-wrapper">
-        <table id="runner-table">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">STT</th>
-                    <th>Họ và Tên</th>
-                    <th class="hide-mobile">Năm sinh</th>
-                    <th class="hide-mobile">Giới tính</th>
-                    <th class="hide-mobile">Số điện thoại</th>
-                    <th class="hide-mobile">Câu lạc bộ</th>
-                    <th class="hide-mobile">Cự ly</th>
-                    <th class="mobile-only">CLB / Cự ly</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                <tr><td colspan="8" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
-            </tbody>
-        </table>
+        <div id="dynamic-tables">
+            <table id="runner-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th>Họ và Tên</th>
+                        <th class="hide-mobile">Năm sinh</th>
+                        <th class="hide-mobile">Giới tính</th>
+                        <th class="hide-mobile">Số điện thoại</th>
+                        <th class="hide-mobile">Câu lạc bộ</th>
+                        <th class="hide-mobile">Cự ly</th>
+                        <th class="mobile-only">CLB / Cự ly</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td colspan="8" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -327,88 +378,116 @@
 
         bodyData = bodyData.filter(row => row[idxName] && row[idxName].trim() !== "");
 
+        // Sắp xếp theo thứ tự nhóm ưu tiên: Elite -> 4KM -> 2KM
         bodyData.sort((a, b) => {
             const distA = (a[idxDistance] || "").trim().toLowerCase();
             const distB = (b[idxDistance] || "").trim().toLowerCase();
-            const isEliteA = distA.includes("elite");
-            const isEliteB = distB.includes("elite");
-            if (isEliteA && !isEliteB) return -1;
-            if (!isEliteA && isEliteB) return 1;
-            const getNum = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
-            const numA = getNum(distA);
-            const numB = getNum(distB);
-            if (numB !== numA) return numB - numA;
+            
+            const getGroupPriority = (s) => {
+                if (s.includes("elite")) return 1;
+                if (s.includes("4")) return 2;
+                if (s.includes("2")) return 3;
+                return 4;
+            };
+
+            const priA = getGroupPriority(distA);
+            const priB = getGroupPriority(distB);
+
+            if (priA !== priB) return priA - priB;
             return (a[idxName] || "").trim().localeCompare((b[idxName] || "").trim(), 'vi');
         });
 
-        let bodyHtml = '';
-        let count = 0;
-        let countElite = 0; let count4km = 0; let count2km = 0;
+        // Phân loại dữ liệu thành các nhóm để phục vụ in tách trang
+        const groups = {
+            "Elite": [],
+            "4KM": [],
+            "2KM": []
+        };
 
-        bodyData.forEach((row, index) => {
-            count++;
-            let name = row[idxName].trim().replace(/^"|"$/g, '');
-            let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
-            let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
-            let distLower = distRaw.toLowerCase();
-            
-            let displayDist = distRaw;
-            if (distLower.includes("4000") || distLower.includes("4km")) {
-                displayDist = "4KM";
-            } else if (distLower.includes("2000") || distLower.includes("2km")) {
-                displayDist = "2KM";
-            } else if (distLower.includes("elite")) {
-                displayDist = "Elite";
-            }
-
-            let currentDistGroup = "";
-            let distClass = "";
-            let rowClass = "";
-
-            if (distLower.includes("elite")) {
-                distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++;
-            } else if (distLower.includes("4")) {
-                distClass = "color-4km"; rowClass = "row-4km"; currentDistGroup = "4km"; count4km++;
-            } else if (distLower.includes("2")) {
-                distClass = "color-2km"; rowClass = "row-2km"; currentDistGroup = "2km"; count2km++;
-            }
-
-            let isEndOfGroup = false;
-            if (index < bodyData.length - 1) {
-                let nextDist = (bodyData[index+1][idxDistance] || "").toLowerCase();
-                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("4") ? "4km" : "2km");
-                if (currentDistGroup !== nextGroup) isEndOfGroup = true;
-            }
-
-            let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
-            let yearOnly = birthVal.match(/\d{4}/) ? birthVal.match(/\d{4}/)[0] : '---';
-            let phoneVal = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
-            let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
-
-            bodyHtml += `<tr class="${rowClass} ${isEndOfGroup ? 'group-divider' : ''}">
-                <td>${count}</td>
-                <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
-                <td class="hide-mobile">${yearOnly}</td>
-                <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
-                <td class="hide-mobile">${hiddenPhone}</td>
-                <td class="hide-mobile">${clubRaw}</td>
-                <td class="hide-mobile"><span class="${distClass}">${displayDist}</span></td>
-                <td class="mobile-only">
-                    <div style="font-weight:500;">${clubRaw}</div>
-                    <div class="${distClass}" style="font-size:12px;">${displayDist}</div>
-                </td>
-            </tr>`;
+        bodyData.forEach(row => {
+            const dist = (row[idxDistance] || "").toLowerCase();
+            if (dist.includes("elite")) groups["Elite"].push(row);
+            else if (dist.includes("4")) groups["4KM"].push(row);
+            else if (dist.includes("2")) groups["2KM"].push(row);
         });
 
-        document.getElementById('table-body').innerHTML = bodyHtml;
+        let fullTableHtml = '';
+        let globalCount = 0;
+        
+        // Render nội dung chính cho web và xử lý logic in
+        const dynamicContainer = document.getElementById('dynamic-tables');
+        dynamicContainer.innerHTML = ''; // Clear cũ
+
+        for (const [groupName, runners] of Object.entries(groups)) {
+            if (runners.length === 0) continue;
+
+            // Header nhóm cho bản in
+            const groupHeader = document.createElement('div');
+            groupHeader.className = 'print-group-header print-page-break';
+            groupHeader.innerText = `CỰ LY: ${groupName}`;
+            dynamicContainer.appendChild(groupHeader);
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">STT</th>
+                        <th>Họ và Tên</th>
+                        <th class="hide-mobile">Năm sinh</th>
+                        <th class="hide-mobile">Giới tính</th>
+                        <th class="hide-mobile">Số điện thoại</th>
+                        <th class="hide-mobile">Câu lạc bộ</th>
+                        <th class="hide-mobile">Cự ly</th>
+                        <th class="mobile-only">CLB / Cự ly</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+
+            runners.forEach((row, index) => {
+                globalCount++;
+                let localStt = index + 1; // STT đánh lại từ 1 cho mỗi nhóm khi in
+                let name = row[idxName].trim().replace(/^"|"$/g, '');
+                let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
+                let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
+                
+                let distClass = groupName === "Elite" ? "color-elite" : (groupName === "4KM" ? "color-4km" : "color-2km");
+                let rowClass = groupName === "Elite" ? "row-elite" : (groupName === "4KM" ? "row-4km" : "row-2km");
+
+                let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
+                let yearOnly = birthVal.match(/\d{4}/) ? birthVal.match(/\d{4}/)[0] : '---';
+                let phoneVal = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
+                let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td>${localStt}</td>
+                        <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
+                        <td class="hide-mobile">${yearOnly}</td>
+                        <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
+                        <td class="hide-mobile">${hiddenPhone}</td>
+                        <td class="hide-mobile">${clubRaw}</td>
+                        <td class="hide-mobile"><span class="${distClass}">${groupName}</span></td>
+                        <td class="mobile-only">
+                            <div style="font-weight:500;">${clubRaw}</div>
+                            <div class="${distClass}" style="font-size:12px;">${groupName}</div>
+                        </td>
+                    </tr>
+                `;
+            });
+            dynamicContainer.appendChild(table);
+        }
+
+        // Cập nhật thống kê
         document.getElementById('summary').innerHTML = `
-            <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
+            <span>Nhóm Elite: <span class="color-elite">${groups["Elite"].length}</span></span>
             <span>|</span>
-            <span>Nhóm 4KM: <span class="color-4km">${count4km}</span></span>
+            <span>Nhóm 4KM: <span class="color-4km">${groups["4KM"].length}</span></span>
             <span>|</span>
-            <span>Nhóm 2KM: <span class="color-2km">${count2km}</span></span>
+            <span>Nhóm 2KM: <span class="color-2km">${groups["2KM"].length}</span></span>
         `;
-        document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
+        document.getElementById('count').innerText = `Tổng số: ${globalCount} vận động viên`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
