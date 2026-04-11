@@ -337,7 +337,7 @@
 
         let bodyHtml = '';
         let count = 0;
-        let countElite = 0; let count5km = 0; let count3km = 0;
+        let countElite = 0; let count4km = 0; let count2km = 0;
 
         bodyData.forEach((row, index) => {
             count++;
@@ -356,21 +356,21 @@
                 currentDistGroup = "elite";
                 countElite++;
             } else if (distLower.includes("5")) {
-                distClass = "color-5km";
-                rowClass = "row-5km";
-                currentDistGroup = "5km";
+                distClass = "color-4km";
+                rowClass = "row-4km";
+                currentDistGroup = "4km";
                 count5km++;
             } else if (distLower.includes("3")) {
-                distClass = "color-3km";
-                rowClass = "row-3km";
-                currentDistGroup = "3km";
+                distClass = "color-2km";
+                rowClass = "row-2km";
+                currentDistGroup = "2km";
                 count3km++;
             }
 
             let isEndOfGroup = false;
             if (index < bodyData.length - 1) {
                 let nextDist = (bodyData[index+1][idxDistance] || "").toLowerCase();
-                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("5") ? "5km" : "3km");
+                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("5") ? "4km" : "2km");
                 if (currentDistGroup !== nextGroup) isEndOfGroup = true;
             }
 
@@ -401,9 +401,9 @@
         document.getElementById('summary').innerHTML = `
             <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
             <span>|</span>
-            <span>Nhóm 5KM: <span class="color-5km">${count5km}</span></span>
+            <span>Nhóm 5KM: <span class="color-4km">${count5km}</span></span>
             <span>|</span>
-            <span>Nhóm 3KM: <span class="color-3km">${count3km}</span></span>
+            <span>Nhóm 3KM: <span class="color-2km">${count3km}</span></span>
         `;
         
         document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
