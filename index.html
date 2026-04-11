@@ -14,8 +14,8 @@
             --text-color: #333;
             --elite-color: #b8860b;
             --bg-elite: rgba(184, 134, 11, 0.08);
-            --bg-4km: rgba(211, 47, 47, 0.05);
-            --bg-2km: rgba(26, 35, 126, 0.05);
+            --bg-5km: rgba(211, 47, 47, 0.05);
+            --bg-3km: rgba(26, 35, 126, 0.05);
         }
 
         body {
@@ -139,26 +139,12 @@
 
         .mobile-only { display: none; }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        /* --- PHẦN DI ĐỘNG --- */
         @media (max-width: 768px) {
             table { min-width: 100%; }
-            
-            /* Ẩn các cột không cần thiết trên mobile */
             .hide-mobile { display: none; }
-            
-            /* Hiển thị phần gộp */
             .mobile-only { display: block; font-size: 12px; margin-top: 4px; }
-            
             th, td { padding: 10px 8px; font-size: 13px; }
             th:nth-child(1), td:nth-child(1) { width: 35px; text-align: center; }
-
             .footer-grid { flex-direction: column; }
             .footer-divider { display: none; }
             .footer-column { padding: 10px 0; border-bottom: 1px solid #ddd; }
@@ -237,11 +223,11 @@
 
     <div class="status-bar">
         <div id="summary" class="summary-box">
-            <span>Nhóm Elite: ... vận động viên</span>
+            <span>Nhóm Elite: ...</span>
             <span>|</span>
-            <span>Nhóm 4KM: ... vận động viên</span>
+            <span>Nhóm 5KM: ...</span>
             <span>|</span>
-            <span>Nhóm 2KM: ... vận động viên</span>
+            <span>Nhóm 3KM: ...</span>
         </div>
         
         <div class="count-info">
@@ -265,7 +251,7 @@
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="8" class="loading">Đang tải danh sách vận động viên...</td></tr>
+                <tr><td colspan="8" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
             </tbody>
         </table>
     </div>
@@ -287,7 +273,7 @@
         <div class="footer-column">
             <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
             <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
-            <p>Bản đồ chỉ đường đi: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank">https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7</a></p>
+            <p>Bản đồ chỉ đường đi: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
         </div>
     </div>
 </div>
@@ -337,7 +323,7 @@
 
         let bodyHtml = '';
         let count = 0;
-        let countElite = 0; let count4km = 0; let count2km = 0;
+        let countElite = 0; let count5km = 0; let count3km = 0;
 
         bodyData.forEach((row, index) => {
             count++;
@@ -351,34 +337,23 @@
             let rowClass = "";
 
             if (distLower.includes("elite")) {
-                distClass = "color-elite";
-                rowClass = "row-elite";
-                currentDistGroup = "elite";
-                countElite++;
+                distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++;
             } else if (distLower.includes("5")) {
-                distClass = "color-4km";
-                rowClass = "row-4km";
-                currentDistGroup = "4km";
-                count5km++;
+                distClass = "color-5km"; rowClass = "row-5km"; currentDistGroup = "5km"; count5km++;
             } else if (distLower.includes("3")) {
-                distClass = "color-2km";
-                rowClass = "row-2km";
-                currentDistGroup = "2km";
-                count3km++;
+                distClass = "color-3km"; rowClass = "row-3km"; currentDistGroup = "3km"; count3km++;
             }
 
             let isEndOfGroup = false;
             if (index < bodyData.length - 1) {
                 let nextDist = (bodyData[index+1][idxDistance] || "").toLowerCase();
-                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("5") ? "4km" : "2km");
+                let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("5") ? "5km" : "3km");
                 if (currentDistGroup !== nextGroup) isEndOfGroup = true;
             }
 
             let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
-            let matchYear = birthVal.match(/\d{4}/);
-            let yearOnly = matchYear ? matchYear[0] : '---';
-
-            let phoneVal = (row[idxPhone] || '').trim().replace(/^"|"$/g, '').replace(/\s/g, '');
+            let yearOnly = birthVal.match(/\d{4}/) ? birthVal.match(/\d{4}/)[0] : '---';
+            let phoneVal = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
             let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
 
             bodyHtml += `<tr class="${rowClass} ${isEndOfGroup ? 'group-divider' : ''}">
@@ -386,7 +361,7 @@
                 <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
                 <td class="hide-mobile">${yearOnly}</td>
                 <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
-                <td class="hide-mobile" style="font-family: monospace; letter-spacing: 1px;">${hiddenPhone}</td>
+                <td class="hide-mobile">${hiddenPhone}</td>
                 <td class="hide-mobile">${clubRaw}</td>
                 <td class="hide-mobile"><span class="${distClass}">${distRaw}</span></td>
                 <td class="mobile-only">
@@ -397,15 +372,13 @@
         });
 
         document.getElementById('table-body').innerHTML = bodyHtml;
-        
         document.getElementById('summary').innerHTML = `
             <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
             <span>|</span>
-            <span>Nhóm 5KM: <span class="color-4km">${count5km}</span></span>
+            <span>Nhóm 5KM: <span class="color-5km">${count5km}</span></span>
             <span>|</span>
-            <span>Nhóm 3KM: <span class="color-2km">${count3km}</span></span>
+            <span>Nhóm 3KM: <span class="color-3km">${count3km}</span></span>
         `;
-        
         document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
