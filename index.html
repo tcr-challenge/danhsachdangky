@@ -11,7 +11,7 @@
             --secondary-color: #1a237e; 
             --bg-color: #f4f7f6;
             --text-color: #333;
-            --elite-color: #b8860b; /* Màu vàng sậm cho dễ đọc trên nền trắng */
+            --elite-color: #b8860b;
         }
 
         body {
@@ -105,7 +105,6 @@
         tr:nth-child(even) { background-color: #fafafa; }
         tr:hover { background-color: #f1f1f1; }
 
-        /* Classes chỉ đổi màu chữ cự ly */
         .color-elite { color: var(--elite-color); font-weight: 700; }
         .color-5km { color: var(--primary-color); font-weight: 700; }
         .color-3km { color: var(--secondary-color); font-weight: 700; }
@@ -119,26 +118,58 @@
 
         .footer-info {
             width: 100%;
-            max-width: 900px;
-            text-align: center;
-            padding: 20px;
-            color: #444;
-            font-size: 14px;
-            line-height: 1.8;
-            margin-bottom: 50px;
+            max-width: 1000px;
+            margin-bottom: 60px;
+            padding: 25px;
+            box-sizing: border-box;
         }
 
         .footer-info h2 {
             font-size: 18px;
             color: var(--secondary-color);
-            margin-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
             text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+            font-weight: 700;
+        }
+
+        .footer-grid {
+            display: flex;
+            align-items: stretch;
+            gap: 20px;
+        }
+
+        .footer-column {
+            flex: 1;
+            padding: 0 20px;
+            font-size: 14px;
+            line-height: 1.4; /* Thu hẹp khoảng cách dòng tại đây */
+            color: #444;
+        }
+
+        .footer-column p {
+            margin: 8px 0; /* Thu hẹp khoảng cách giữa các đoạn văn */
+        }
+
+        .footer-divider {
+            width: 1px;
+            background-color: #ccc;
+            margin: 0 10px;
         }
 
         .footer-info a {
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid { flex-direction: column; }
+            .footer-divider { display: none; }
+            .footer-column { padding: 10px 0; border-bottom: 1px solid #ddd; }
+            .footer-column:last-child { border-bottom: none; }
         }
 
         @media (max-width: 600px) {
@@ -156,8 +187,7 @@
     <div class="header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">
-            Giải chạy được tổ chức bởi THƯỢNG CÁT RUNNERS - TCR<br>
-            Dưới sự chỉ đạo và đồng hành của BTC Lễ hội Đình làng Thượng Cát
+            Powered by THUONG CAT RUNNERS - TCR
         </div>
     </div>
 
@@ -188,13 +218,23 @@
 
 <div class="footer-info">
     <h2>THÔNG TIN LIÊN HỆ</h2>
-    <p><strong>Ban tổ chức giải chạy Chào mừng Lễ hội truyền thống Đình làng Thượng Cát 2026 - Lần thứ I</strong></p>
-    <p>Ông Nguyễn Anh Tuấn: <strong>0968 814 606</strong> - Trưởng ban tổ chức giải chạy - Chủ nhiệm CLB Thượng Cát Runners</p>
-    <p>
-        Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">vnshort.com/WL5A</a> | 
-        Nhóm chạy bộ TCR: <a href="https://vnshort.com/HJAh" target="_blank">vnshort.com/HJAh</a> | 
-        Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a>
-    </p>
+    <div class="footer-grid">
+        <div class="footer-column">
+            <p><strong>Ban tổ chức giải chạy</strong></p>
+            <p>Ông Nguyễn Anh Tuấn: <strong>0968 814 606</strong> - Trưởng BTC - Chủ nhiệm TCR</p>
+            <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
+            <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
+            <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
+        </div>
+        
+        <div class="footer-divider"></div>
+
+        <div class="footer-column">
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
+            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
+            <p>Bản đồ chỉ đường đi: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank">https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7</a></p>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -252,7 +292,6 @@
             let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
             let distLower = distRaw.toLowerCase();
             
-            // Xử lý Class màu sắc cho chữ cự ly
             let distClass = "";
             if (distLower.includes("elite")) {
                 distClass = "color-elite";
