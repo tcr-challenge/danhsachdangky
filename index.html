@@ -113,23 +113,6 @@
             gap: 10px;
         }
 
-        .btn-print {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-
-        .btn-print:hover { background-color: #1b5e20; }
-
         .table-wrapper { overflow-x: auto; }
 
         table {
@@ -185,41 +168,59 @@
             .summary-box { gap: 8px; font-size: 11px; padding: 8px; }
         }
 
-        /* STYLE DÀNH RIÊNG CHO KHI IN */
+        /* IN PDF TRANG TRÍ */
         @media print {
-            body { background-color: #fff; }
-            .btn-print, .announcement, .cover-photo, .sub-title, .status-bar, .footer-info { display: none !important; }
+            body { background-color: #fff; padding: 0; margin: 0; }
+            .cover-photo, .announcement, .status-bar, .btn-print-wrapper { display: none !important; }
             .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
-            .header h1 { font-size: 20px; margin-bottom: 20px; }
             
-            /* Tự động ngắt trang khi gặp class print-page-break */
-            .print-page-break {
-                page-break-before: always;
-                margin-top: 30px;
+            .print-page-wrapper {
+                page-break-after: always;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                padding: 40px;
+                box-sizing: border-box;
             }
 
-            table { min-width: 100%; table-layout: auto; border: 1px solid #000; }
-            th { background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #000; }
-            td { border: 1px solid #000; color: #000 !important; }
+            .print-header {
+                text-align: center;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+            .print-header h1 { font-size: 18px; color: #000; text-transform: uppercase; margin: 0; }
+            
+            .print-group-title {
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                text-align: left;
+            }
+
+            table { width: 100%; border: 1px solid #000; border-collapse: collapse; }
+            th { background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #000; padding: 8px; font-size: 12px; }
+            td { border: 1px solid #000; color: #000 !important; padding: 6px 8px; font-size: 11px; }
+            
             .hide-mobile { display: table-cell !important; }
             .mobile-only { display: none !important; }
-            
-            /* Tiêu đề nhóm khi in */
-            .print-group-header {
-                font-size: 18px;
-                font-weight: bold;
-                margin: 20px 0 10px 0;
-                text-align: left;
-                text-transform: uppercase;
-                border-bottom: 2px solid #000;
-                padding-bottom: 5px;
+
+            .print-footer {
+                margin-top: auto;
+                padding-top: 15px;
+                border-top: 1px solid #000;
+                font-size: 10px;
+                display: flex;
+                justify-content: space-between;
+                color: #333;
             }
         }
 
         .footer-info {
             width: 100%;
             max-width: 1000px;
-            margin-bottom: 60px;
+            margin-bottom: 20px;
             padding: 25px;
             box-sizing: border-box;
         }
@@ -249,26 +250,30 @@
             color: #444;
         }
 
-        .footer-column p {
-            margin: 8px 0;
+        .footer-column p { margin: 8px 0; }
+        .footer-divider { width: 1px; background-color: #ccc; margin: 0 10px; }
+        .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+
+        .btn-print-wrapper {
+            text-align: center;
+            margin-bottom: 40px;
         }
 
-        .footer-divider {
-            width: 1px;
-            background-color: #ccc;
-            margin: 0 10px;
+        .btn-print-icon {
+            background: none;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: #666;
+            transition: all 0.2s;
         }
 
-        .footer-info a {
+        .btn-print-icon:hover {
+            background: #eee;
             color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .footer-info a:hover {
-            color: var(--primary-hover);
-            text-decoration: underline;
+            border-color: var(--primary-color);
         }
     </style>
 </head>
@@ -276,77 +281,49 @@
 
 <img src="images/banner.jpg" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
 
-<div class="container" id="printable-content">
-    <div class="header">
+<div class="container">
+    <div class="header" id="main-header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
-        <div class="sub-title">
-            Powered by THUONG CAT RUNNERS - TCR
-        </div>
+        <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
         <div class="announcement">
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
     </div>
 
     <div class="status-bar">
-        <div id="summary" class="summary-box">
-            <span>Nhóm Elite: ...</span>
-            <span>|</span>
-            <span>Nhóm 4KM: ...</span>
-            <span>|</span>
-            <span>Nhóm 2KM: ...</span>
-        </div>
-        
+        <div id="summary" class="summary-box"></div>
         <div class="count-info">
             <div id="count" style="font-weight: bold; color: var(--secondary-color);">Đang kết nối dữ liệu...</div>
-            <button class="btn-print" onclick="window.print()">
-                🖨️ In danh sách (Tách nhóm)
-            </button>
             <div id="update-time" style="color: #666; font-style: italic;"></div>
         </div>
     </div>
 
-    <div class="table-wrapper">
-        <div id="dynamic-tables">
-            <table id="runner-table">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">STT</th>
-                        <th>Họ và Tên</th>
-                        <th class="hide-mobile">Năm sinh</th>
-                        <th class="hide-mobile">Giới tính</th>
-                        <th class="hide-mobile">Số điện thoại</th>
-                        <th class="hide-mobile">Câu lạc bộ</th>
-                        <th class="hide-mobile">Cự ly</th>
-                        <th class="mobile-only">CLB / Cự ly</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    <tr><td colspan="8" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
-                </tbody>
-            </table>
+    <div class="table-wrapper" id="content-to-render">
+        </div>
+</div>
+
+<div class="footer-info">
+    <div id="contact-info-block">
+        <h2>THÔNG TIN LIÊN HỆ</h2>
+        <div class="footer-grid">
+            <div class="footer-column">
+                <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
+                <p>Trưởng BTC: <strong>Nguyễn Anh Tuấn</strong> - 0968 814 606</p>
+                <p>Facebook: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners</a></p>
+                <p>Nhóm Zalo: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-column">
+                <p><strong>LỄ HỘI ĐÌNH LÀNG THƯỢNG CÁT</strong></p>
+                <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a></p>
+                <p>Địa điểm: Đình làng Thượng Cát, Bắc Từ Liêm, Hà Nội</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="footer-info">
-    <h2>THÔNG TIN LIÊN HỆ</h2>
-    <div class="footer-grid">
-        <div class="footer-column">
-            <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
-            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
-            <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
-            <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
-            <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
-        </div>
-        
-        <div class="footer-divider"></div>
-
-        <div class="footer-column">
-            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
-            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
-            <p>Bản đồ chỉ đường đi: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
-        </div>
-    </div>
+<div class="btn-print-wrapper">
+    <button class="btn-print-icon" onclick="window.print()" title="In danh sách">🖨️</button>
 </div>
 
 <script>
@@ -360,50 +337,24 @@
             if (rows.length > 1) renderTable(rows);
         } catch (error) {
             console.error('Lỗi:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
         }
     }
 
     function renderTable(rows) {
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1);
-        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
+        const getIdx = (k) => header.findIndex(h => k.some(x => h.includes(x)));
 
         const idxName = getIdx(['họ và tên', 'họ tên', 'tên']);
         const idxGender = getIdx(['giới tính']);
-        const idxBirth = getIdx(['ngày sinh', 'năm sinh', 'sinh']);
-        const idxPhone = getIdx(['số điện thoại', 'sđt', 'phone']);
-        const idxClub = getIdx(['câu lạc bộ', 'clb', 'đơn vị']);
-        const idxDistance = getIdx(['cự ly', 'cu ly']);
+        const idxBirth = getIdx(['năm sinh', 'sinh']);
+        const idxPhone = getIdx(['số điện thoại', 'sđt']);
+        const idxClub = getIdx(['câu lạc bộ', 'clb']);
+        const idxDistance = getIdx(['cự ly']);
 
         bodyData = bodyData.filter(row => row[idxName] && row[idxName].trim() !== "");
 
-        // Sắp xếp theo thứ tự nhóm ưu tiên: Elite -> 4KM -> 2KM
-        bodyData.sort((a, b) => {
-            const distA = (a[idxDistance] || "").trim().toLowerCase();
-            const distB = (b[idxDistance] || "").trim().toLowerCase();
-            
-            const getGroupPriority = (s) => {
-                if (s.includes("elite")) return 1;
-                if (s.includes("4")) return 2;
-                if (s.includes("2")) return 3;
-                return 4;
-            };
-
-            const priA = getGroupPriority(distA);
-            const priB = getGroupPriority(distB);
-
-            if (priA !== priB) return priA - priB;
-            return (a[idxName] || "").trim().localeCompare((b[idxName] || "").trim(), 'vi');
-        });
-
-        // Phân loại dữ liệu thành các nhóm để phục vụ in tách trang
-        const groups = {
-            "Elite": [],
-            "4KM": [],
-            "2KM": []
-        };
-
+        const groups = { "Elite": [], "4KM": [], "2KM": [] };
         bodyData.forEach(row => {
             const dist = (row[idxDistance] || "").toLowerCase();
             if (dist.includes("elite")) groups["Elite"].push(row);
@@ -411,33 +362,39 @@
             else if (dist.includes("2")) groups["2KM"].push(row);
         });
 
-        let fullTableHtml = '';
+        const container = document.getElementById('content-to-render');
+        container.innerHTML = '';
         let globalCount = 0;
-        
-        // Render nội dung chính cho web và xử lý logic in
-        const dynamicContainer = document.getElementById('dynamic-tables');
-        dynamicContainer.innerHTML = ''; // Clear cũ
 
         for (const [groupName, runners] of Object.entries(groups)) {
             if (runners.length === 0) continue;
 
-            // Header nhóm cho bản in
-            const groupHeader = document.createElement('div');
-            groupHeader.className = 'print-group-header print-page-break';
-            groupHeader.innerText = `CỰ LY: ${groupName}`;
-            dynamicContainer.appendChild(groupHeader);
+            // Tạo bọc cho từng nhóm để ngắt trang khi in
+            const pageWrapper = document.createElement('div');
+            pageWrapper.className = 'print-page-wrapper';
+
+            // Nội dung Header cho bản in
+            const printHeader = document.createElement('div');
+            printHeader.className = 'print-header';
+            printHeader.innerHTML = `<h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>`;
+            pageWrapper.appendChild(printHeader);
+
+            const groupTitle = document.createElement('div');
+            groupTitle.className = 'print-group-title';
+            groupTitle.innerText = `CỰ LY: ${groupName}`;
+            pageWrapper.appendChild(groupTitle);
 
             const table = document.createElement('table');
             table.innerHTML = `
                 <thead>
                     <tr>
-                        <th style="width: 50px;">STT</th>
+                        <th style="width: 40px;">STT</th>
                         <th>Họ và Tên</th>
-                        <th class="hide-mobile">Năm sinh</th>
-                        <th class="hide-mobile">Giới tính</th>
+                        <th class="hide-mobile" style="width: 60px;">Năm sinh</th>
+                        <th class="hide-mobile" style="width: 70px;">Giới tính</th>
                         <th class="hide-mobile">Số điện thoại</th>
                         <th class="hide-mobile">Câu lạc bộ</th>
-                        <th class="hide-mobile">Cự ly</th>
+                        <th class="hide-mobile" style="width: 60px;">Cự ly</th>
                         <th class="mobile-only">CLB / Cự ly</th>
                     </tr>
                 </thead>
@@ -447,52 +404,56 @@
 
             runners.forEach((row, index) => {
                 globalCount++;
-                let localStt = index + 1; // STT đánh lại từ 1 cho mỗi nhóm khi in
-                let name = row[idxName].trim().replace(/^"|"$/g, '');
-                let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
-                let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
+                let name = row[idxName].trim();
+                let club = (row[idxClub] || 'Cá nhân').trim();
+                let phone = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
                 
-                let distClass = groupName === "Elite" ? "color-elite" : (groupName === "4KM" ? "color-4km" : "color-2km");
-                let rowClass = groupName === "Elite" ? "row-elite" : (groupName === "4KM" ? "row-4km" : "row-2km");
-
-                let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
-                let yearOnly = birthVal.match(/\d{4}/) ? birthVal.match(/\d{4}/)[0] : '---';
-                let phoneVal = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
-                let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
-
+                // Hiển thị đầy đủ số điện thoại khi in
+                let displayPhone = phone || '---';
+                // Web thì ẩn bớt cho bảo mật (tùy chọn, ở đây em để đầy đủ theo ý anh)
+                
                 tbody.innerHTML += `
-                    <tr class="${rowClass}">
-                        <td>${localStt}</td>
-                        <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
-                        <td class="hide-mobile">${yearOnly}</td>
-                        <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
-                        <td class="hide-mobile">${hiddenPhone}</td>
-                        <td class="hide-mobile">${clubRaw}</td>
-                        <td class="hide-mobile"><span class="${distClass}">${groupName}</span></td>
+                    <tr class="row-${groupName.toLowerCase()}">
+                        <td style="text-align:center;">${index + 1}</td>
+                        <td style="font-weight:600;">${name}</td>
+                        <td class="hide-mobile" style="text-align:center;">${row[idxBirth] || '---'}</td>
+                        <td class="hide-mobile" style="text-align:center;">${row[idxGender] || '---'}</td>
+                        <td class="hide-mobile">${displayPhone}</td>
+                        <td class="hide-mobile">${club}</td>
+                        <td class="hide-mobile" style="text-align:center; font-weight:bold;">${groupName}</td>
                         <td class="mobile-only">
-                            <div style="font-weight:500;">${clubRaw}</div>
-                            <div class="${distClass}" style="font-size:12px;">${groupName}</div>
+                            <div>${club}</div>
+                            <div style="font-size:11px; font-weight:bold;">${groupName}</div>
                         </td>
                     </tr>
                 `;
             });
-            dynamicContainer.appendChild(table);
+            pageWrapper.appendChild(table);
+
+            // Footer liên hệ cho bản in
+            const printFooter = document.createElement('div');
+            printFooter.className = 'print-footer';
+            printFooter.innerHTML = `
+                <div>BTC: Nguyễn Anh Tuấn - 0968 814 606</div>
+                <div>Powered by Thuong Cat Runners (TCR)</div>
+                <div>Trang: ${groupName}</div>
+            `;
+            pageWrapper.appendChild(printFooter);
+
+            container.appendChild(pageWrapper);
         }
 
-        // Cập nhật thống kê
         document.getElementById('summary').innerHTML = `
-            <span>Nhóm Elite: <span class="color-elite">${groups["Elite"].length}</span></span>
-            <span>|</span>
-            <span>Nhóm 4KM: <span class="color-4km">${groups["4KM"].length}</span></span>
-            <span>|</span>
-            <span>Nhóm 2KM: <span class="color-2km">${groups["2KM"].length}</span></span>
+            <span>Elite: <b>${groups["Elite"].length}</b></span> | 
+            <span>4KM: <b>${groups["4KM"].length}</b></span> | 
+            <span>2KM: <b>${groups["2KM"].length}</b></span>
         `;
         document.getElementById('count').innerText = `Tổng số: ${globalCount} vận động viên`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
     fetchData();
-    setInterval(fetchData, 60000); 
+    setInterval(fetchData, 60000);
 </script>
 
 </body>
