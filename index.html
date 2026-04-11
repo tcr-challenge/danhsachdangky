@@ -117,7 +117,6 @@
             width: 100%;
             border-collapse: collapse;
             min-width: 900px;
-            table-layout: fixed;
         }
 
         th {
@@ -134,7 +133,6 @@
             border-bottom: 1px solid #eee;
             font-size: 14px;
             line-height: 1.4;
-            word-wrap: break-word;
         }
 
         tr.row-elite { background-color: var(--bg-elite) !important; }
@@ -153,21 +151,19 @@
 
         .mobile-only { display: none; }
 
-        /* FIX LỖI LỆCH CỘT TRÊN MOBILE */
         @media (max-width: 768px) {
-            .container { padding: 15px; }
-            table { min-width: 100%; table-layout: fixed; }
+            table { min-width: 100%; }
             .hide-mobile { display: none; }
-            .mobile-only { display: block; font-size: 12px; margin-top: 2px; }
-            
-            /* Chia tỉ lệ cột: STT (15%), Họ Tên (45%), CLB/Cự ly (40%) */
-            th:nth-child(1), td:nth-child(1) { width: 15%; text-align: center; padding: 10px 5px; }
-            th:nth-child(2), td:nth-child(2) { width: 45%; padding: 10px 8px; }
-            th.mobile-only, td.mobile-only { width: 40%; padding: 10px 8px; display: table-cell !important; }
-
+            .mobile-only { display: block; font-size: 12px; margin-top: 4px; }
+            th, td { padding: 10px 8px; font-size: 13px; }
+            th:nth-child(1), td:nth-child(1) { width: 35px; text-align: center; }
+            .footer-grid { flex-direction: column; }
+            .footer-divider { display: none; }
+            .footer-column { padding: 10px 0; border-bottom: 1px solid #ddd; }
+            .footer-column:last-child { border-bottom: none; }
+            .summary-box { gap: 10px; font-size: 12px; }
             .header h1 { font-size: 18px; }
-            .announcement { font-size: 12px; padding: 8px; }
-            .summary-box { gap: 8px; font-size: 11px; padding: 8px; }
+            .announcement { font-size: 13px; padding: 10px; }
         }
 
         .footer-info {
