@@ -84,6 +84,61 @@
             border-radius: 4px;
         }
 
+        /* Countdown Styles */
+        .countdown-container {
+            margin: 20px auto;
+            text-align: center;
+            max-width: 500px;
+        }
+        .countdown-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .timer-box {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 60px;
+        }
+        .timer-num {
+            display: block;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .timer-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        .reg-button {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        }
+        .reg-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+            color: white;
+        }
+
         .status-bar {
             display: block;
             margin-bottom: 15px;
@@ -235,6 +290,17 @@
         <div class="announcement">
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
+
+        <div class="countdown-container">
+            <div class="countdown-title">Thời gian đăng ký còn lại</div>
+            <div class="countdown-timer">
+                <div class="timer-box"><span class="timer-num" id="days">00</span><span class="timer-label">Ngày</span></div>
+                <div class="timer-box"><span class="timer-num" id="hours">00</span><span class="timer-label">Giờ</span></div>
+                <div class="timer-box"><span class="timer-num" id="minutes">00</span><span class="timer-label">Phút</span></div>
+                <div class="timer-box"><span class="timer-num" id="seconds">00</span><span class="timer-label">Giây</span></div>
+            </div>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdXGf_w9k1nB2E9Tf_Lp8_N5iR3Zq6_A2_vR4wK2Lq7Z5w5aA/viewform" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
+        </div>
     </div>
 
     <div class="status-bar">
@@ -296,6 +362,20 @@
 
 <script>
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
+
+    // Countdown Logic
+    const deadline = "2026-04-24T00:00:00"; 
+    function updateCountdown() {
+        const t = Date.parse(deadline) - Date.parse(new Date());
+        if (t >= 0) {
+            document.getElementById("days").innerText = Math.floor(t / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = ('0' + Math.floor((t / (1000 * 60 * 60)) % 24)).slice(-2);
+            document.getElementById("minutes").innerText = ('0' + Math.floor((t / 1000 / 60) % 60)).slice(-2);
+            document.getElementById("seconds").innerText = ('0' + Math.floor((t / 1000) % 60)).slice(-2);
+        }
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
 
     async function fetchData() {
         try {
