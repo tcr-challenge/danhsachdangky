@@ -84,13 +84,62 @@
             border-radius: 4px;
         }
 
-        /* Race Date Style */
         .race-date {
             margin-top: 15px;
             font-size: 18px;
             font-weight: 800;
             color: var(--secondary-color);
             text-transform: uppercase;
+        }
+
+        /* Search Section */
+        .search-container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #eee;
+        }
+        .search-input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 280px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-input:focus { border-color: var(--secondary-color); }
+        .search-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .search-btn:hover { opacity: 0.9; }
+        
+        .search-result-msg {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        .success-msg { color: #2e7d32; font-weight: 700; font-size: 18px; margin-bottom: 10px; }
+        .back-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #666;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 10px;
         }
 
         /* Countdown Styles */
@@ -228,6 +277,7 @@
             .summary-box { gap: 10px; font-size: 12px; }
             .header h1 { font-size: 18px; }
             .announcement { font-size: 13px; padding: 10px; }
+            .search-input { width: 100%; }
         }
 
         .footer-info {
@@ -263,9 +313,7 @@
             color: #444;
         }
 
-        .footer-column p {
-            margin: 8px 0;
-        }
+        .footer-column p { margin: 8px 0; }
 
         .footer-divider {
             width: 1px;
@@ -293,14 +341,12 @@
 <div class="container">
     <div class="header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
-        <div class="sub-title">
-            Powered by THUONG CAT RUNNERS - TCR
-        </div>
+        <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
         <div class="announcement">
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
 
-        <div class="race-date">🗓 Ngày Race: 6h00 - 7h30  ngày 27/04/2026 (11/03 âm lịch)</div>
+        <div class="race-date">🗓 Ngày Race: 26/04/2026</div>
 
         <div class="countdown-container">
             <div class="countdown-title">Thời gian đăng ký còn lại</div>
@@ -314,7 +360,17 @@
         </div>
     </div>
 
-    <div class="status-bar">
+    <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên hoặc Số điện thoại...">
+        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
+    </div>
+
+    <div id="search-result-area" class="search-result-msg">
+        <div id="msg-text" class="success-msg">Bạn đã đăng ký giải chạy</div>
+        <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Quay về trang ban đầu</a>
+    </div>
+
+    <div class="status-bar" id="status-bar">
         <div id="summary" class="summary-box">
             <span>Nhóm Elite: ...</span>
             <span>|</span>
@@ -373,9 +429,10 @@
 
 <script>
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
+    let allRunnersData = [];
 
     // Countdown Logic
-    const deadline = "2026-04-23T23:59:00"; 
+    const deadline = "2026-04-24T00:00:00"; 
     function updateCountdown() {
         const t = Date.parse(deadline) - Date.parse(new Date());
         if (t >= 0) {
@@ -393,14 +450,60 @@
             const response = await fetch(tsvUrl);
             const text = await response.text();
             const rows = text.split('\n').map(row => row.split('\t'));
-            if (rows.length > 1) renderTable(rows);
+            if (rows.length > 1) {
+                allRunnersData = rows;
+                renderTable(rows);
+            }
         } catch (error) {
             console.error('Lỗi:', error);
             document.getElementById('table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
         }
     }
 
-    function renderTable(rows) {
+    function handleSearch() {
+        const input = document.getElementById('search-input').value.trim().toLowerCase();
+        if (!input) { resetTable(); return; }
+
+        const header = allRunnersData[0].map(h => h.toLowerCase().trim());
+        const bodyData = allRunnersData.slice(1);
+        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
+
+        const idxName = getIdx(['họ và tên', 'họ tên', 'tên']);
+        const idxPhone = getIdx(['số điện thoại', 'sđt', 'phone']);
+
+        const filtered = bodyData.filter(row => {
+            const name = (row[idxName] || "").toLowerCase();
+            const phone = (row[idxPhone] || "").replace(/[^0-9]/g, "");
+            return name.includes(input) || phone.includes(input);
+        });
+
+        const resultArea = document.getElementById('search-result-area');
+        const msgText = document.getElementById('msg-text');
+        const statusBar = document.getElementById('status-bar');
+
+        if (filtered.length > 0) {
+            renderTable([allRunnersData[0], ...filtered], true);
+            resultArea.style.display = 'block';
+            msgText.innerText = "Bạn đã đăng ký giải chạy";
+            msgText.style.color = "#2e7d32";
+            statusBar.style.display = 'none';
+        } else {
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:red; font-weight:bold;">Không tìm thấy thông tin vận động viên</td></tr>';
+            resultArea.style.display = 'block';
+            msgText.innerText = "Không tìm thấy tên";
+            msgText.style.color = "red";
+            statusBar.style.display = 'none';
+        }
+    }
+
+    function resetTable() {
+        document.getElementById('search-input').value = "";
+        document.getElementById('search-result-area').style.display = 'none';
+        document.getElementById('status-bar').style.display = 'block';
+        renderTable(allRunnersData);
+    }
+
+    function renderTable(rows, isSearch = false) {
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1);
         const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
@@ -414,19 +517,21 @@
 
         bodyData = bodyData.filter(row => row[idxName] && row[idxName].trim() !== "");
 
-        bodyData.sort((a, b) => {
-            const distA = (a[idxDistance] || "").trim().toLowerCase();
-            const distB = (b[idxDistance] || "").trim().toLowerCase();
-            const isEliteA = distA.includes("elite");
-            const isEliteB = distB.includes("elite");
-            if (isEliteA && !isEliteB) return -1;
-            if (!isEliteA && isEliteB) return 1;
-            const getNum = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
-            const numA = getNum(distA);
-            const numB = getNum(distB);
-            if (numB !== numA) return numB - numA;
-            return (a[idxName] || "").trim().localeCompare((b[idxName] || "").trim(), 'vi');
-        });
+        if(!isSearch) {
+            bodyData.sort((a, b) => {
+                const distA = (a[idxDistance] || "").trim().toLowerCase();
+                const distB = (b[idxDistance] || "").trim().toLowerCase();
+                const isEliteA = distA.includes("elite");
+                const isEliteB = distB.includes("elite");
+                if (isEliteA && !isEliteB) return -1;
+                if (!isEliteA && isEliteB) return 1;
+                const getNum = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
+                const numA = getNum(distA);
+                const numB = getNum(distB);
+                if (numB !== numA) return numB - numA;
+                return (a[idxName] || "").trim().localeCompare((b[idxName] || "").trim(), 'vi');
+            });
+        }
 
         let bodyHtml = '';
         let count = 0;
@@ -440,35 +545,23 @@
             let distLower = distRaw.toLowerCase();
             
             let displayDist = distRaw;
-            if (distLower.includes("4000") || distLower.includes("4km")) {
-                displayDist = "4KM";
-            } else if (distLower.includes("2000") || distLower.includes("2km")) {
-                displayDist = "2KM";
-            } else if (distLower.includes("elite")) {
-                displayDist = "Elite";
-            }
+            if (distLower.includes("4000") || distLower.includes("4km")) displayDist = "4KM";
+            else if (distLower.includes("2000") || distLower.includes("2km")) displayDist = "2KM";
+            else if (distLower.includes("elite")) displayDist = "Elite";
 
-            let currentDistGroup = "";
-            let distClass = "";
-            let rowClass = "";
-
-            if (distLower.includes("elite")) {
-                distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++;
-            } else if (distLower.includes("4")) {
-                distClass = "color-4km"; rowClass = "row-4km"; currentDistGroup = "4km"; count4km++;
-            } else if (distLower.includes("2")) {
-                distClass = "color-2km"; rowClass = "row-2km"; currentDistGroup = "2km"; count2km++;
-            }
+            let distClass = "", rowClass = "", currentDistGroup = "";
+            if (distLower.includes("elite")) { distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++; }
+            else if (distLower.includes("4")) { distClass = "color-4km"; rowClass = "row-4km"; currentDistGroup = "4km"; count4km++; }
+            else if (distLower.includes("2")) { distClass = "color-2km"; rowClass = "row-2km"; currentDistGroup = "2km"; count2km++; }
 
             let isEndOfGroup = false;
-            if (index < bodyData.length - 1) {
+            if (!isSearch && index < bodyData.length - 1) {
                 let nextDist = (bodyData[index+1][idxDistance] || "").toLowerCase();
                 let nextGroup = nextDist.includes("elite") ? "elite" : (nextDist.includes("4") ? "4km" : "2km");
                 if (currentDistGroup !== nextGroup) isEndOfGroup = true;
             }
 
-            let birthVal = (row[idxBirth] || '').trim().replace(/^"|"$/g, '');
-            let yearOnly = birthVal.match(/\d{4}/) ? birthVal.match(/\d{4}/)[0] : '---';
+            let yearOnly = (row[idxBirth] || '').match(/\d{4}/) ? (row[idxBirth] || '').match(/\d{4}/)[0] : '---';
             let phoneVal = (row[idxPhone] || '').trim().replace(/[^0-9]/g, '');
             let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
 
@@ -488,15 +581,17 @@
         });
 
         document.getElementById('table-body').innerHTML = bodyHtml;
-        document.getElementById('summary').innerHTML = `
-            <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
-            <span>|</span>
-            <span>Nhóm 4KM: <span class="color-4km">${count4km}</span></span>
-            <span>|</span>
-            <span>Nhóm 2KM: <span class="color-2km">${count2km}</span></span>
-        `;
-        document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
-        document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
+        if(!isSearch) {
+            document.getElementById('summary').innerHTML = `
+                <span>Nhóm Elite: <span class="color-elite">${countElite}</span></span>
+                <span>|</span>
+                <span>Nhóm 4KM: <span class="color-4km">${count4km}</span></span>
+                <span>|</span>
+                <span>Nhóm 2KM: <span class="color-2km">${count2km}</span></span>
+            `;
+            document.getElementById('count').innerText = `Tổng số: ${count} vận động viên`;
+            document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
+        }
     }
 
     fetchData();
