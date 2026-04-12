@@ -91,6 +91,13 @@
             color: var(--secondary-color);
             text-transform: uppercase;
         }
+        
+        .registration-deadline {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
 
         /* Search Section */
         .search-container {
@@ -346,7 +353,8 @@
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
 
-        <div class="race-date">🗓 Ngày Race: 26/04/2026</div>
+        <div class="race-date">🗓 Ngày Race: 27/04/2026 (11/03 Âm lịch)</div>
+        <div class="registration-deadline">Hạn Đăng Ký: 23/04/2026</div>
 
         <div class="countdown-container">
             <div class="countdown-title">Thời gian đăng ký còn lại</div>
@@ -432,7 +440,7 @@
     let allRunnersData = [];
 
     // Countdown Logic
-    const deadline = "2026-04-24T00:00:00"; 
+    const deadline = "2026-04-23T23:59:00"; 
     function updateCountdown() {
         const t = Date.parse(deadline) - Date.parse(new Date());
         if (t >= 0) {
@@ -440,6 +448,11 @@
             document.getElementById("hours").innerText = ('0' + Math.floor((t / (1000 * 60 * 60)) % 24)).slice(-2);
             document.getElementById("minutes").innerText = ('0' + Math.floor((t / 1000 / 60) % 60)).slice(-2);
             document.getElementById("seconds").innerText = ('0' + Math.floor((t / 1000) % 60)).slice(-2);
+        } else {
+            document.getElementById("days").innerText = "00";
+            document.getElementById("hours").innerText = "00";
+            document.getElementById("minutes").innerText = "00";
+            document.getElementById("seconds").innerText = "00";
         }
     }
     setInterval(updateCountdown, 1000);
