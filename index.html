@@ -84,9 +84,18 @@
             border-radius: 4px;
         }
 
+        /* Race Date Style */
+        .race-date {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+        }
+
         /* Countdown Styles */
         .countdown-container {
-            margin: 20px auto;
+            margin: 10px auto;
             text-align: center;
             max-width: 500px;
         }
@@ -291,6 +300,8 @@
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
         </div>
 
+        <div class="race-date">🗓 Ngày Race: 26/04/2026</div>
+
         <div class="countdown-container">
             <div class="countdown-title">Thời gian đăng ký còn lại</div>
             <div class="countdown-timer">
@@ -299,7 +310,7 @@
                 <div class="timer-box"><span class="timer-num" id="minutes">00</span><span class="timer-label">Phút</span></div>
                 <div class="timer-box"><span class="timer-num" id="seconds">00</span><span class="timer-label">Giây</span></div>
             </div>
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSep7c58HTO42dPTIhWU4NW5lwNPYNPuwirgXymek0WT5O9gFg/viewform" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdXGf_w9k1nB2E9Tf_Lp8_N5iR3Zq6_A2_vR4wK2Lq7Z5w5aA/viewform" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
         </div>
     </div>
 
@@ -353,7 +364,7 @@
         <div class="footer-divider"></div>
 
         <div class="footer-column">
-            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀOO THƯỢNG CÁT 2026</strong></p>
             <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
             <p>Bản đồ chỉ đường đi: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
         </div>
@@ -364,7 +375,7 @@
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
 
     // Countdown Logic
-    const deadline = "2026-04-23T23:59:00"; 
+    const deadline = "2026-04-24T00:00:00"; 
     function updateCountdown() {
         const t = Date.parse(deadline) - Date.parse(new Date());
         if (t >= 0) {
