@@ -268,6 +268,14 @@
         .color-elite { color: var(--elite-color); font-weight: 700; }
         .color-4km { color: var(--primary-color); font-weight: 700; }
         .color-2km { color: var(--secondary-color); font-weight: 700; }
+        .bib-tag { 
+            background: #333; 
+            color: #fff; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-weight: 800; 
+            font-size: 13px;
+        }
 
         .mobile-only { display: none; }
 
@@ -398,17 +406,18 @@
             <thead>
                 <tr>
                     <th style="width: 50px;">STT</th>
+                    <th class="hide-mobile" style="width: 80px;">BIB</th>
                     <th>Họ và Tên</th>
                     <th class="hide-mobile">Năm sinh</th>
                     <th class="hide-mobile">Giới tính</th>
                     <th class="hide-mobile">Số điện thoại</th>
                     <th class="hide-mobile">Câu lạc bộ</th>
                     <th class="hide-mobile">Cự ly</th>
-                    <th class="mobile-only">CLB / Cự ly</th>
+                    <th class="mobile-only">BIB / CLB / Cự ly</th>
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="8" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
             </tbody>
         </table>
     </div>
@@ -469,7 +478,7 @@
             }
         } catch (error) {
             console.error('Lỗi:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="9" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
         }
     }
 
@@ -501,7 +510,7 @@
             msgText.style.color = "#2e7d32";
             statusBar.style.display = 'none';
         } else {
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:red; font-weight:bold;">Không tìm thấy thông tin vận động viên</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:red; font-weight:bold;">Không tìm thấy thông tin vận động viên</td></tr>';
             resultArea.style.display = 'block';
             msgText.innerText = "Không tìm thấy tên";
             msgText.style.color = "red";
@@ -527,6 +536,7 @@
         const idxPhone = getIdx(['số điện thoại', 'sđt', 'phone']);
         const idxClub = getIdx(['câu lạc bộ', 'clb', 'đơn vị']);
         const idxDistance = getIdx(['cự ly', 'cu ly']);
+        const idxBib = getIdx(['bib']);
 
         bodyData = bodyData.filter(row => row[idxName] && row[idxName].trim() !== "");
 
@@ -555,6 +565,7 @@
             let name = row[idxName].trim().replace(/^"|"$/g, '');
             let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
             let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
+            let bibRaw = (row[idxBib] || '---').replace(/^"|"$/g, '').trim();
             let distLower = distRaw.toLowerCase();
             
             let displayDist = distRaw;
@@ -580,7 +591,11 @@
 
             bodyHtml += `<tr class="${rowClass} ${isEndOfGroup ? 'group-divider' : ''}">
                 <td>${count}</td>
-                <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
+                <td class="hide-mobile"><span class="bib-tag">${bibRaw}</span></td>
+                <td style="font-weight:600; color:var(--secondary-color);">
+                    ${name}
+                    <div class="mobile-only" style="margin-top:2px;"><span class="bib-tag">${bibRaw}</span></div>
+                </td>
                 <td class="hide-mobile">${yearOnly}</td>
                 <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                 <td class="hide-mobile">${hiddenPhone}</td>
