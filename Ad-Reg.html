@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN - Quản Lý Danh Sách TCR 2026</title>
+    <title>ADMIN FULL EDIT - TCR 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --admin-primary: #2c3e50;
+            --admin-primary: #1a237e;
             --admin-accent: #e67e22;
-            --bg-color: #ecf0f1;
+            --bg-color: #f4f7f6;
             --elite-color: #b8860b;
             --4km-color: #d32f2f;
             --2km-color: #1a237e;
@@ -20,32 +20,47 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .admin-title { color: var(--admin-primary); text-transform: uppercase; font-weight: 800; margin: 0; font-size: 20px; }
         .refresh-status { font-size: 12px; color: #666; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; }
+        
         .search-box { width: 100%; margin-bottom: 15px; display: flex; gap: 5px; }
-        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; outline: none; }
+        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; outline: none; font-size: 16px; }
+
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .stat-card { padding: 10px; border-radius: 6px; text-align: center; color: white; font-weight: 700; }
         .stat-elite { background: var(--elite-color); }
         .stat-4km { background: var(--4km-color); }
         .stat-2km { background: var(--2km-color); }
         .stat-total { background: var(--admin-primary); }
+
         .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
-        th { background: var(--admin-primary); color: white; padding: 12px 8px; text-align: left; position: sticky; top: 0; }
-        td { padding: 10px 8px; border-bottom: 1px solid #eee; }
-        tr.group-divider td { border-bottom: 9px solid #333 !important; }
-        .bib-tag { color: white; padding: 4px 8px; border-radius: 4px; font-weight: 800; display: inline-block; }
-        tr:hover { background: #f1f4f6; }
-        .edit-btn { cursor: pointer; color: var(--admin-accent); font-size: 16px; margin-right: 8px; border: none; background: none; }
-        .save-btn { cursor: pointer; color: #27ae60; font-weight: bold; border: 1px solid #27ae60; padding: 2px 5px; border-radius: 3px; display: none; }
-        input.edit-mode { width: 90%; padding: 4px; border: 1px solid var(--admin-accent); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; }
+        th { background: var(--admin-primary); color: white; padding: 15px 10px; text-align: left; position: sticky; top: 0; z-index: 10; }
+        td { padding: 12px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        
+        tr.group-divider td { border-bottom: 9px solid #555 !important; }
+        
+        .bib-tag { color: white; padding: 3px 10px; border-radius: 4px; font-weight: 800; display: inline-block; min-width: 45px; text-align: center; }
+        
+        .btn-action { cursor: pointer; border: none; background: none; font-size: 18px; padding: 5px; transition: transform 0.2s; }
+        .btn-action:hover { transform: scale(1.2); }
+        .save-btn { color: white; background: #27ae60; border: none; padding: 6px 12px; border-radius: 4px; display: none; font-weight: bold; cursor: pointer; }
+        
+        input.edit-mode { width: 95%; padding: 8px; border: 2px solid var(--admin-accent); border-radius: 4px; font-family: inherit; font-size: 13px; box-sizing: border-box; }
+        tr:hover { background: #f8f9fa; }
+
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; color: white; flex-direction: column; }
     </style>
 </head>
 <body>
 
+<div id="loader" class="loading-overlay">
+    <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+    <div>Đang cập nhật lên Google Sheets...</div>
+</div>
+
 <div class="admin-container">
     <div class="admin-header">
-        <h1 class="admin-title">Bảng Điều Khiển Admin TCR</h1>
-        <div class="refresh-status" id="update-time">Đang tải...</div>
+        <h1 class="admin-title">Bảng Điều Khiển Admin (Toàn quyền sửa)</h1>
+        <div class="refresh-status" id="update-time">Đang tải dữ liệu...</div>
     </div>
 
     <div class="summary-grid">
@@ -56,32 +71,37 @@
     </div>
 
     <div class="search-box">
-        <input type="text" id="admin-search" placeholder="Tìm tên, SĐT, CLB hoặc BIB..." oninput="handleAdminSearch()">
+        <input type="text" id="admin-search" placeholder="Tìm kiếm nhanh vận động viên..." oninput="handleAdminSearch()">
     </div>
 
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
-                    <th>Sửa</th>
-                    <th>STT</th>
-                    <th>BIB</th>
+                    <th style="width: 80px;">Sửa</th>
+                    <th style="width: 50px;">STT</th>
+                    <th style="width: 100px;">BIB</th>
                     <th>Họ và Tên</th>
-                    <th>SĐT</th>
                     <th>Năm sinh</th>
-                    <th>G.Tính</th>
-                    <th>Cự ly</th>
+                    <th>Giới tính</th>
+                    <th>Số điện thoại</th>
                     <th>Câu lạc bộ</th>
+                    <th style="width: 120px;">Cự ly</th>
                 </tr>
             </thead>
-            <tbody id="admin-table-body"></tbody>
+            <tbody id="admin-table-body">
+                <tr><td colspan="9" style="text-align:center; padding: 50px;">Đang đồng bộ dữ liệu...</td></tr>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
-    const scriptUrl = 'ĐƯỜNG_DẪN_WEB_APP_URL_CỦA_ANH_VÀO_ĐÂY'; // <--- QUAN TRỌNG: Dán URL ở bước 1 vào đây
+    
+    // !!! QUAN TRỌNG: Anh dán link Web App từ Apps Script vào đây để nút Lưu hoạt động !!!
+    const scriptUrl = 'LINK_WEB_APP_CỦA_ANH'; 
+
     let rawData = [];
 
     async function fetchAdminData() {
@@ -98,73 +118,131 @@
 
     function renderAdminTable(rows, isSearch = false) {
         const header = rows[0].map(h => h.toLowerCase().trim());
-        let bodyData = rows.slice(1).filter(r => r[0]); 
+        let bodyData = rows.slice(1).filter(r => r[1] && r[1].trim() !== ""); 
         
+        if(!isSearch) {
+            bodyData.sort((a, b) => {
+                const dA = (a[7]||"").toLowerCase();
+                const dB = (b[7]||"").toLowerCase();
+                const isEA = dA.includes("elite");
+                const isEB = dB.includes("elite");
+                if(isEA && !isEB) return -1;
+                if(!isEA && isEB) return 1;
+                const getN = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
+                const numA = getN(dA);
+                const numB = getN(dB);
+                if (numB !== numA) return numB - numA;
+                return (a[1] || "").trim().localeCompare((b[1] || "").trim(), 'vi');
+            });
+        }
+
         let html = '';
         let cE = 0, c4 = 0, c2 = 0;
 
         bodyData.forEach((r, i) => {
-            let dist = (r[7]||"").toLowerCase();
-            let color = dist.includes("elite") ? "var(--elite-color)" : (dist.includes("4") ? "var(--4km-color)" : "var(--2km-color)");
-            if(dist.includes("elite")) cE++; else if(dist.includes("4")) c4++; else c2++;
+            let distRaw = (r[7]||"").toLowerCase();
+            let color = "#333";
+            if(distRaw.includes("elite")) { color = "var(--elite-color)"; cE++; }
+            else if(distRaw.includes("4")) { color = "var(--4km-color)"; c4++; }
+            else if(distRaw.includes("2")) { color = "var(--2km-color)"; c2++; }
 
-            html += `<tr id="row-${r[0]}">
+            let isEnd = false;
+            if(!isSearch && i < bodyData.length - 1) {
+                let nextD = (bodyData[i+1][7]||"").toLowerCase();
+                let curG = distRaw.includes("elite")?"e":(distRaw.includes("4")?"4":"2");
+                let nxtG = nextD.includes("elite")?"e":(nextD.includes("4")?"4":"2");
+                if(curG !== nxtG) isEnd = true;
+            }
+
+            html += `<tr id="row-${r[0]}" class="${isEnd?'group-divider':''}">
                 <td>
-                    <button class="edit-btn" onclick="enableEdit('${r[0]}')">✏️</button>
-                    <button class="save-btn" id="save-${r[0]}" onclick="saveEdit('${r[0]}')">Lưu</button>
+                    <button class="btn-action edit-icon" onclick="enableEdit('${r[0]}')">✏️</button>
+                    <button class="save-btn" id="save-${r[0]}" onclick="saveEdit('${r[0]}')">LƯU</button>
                 </td>
-                <td>${r[0]}</td>
-                <td><span class="bib-tag" style="background:${color}">${r[8]||'---'}</span></td>
-                <td class="data-name">${r[1]}</td>
-                <td class="data-phone">${r[4]}</td>
+                <td class="data-stt">${r[0]}</td>
+                <td class="data-bib"><span class="bib-tag" style="background:${color}">${r[8]||'---'}</span></td>
+                <td class="data-name" style="font-weight:600; color:var(--admin-primary);">${r[1]}</td>
                 <td class="data-birth">${r[2]}</td>
-                <td>${r[3]}</td>
-                <td style="color:${color}; font-weight:bold">${r[7]}</td>
-                <td>${r[6]}</td>
+                <td class="data-sex">${r[3]}</td>
+                <td class="data-phone">${r[4]}</td>
+                <td class="data-club">${r[6] || "Cá nhân"}</td>
+                <td class="data-dist" style="color:${color}; font-weight:bold">${r[7]}</td>
             </tr>`;
         });
 
         document.getElementById('admin-table-body').innerHTML = html;
-        document.getElementById('total-count').innerText = bodyData.length;
-        document.getElementById('elite-count').innerText = cE;
-        document.getElementById('4km-count').innerText = c4;
-        document.getElementById('2km-count').innerText = c2;
+        if(!isSearch) {
+            document.getElementById('total-count').innerText = bodyData.length;
+            document.getElementById('elite-count').innerText = cE;
+            document.getElementById('4km-count').innerText = c4;
+            document.getElementById('2km-count').innerText = c2;
+            document.getElementById('update-time').innerText = "Cập nhật lúc: " + new Date().toLocaleTimeString();
+        }
     }
 
     function enableEdit(stt) {
         const row = document.getElementById(`row-${stt}`);
-        const nameCell = row.querySelector('.data-name');
-        const phoneCell = row.querySelector('.data-phone');
-        const birthCell = row.querySelector('.data-birth');
+        const fields = ['bib', 'name', 'birth', 'sex', 'phone', 'club', 'dist'];
+        
+        fields.forEach(f => {
+            const cell = row.querySelector(`.data-${f}`);
+            let val = cell.innerText;
+            // Xử lý riêng cột BIB vì nó nằm trong thẻ span
+            if(f === 'bib' && cell.querySelector('.bib-tag')) {
+                val = cell.querySelector('.bib-tag').innerText;
+            }
+            cell.innerHTML = `<input type="text" class="edit-mode" value="${val}">`;
+        });
 
-        nameCell.innerHTML = `<input type="text" class="edit-mode" value="${nameCell.innerText}">`;
-        phoneCell.innerHTML = `<input type="text" class="edit-mode" value="${phoneCell.innerText}">`;
-        birthCell.innerHTML = `<input type="text" class="edit-mode" value="${birthCell.innerText}">`;
-
-        row.querySelector('.edit-btn').style.display = 'none';
+        row.querySelector('.edit-icon').style.display = 'none';
         row.querySelector('.save-btn').style.display = 'inline-block';
     }
 
     async function saveEdit(stt) {
         const row = document.getElementById(`row-${stt}`);
-        const newName = row.querySelector('.data-name input').value;
-        const newPhone = row.querySelector('.data-phone input').value;
-        const newBirth = row.querySelector('.data-birth input').value;
+        const loader = document.getElementById('loader');
+        
+        const data = {
+            stt: stt,
+            bib: row.querySelector('.data-bib input').value,
+            name: row.querySelector('.data-name input').value,
+            birth: row.querySelector('.data-birth input').value,
+            sex: row.querySelector('.data-sex input').value,
+            phone: row.querySelector('.data-phone input').value,
+            club: row.querySelector('.data-club input').value,
+            dist: row.querySelector('.data-dist input').value
+        };
 
-        // Gửi dữ liệu về Google Script
+        loader.style.display = 'flex';
+
         try {
-            const response = await fetch(scriptUrl, {
+            await fetch(scriptUrl, {
                 method: 'POST',
-                body: JSON.stringify({ stt: stt, name: newName, phone: newPhone, birth: newBirth })
+                mode: 'no-cors',
+                body: JSON.stringify(data)
             });
-            alert("Đã cập nhật dữ liệu lên Google Sheet!");
-            fetchAdminData(); // Tải lại bảng
+            
+            setTimeout(() => {
+                loader.style.display = 'none';
+                alert("Đã cập nhật dữ liệu thành công!");
+                fetchAdminData();
+            }, 1500);
+            
         } catch (e) {
-            alert("Lỗi kết nối! Hãy kiểm tra lại Script URL.");
+            loader.style.display = 'none';
+            alert("Lỗi kết nối! Kiểm tra lại Script URL.");
         }
     }
 
+    function handleAdminSearch() {
+        const val = document.getElementById('admin-search').value.toLowerCase();
+        if(!val) { renderAdminTable(rawData); return; }
+        const filtered = [rawData[0], ...rawData.slice(1).filter(r => r.join(' ').toLowerCase().includes(val))];
+        renderAdminTable(filtered, true);
+    }
+
     fetchAdminData();
+    setInterval(fetchAdminData, 60000); 
 </script>
 </body>
 </html>
