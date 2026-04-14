@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN - Quản Lý Danh Sách TCR 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --admin-primary: #2c3e50;
+            --admin-accent: #e67e22;
+            --bg-color: #ecf0f1;
+            --elite-color: #b8860b;
+            --4km-color: #d32f2f;
+            --2km-color: #1a237e;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 10px; }
+        .admin-container { max-width: 100%; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-top: 5px solid var(--admin-primary); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .admin-title { color: var(--admin-primary); text-transform: uppercase; font-weight: 800; margin: 0; font-size: 20px; }
+        .refresh-status { font-size: 12px; color: #666; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; }
+        .search-box { width: 100%; margin-bottom: 15px; display: flex; gap: 5px; }
+        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; outline: none; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { padding: 10px; border-radius: 6px; text-align: center; color: white; font-weight: 700; }
+        .stat-elite { background: var(--elite-color); }
+        .stat-4km { background: var(--4km-color); }
+        .stat-2km { background: var(--2km-color); }
+        .stat-total { background: var(--admin-primary); }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        th { background: var(--admin-primary); color: white; padding: 12px 8px; text-align: left; position: sticky; top: 0; }
+        td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+        tr.group-divider td { border-bottom: 9px solid #333 !important; }
+        .bib-tag { color: white; padding: 4px 8px; border-radius: 4px; font-weight: 800; display: inline-block; }
+        tr:hover { background: #f1f4f6; }
+        .edit-btn { cursor: pointer; color: var(--admin-accent); font-size: 16px; margin-right: 8px; border: none; background: none; }
+        .save-btn { cursor: pointer; color: #27ae60; font-weight: bold; border: 1px solid #27ae60; padding: 2px 5px; border-radius: 3px; display: none; }
+        input.edit-mode { width: 90%; padding: 4px; border: 1px solid var(--admin-accent); }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">Bảng Điều Khiển Admin TCR</h1>
+        <div class="refresh-status" id="update-time">Đang tải...</div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="stat-card stat-total">Tổng: <span id="total-count">0</span></div>
+        <div class="stat-card stat-elite">Elite: <span id="elite-count">0</span></div>
+        <div class="stat-card stat-4km">4KM: <span id="4km-count">0</span></div>
+        <div class="stat-card stat-2km">2KM: <span id="2km-count">0</span></div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="admin-search" placeholder="Tìm tên, SĐT, CLB hoặc BIB..." oninput="handleAdminSearch()">
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sửa</th>
+                    <th>STT</th>
+                    <th>BIB</th>
+                    <th>Họ và Tên</th>
+                    <th>SĐT</th>
+                    <th>Năm sinh</th>
+                    <th>G.Tính</th>
+                    <th>Cự ly</th>
+                    <th>Câu lạc bộ</th>
+                </tr>
+            </thead>
+            <tbody id="admin-table-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
+    const scriptUrl = 'ĐƯỜNG_DẪN_WEB_APP_URL_CỦA_ANH_VÀO_ĐÂY'; // <--- QUAN TRỌNG: Dán URL ở bước 1 vào đây
+    let rawData = [];
+
+    async function fetchAdminData() {
+        try {
+            const response = await fetch(tsvUrl);
+            const text = await response.text();
+            const rows = text.split('\n').map(row => row.split('\t'));
+            if (rows.length > 1) {
+                rawData = rows;
+                renderAdminTable(rows);
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    function renderAdminTable(rows, isSearch = false) {
+        const header = rows[0].map(h => h.toLowerCase().trim());
+        let bodyData = rows.slice(1).filter(r => r[0]); 
+        
+        let html = '';
+        let cE = 0, c4 = 0, c2 = 0;
+
+        bodyData.forEach((r, i) => {
+            let dist = (r[7]||"").toLowerCase();
+            let color = dist.includes("elite") ? "var(--elite-color)" : (dist.includes("4") ? "var(--4km-color)" : "var(--2km-color)");
+            if(dist.includes("elite")) cE++; else if(dist.includes("4")) c4++; else c2++;
+
+            html += `<tr id="row-${r[0]}">
+                <td>
+                    <button class="edit-btn" onclick="enableEdit('${r[0]}')">✏️</button>
+                    <button class="save-btn" id="save-${r[0]}" onclick="saveEdit('${r[0]}')">Lưu</button>
+                </td>
+                <td>${r[0]}</td>
+                <td><span class="bib-tag" style="background:${color}">${r[8]||'---'}</span></td>
+                <td class="data-name">${r[1]}</td>
+                <td class="data-phone">${r[4]}</td>
+                <td class="data-birth">${r[2]}</td>
+                <td>${r[3]}</td>
+                <td style="color:${color}; font-weight:bold">${r[7]}</td>
+                <td>${r[6]}</td>
+            </tr>`;
+        });
+
+        document.getElementById('admin-table-body').innerHTML = html;
+        document.getElementById('total-count').innerText = bodyData.length;
+        document.getElementById('elite-count').innerText = cE;
+        document.getElementById('4km-count').innerText = c4;
+        document.getElementById('2km-count').innerText = c2;
+    }
+
+    function enableEdit(stt) {
+        const row = document.getElementById(`row-${stt}`);
+        const nameCell = row.querySelector('.data-name');
+        const phoneCell = row.querySelector('.data-phone');
+        const birthCell = row.querySelector('.data-birth');
+
+        nameCell.innerHTML = `<input type="text" class="edit-mode" value="${nameCell.innerText}">`;
+        phoneCell.innerHTML = `<input type="text" class="edit-mode" value="${phoneCell.innerText}">`;
+        birthCell.innerHTML = `<input type="text" class="edit-mode" value="${birthCell.innerText}">`;
+
+        row.querySelector('.edit-btn').style.display = 'none';
+        row.querySelector('.save-btn').style.display = 'inline-block';
+    }
+
+    async function saveEdit(stt) {
+        const row = document.getElementById(`row-${stt}`);
+        const newName = row.querySelector('.data-name input').value;
+        const newPhone = row.querySelector('.data-phone input').value;
+        const newBirth = row.querySelector('.data-birth input').value;
+
+        // Gửi dữ liệu về Google Script
+        try {
+            const response = await fetch(scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({ stt: stt, name: newName, phone: newPhone, birth: newBirth })
+            });
+            alert("Đã cập nhật dữ liệu lên Google Sheet!");
+            fetchAdminData(); // Tải lại bảng
+        } catch (e) {
+            alert("Lỗi kết nối! Hãy kiểm tra lại Script URL.");
+        }
+    }
+
+    fetchAdminData();
+</script>
+</body>
+</html>
