@@ -99,7 +99,6 @@
             color: var(--primary-color);
         }
 
-        /* Search Section */
         .search-container {
             background: #f9f9f9;
             padding: 20px;
@@ -149,7 +148,6 @@
             margin-top: 10px;
         }
 
-        /* Countdown Styles */
         .countdown-container {
             margin: 10px auto;
             text-align: center;
@@ -268,31 +266,39 @@
         .color-elite { color: var(--elite-color); font-weight: 700; }
         .color-4km { color: var(--primary-color); font-weight: 700; }
         .color-2km { color: var(--secondary-color); font-weight: 700; }
+        
         .bib-tag { 
-            background: #333; 
             color: #fff; 
-            padding: 2px 8px; 
+            padding: 3px 10px; 
             border-radius: 4px; 
             font-weight: 800; 
             font-size: 13px;
+            display: inline-block;
+            text-align: center;
+            min-width: 45px;
         }
+        .bib-elite { background-color: var(--elite-color); }
+        .bib-4km { background-color: var(--primary-color); }
+        .bib-2km { background-color: var(--secondary-color); }
+        .bib-default { background-color: #333; }
 
         .mobile-only { display: none; }
 
         @media (max-width: 768px) {
             table { min-width: 100%; }
             .hide-mobile { display: none; }
-            .mobile-only { display: block; font-size: 12px; margin-top: 4px; }
-            th, td { padding: 10px 8px; font-size: 13px; }
-            th:nth-child(1), td:nth-child(1) { width: 35px; text-align: center; }
-            .footer-grid { flex-direction: column; }
-            .footer-divider { display: none; }
-            .footer-column { padding: 10px 0; border-bottom: 1px solid #ddd; }
-            .footer-column:last-child { border-bottom: none; }
-            .summary-box { gap: 10px; font-size: 12px; }
+            .mobile-only { display: block; font-size: 11px; margin-top: 2px; }
+            th, td { padding: 10px 5px; font-size: 13px; }
+            /* Cố định độ rộng cột trên mobile để tối ưu không gian */
+            th:nth-child(1), td:nth-child(1) { width: 30px; text-align: center; } /* STT */
+            th:nth-child(2), td:nth-child(2) { width: 60px; text-align: center; display: table-cell !important; } /* BIB */
+            
             .header h1 { font-size: 18px; }
             .announcement { font-size: 13px; padding: 10px; }
             .search-input { width: 100%; }
+            .summary-box { gap: 10px; font-size: 11px; }
+            .footer-grid { flex-direction: column; }
+            .footer-divider { display: none; }
         }
 
         .footer-info {
@@ -405,15 +411,15 @@
         <table id="runner-table">
             <thead>
                 <tr>
-                    <th style="width: 50px;">STT</th>
-                    <th class="hide-mobile" style="width: 80px;">BIB</th>
+                    <th>STT</th>
+                    <th>BIB</th>
                     <th>Họ và Tên</th>
                     <th class="hide-mobile">Năm sinh</th>
                     <th class="hide-mobile">Giới tính</th>
                     <th class="hide-mobile">Số điện thoại</th>
                     <th class="hide-mobile">Câu lạc bộ</th>
                     <th class="hide-mobile">Cự ly</th>
-                    <th class="mobile-only">BIB / CLB / Cự ly</th>
+                    <th class="mobile-only">CLB / Cự ly</th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -448,7 +454,6 @@
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
     let allRunnersData = [];
 
-    // Countdown Logic
     const deadline = "2026-04-23T23:59:00"; 
     function updateCountdown() {
         const t = Date.parse(deadline) - Date.parse(new Date());
@@ -573,10 +578,26 @@
             else if (distLower.includes("2000") || distLower.includes("2km")) displayDist = "2KM";
             else if (distLower.includes("elite")) displayDist = "Elite";
 
-            let distClass = "", rowClass = "", currentDistGroup = "";
-            if (distLower.includes("elite")) { distClass = "color-elite"; rowClass = "row-elite"; currentDistGroup = "elite"; countElite++; }
-            else if (distLower.includes("4")) { distClass = "color-4km"; rowClass = "row-4km"; currentDistGroup = "4km"; count4km++; }
-            else if (distLower.includes("2")) { distClass = "color-2km"; rowClass = "row-2km"; currentDistGroup = "2km"; count2km++; }
+            let distClass = "", rowClass = "", bibClass = "bib-default", currentDistGroup = "";
+            if (distLower.includes("elite")) { 
+                distClass = "color-elite"; 
+                rowClass = "row-elite"; 
+                bibClass = "bib-elite";
+                currentDistGroup = "elite"; 
+                countElite++; 
+            } else if (distLower.includes("4")) { 
+                distClass = "color-4km"; 
+                rowClass = "row-4km"; 
+                bibClass = "bib-4km";
+                currentDistGroup = "4km"; 
+                count4km++; 
+            } else if (distLower.includes("2")) { 
+                distClass = "color-2km"; 
+                rowClass = "row-2km"; 
+                bibClass = "bib-2km";
+                currentDistGroup = "2km"; 
+                count2km++; 
+            }
 
             let isEndOfGroup = false;
             if (!isSearch && index < bodyData.length - 1) {
@@ -591,10 +612,9 @@
 
             bodyHtml += `<tr class="${rowClass} ${isEndOfGroup ? 'group-divider' : ''}">
                 <td>${count}</td>
-                <td class="hide-mobile"><span class="bib-tag">${bibRaw}</span></td>
+                <td><span class="bib-tag ${bibClass}">${bibRaw}</span></td>
                 <td style="font-weight:600; color:var(--secondary-color);">
                     ${name}
-                    <div class="mobile-only" style="margin-top:2px;"><span class="bib-tag">${bibRaw}</span></div>
                 </td>
                 <td class="hide-mobile">${yearOnly}</td>
                 <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
@@ -603,7 +623,7 @@
                 <td class="hide-mobile"><span class="${distClass}">${displayDist}</span></td>
                 <td class="mobile-only">
                     <div style="font-weight:500;">${clubRaw}</div>
-                    <div class="${distClass}" style="font-size:12px;">${displayDist}</div>
+                    <div class="${distClass}">${displayDist}</div>
                 </td>
             </tr>`;
         });
