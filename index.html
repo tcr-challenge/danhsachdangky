@@ -257,8 +257,9 @@
         tr.row-4km { background-color: var(--bg-4km) !important; }
         tr.row-2km { background-color: var(--bg-2km) !important; }
         
+        /* Cập nhật đường line phân chia rộng gấp 3 lần */
         tr.group-divider td {
-            border-bottom: 3px solid #555 !important;
+            border-bottom: 9px solid #555 !important;
         }
 
         tr:hover { filter: brightness(0.95); }
@@ -289,9 +290,8 @@
             .hide-mobile { display: none; }
             .mobile-only { display: block; font-size: 11px; margin-top: 2px; }
             th, td { padding: 10px 5px; font-size: 13px; }
-            /* Cố định độ rộng cột trên mobile để tối ưu không gian */
-            th:nth-child(1), td:nth-child(1) { width: 30px; text-align: center; } /* STT */
-            th:nth-child(2), td:nth-child(2) { width: 60px; text-align: center; display: table-cell !important; } /* BIB */
+            th:nth-child(1), td:nth-child(1) { width: 30px; text-align: center; } 
+            th:nth-child(2), td:nth-child(2) { width: 60px; text-align: center; display: table-cell !important; } 
             
             .header h1 { font-size: 18px; }
             .announcement { font-size: 13px; padding: 10px; }
