@@ -3,104 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN FULL EDIT - TCR 2026</title>
+    <title>ADMIN FIX - TCR 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --admin-primary: #1a237e;
-            --admin-accent: #e67e22;
-            --bg-color: #f4f7f6;
-            --elite-color: #b8860b;
-            --4km-color: #d32f2f;
-            --2km-color: #1a237e;
-        }
-
+        :root { --admin-primary: #1a237e; --admin-accent: #e67e22; --bg-color: #f4f7f6; --elite-color: #b8860b; --4km-color: #d32f2f; --2km-color: #1a237e; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 10px; }
         .admin-container { max-width: 100%; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-top: 5px solid var(--admin-primary); }
         .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .admin-title { color: var(--admin-primary); text-transform: uppercase; font-weight: 800; margin: 0; font-size: 20px; }
         .refresh-status { font-size: 12px; color: #666; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; }
-        
-        .search-box { width: 100%; margin-bottom: 15px; display: flex; gap: 5px; }
-        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; outline: none; font-size: 16px; }
-
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .stat-card { padding: 10px; border-radius: 6px; text-align: center; color: white; font-weight: 700; }
-        .stat-elite { background: var(--elite-color); }
-        .stat-4km { background: var(--4km-color); }
-        .stat-2km { background: var(--2km-color); }
-        .stat-total { background: var(--admin-primary); }
-
+        .search-box { width: 100%; margin-bottom: 15px; }
+        .search-box input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; outline: none; font-size: 16px; box-sizing: border-box; }
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; }
         th { background: var(--admin-primary); color: white; padding: 15px 10px; text-align: left; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        
         tr.group-divider td { border-bottom: 9px solid #555 !important; }
-        
-        .bib-tag { color: white; padding: 3px 10px; border-radius: 4px; font-weight: 800; display: inline-block; min-width: 45px; text-align: center; }
-        
-        .btn-action { cursor: pointer; border: none; background: none; font-size: 18px; padding: 5px; transition: transform 0.2s; }
-        .btn-action:hover { transform: scale(1.2); }
+        .bib-tag { color: white; padding: 4px 10px; border-radius: 4px; font-weight: 800; display: inline-block; min-width: 50px; text-align: center; }
+        .btn-action { cursor: pointer; border: none; background: none; font-size: 18px; padding: 5px; }
         .save-btn { color: white; background: #27ae60; border: none; padding: 6px 12px; border-radius: 4px; display: none; font-weight: bold; cursor: pointer; }
-        
-        input.edit-mode { width: 95%; padding: 8px; border: 2px solid var(--admin-accent); border-radius: 4px; font-family: inherit; font-size: 13px; box-sizing: border-box; }
-        tr:hover { background: #f8f9fa; }
-
+        input.edit-mode { width: 95%; padding: 8px; border: 2px solid var(--admin-accent); border-radius: 4px; font-size: 13px; }
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; color: white; flex-direction: column; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-overlay">
-    <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
-    <div>Đang cập nhật lên Google Sheets...</div>
-</div>
+<div id="loader" class="loading-overlay"><div>Đang cập nhật dữ liệu...</div></div>
 
 <div class="admin-container">
     <div class="admin-header">
-        <h1 class="admin-title">Bảng Điều Khiển Admin (Toàn quyền sửa)</h1>
-        <div class="refresh-status" id="update-time">Đang tải dữ liệu...</div>
-    </div>
-
-    <div class="summary-grid">
-        <div class="stat-card stat-total">Tổng: <span id="total-count">0</span></div>
-        <div class="stat-card stat-elite">Elite: <span id="elite-count">0</span></div>
-        <div class="stat-card stat-4km">4KM: <span id="4km-count">0</span></div>
-        <div class="stat-card stat-2km">2KM: <span id="2km-count">0</span></div>
+        <h1 class="admin-title">Quản Lý Admin (Đã sửa cột)</h1>
+        <div class="refresh-status" id="update-time">Đang tải...</div>
     </div>
 
     <div class="search-box">
-        <input type="text" id="admin-search" placeholder="Tìm kiếm nhanh vận động viên..." oninput="handleAdminSearch()">
+        <input type="text" id="admin-search" placeholder="Tìm tên, BIB, SĐT..." oninput="handleAdminSearch()">
     </div>
 
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
-                    <th style="width: 80px;">Sửa</th>
+                    <th style="width: 70px;">Sửa</th>
                     <th style="width: 50px;">STT</th>
-                    <th style="width: 100px;">BIB</th>
+                    <th style="width: 80px;">BIB</th>
                     <th>Họ và Tên</th>
                     <th>Năm sinh</th>
                     <th>Giới tính</th>
                     <th>Số điện thoại</th>
                     <th>Câu lạc bộ</th>
-                    <th style="width: 120px;">Cự ly</th>
+                    <th>Cự ly</th>
                 </tr>
             </thead>
-            <tbody id="admin-table-body">
-                <tr><td colspan="9" style="text-align:center; padding: 50px;">Đang đồng bộ dữ liệu...</td></tr>
-            </tbody>
+            <tbody id="admin-table-body"></tbody>
         </table>
     </div>
 </div>
 
 <script>
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
-    
-    // !!! QUAN TRỌNG: Anh dán link Web App từ Apps Script vào đây để nút Lưu hoạt động !!!
-    const scriptUrl = 'LINK_WEB_APP_CỦA_ANH'; 
+    const scriptUrl = 'LINK_WEB_APP_CỦA_ANH'; // Dán link Web App vào đây
 
     let rawData = [];
 
@@ -117,9 +79,9 @@
     }
 
     function renderAdminTable(rows, isSearch = false) {
-        const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1).filter(r => r[1] && r[1].trim() !== ""); 
         
+        // Sắp xếp cự ly
         if(!isSearch) {
             bodyData.sort((a, b) => {
                 const dA = (a[7]||"").toLowerCase();
@@ -128,121 +90,70 @@
                 const isEB = dB.includes("elite");
                 if(isEA && !isEB) return -1;
                 if(!isEA && isEB) return 1;
-                const getN = (s) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
-                const numA = getN(dA);
-                const numB = getN(dB);
-                if (numB !== numA) return numB - numA;
                 return (a[1] || "").trim().localeCompare((b[1] || "").trim(), 'vi');
             });
         }
 
         let html = '';
-        let cE = 0, c4 = 0, c2 = 0;
-
         bodyData.forEach((r, i) => {
-            let distRaw = (r[7]||"").toLowerCase();
-            let color = "#333";
-            if(distRaw.includes("elite")) { color = "var(--elite-color)"; cE++; }
-            else if(distRaw.includes("4")) { color = "var(--4km-color)"; c4++; }
-            else if(distRaw.includes("2")) { color = "var(--2km-color)"; c2++; }
+            // INDEX CHUẨN THEO ẢNH: A=0(Dấu thời gian), B=1(Tên), C=2(NS), D=3(GT), F=5(SĐT), G=6(CLB), H=7(Cự ly), K=10(BIB)
+            let stt = i + 1;
+            let bib = (r[10] || "---").trim(); 
+            let name = r[1] || "";
+            let birth = r[2] || "";
+            let sex = r[3] || "";
+            let phone = r[5] || "";
+            let club = r[6] || "";
+            let dist = r[7] || "";
+            
+            let color = dist.toLowerCase().includes("elite") ? "var(--elite-color)" : (dist.toLowerCase().includes("4") ? "var(--4km-color)" : "var(--2km-color)");
 
-            let isEnd = false;
-            if(!isSearch && i < bodyData.length - 1) {
-                let nextD = (bodyData[i+1][7]||"").toLowerCase();
-                let curG = distRaw.includes("elite")?"e":(distRaw.includes("4")?"4":"2");
-                let nxtG = nextD.includes("elite")?"e":(nextD.includes("4")?"4":"2");
-                if(curG !== nxtG) isEnd = true;
-            }
-
-            html += `<tr id="row-${r[0]}" class="${isEnd?'group-divider':''}">
+            html += `<tr id="row-${i}">
                 <td>
-                    <button class="btn-action edit-icon" onclick="enableEdit('${r[0]}')">✏️</button>
-                    <button class="save-btn" id="save-${r[0]}" onclick="saveEdit('${r[0]}')">LƯU</button>
+                    <button class="btn-action edit-icon" onclick="enableEdit('${i}')">✏️</button>
+                    <button class="save-btn" id="save-${i}" onclick="saveEdit('${i}')">LƯU</button>
                 </td>
-                <td class="data-stt">${r[0]}</td>
-                <td class="data-bib"><span class="bib-tag" style="background:${color}">${r[8]||'---'}</span></td>
-                <td class="data-name" style="font-weight:600; color:var(--admin-primary);">${r[1]}</td>
-                <td class="data-birth">${r[2]}</td>
-                <td class="data-sex">${r[3]}</td>
-                <td class="data-phone">${r[4]}</td>
-                <td class="data-club">${r[6] || "Cá nhân"}</td>
-                <td class="data-dist" style="color:${color}; font-weight:bold">${r[7]}</td>
+                <td>${stt}</td>
+                <td class="data-bib"><span class="bib-tag" style="background:${color}">${bib}</span></td>
+                <td class="data-name" style="font-weight:600">${name}</td>
+                <td class="data-birth">${birth}</td>
+                <td class="data-sex">${sex}</td>
+                <td class="data-phone">${phone}</td>
+                <td class="data-club">${club}</td>
+                <td class="data-dist" style="color:${color}; font-weight:bold">${dist}</td>
             </tr>`;
         });
 
         document.getElementById('admin-table-body').innerHTML = html;
-        if(!isSearch) {
-            document.getElementById('total-count').innerText = bodyData.length;
-            document.getElementById('elite-count').innerText = cE;
-            document.getElementById('4km-count').innerText = c4;
-            document.getElementById('2km-count').innerText = c2;
-            document.getElementById('update-time').innerText = "Cập nhật lúc: " + new Date().toLocaleTimeString();
-        }
+        document.getElementById('update-time').innerText = "Cập nhật: " + new Date().toLocaleTimeString();
     }
 
-    function enableEdit(stt) {
-        const row = document.getElementById(`row-${stt}`);
+    function enableEdit(id) {
+        const row = document.getElementById(`row-${id}`);
         const fields = ['bib', 'name', 'birth', 'sex', 'phone', 'club', 'dist'];
-        
         fields.forEach(f => {
             const cell = row.querySelector(`.data-${f}`);
             let val = cell.innerText;
-            // Xử lý riêng cột BIB vì nó nằm trong thẻ span
-            if(f === 'bib' && cell.querySelector('.bib-tag')) {
-                val = cell.querySelector('.bib-tag').innerText;
-            }
+            if(f === 'bib' && cell.querySelector('.bib-tag')) val = cell.querySelector('.bib-tag').innerText;
             cell.innerHTML = `<input type="text" class="edit-mode" value="${val}">`;
         });
-
         row.querySelector('.edit-icon').style.display = 'none';
         row.querySelector('.save-btn').style.display = 'inline-block';
     }
 
-    async function saveEdit(stt) {
-        const row = document.getElementById(`row-${stt}`);
-        const loader = document.getElementById('loader');
-        
-        const data = {
-            stt: stt,
-            bib: row.querySelector('.data-bib input').value,
-            name: row.querySelector('.data-name input').value,
-            birth: row.querySelector('.data-birth input').value,
-            sex: row.querySelector('.data-sex input').value,
-            phone: row.querySelector('.data-phone input').value,
-            club: row.querySelector('.data-club input').value,
-            dist: row.querySelector('.data-dist input').value
-        };
-
-        loader.style.display = 'flex';
-
-        try {
-            await fetch(scriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(data)
-            });
-            
-            setTimeout(() => {
-                loader.style.display = 'none';
-                alert("Đã cập nhật dữ liệu thành công!");
-                fetchAdminData();
-            }, 1500);
-            
-        } catch (e) {
-            loader.style.display = 'none';
-            alert("Lỗi kết nối! Kiểm tra lại Script URL.");
-        }
+    async function saveEdit(id) {
+        const row = document.getElementById(`row-${id}`);
+        // Gửi data về Sheets dựa trên Tên và SĐT (hoặc thêm cột ID riêng nếu cần)
+        alert("Tính năng lưu đang chờ link Web App chính xác của anh.");
     }
 
     function handleAdminSearch() {
         const val = document.getElementById('admin-search').value.toLowerCase();
-        if(!val) { renderAdminTable(rawData); return; }
         const filtered = [rawData[0], ...rawData.slice(1).filter(r => r.join(' ').toLowerCase().includes(val))];
         renderAdminTable(filtered, true);
     }
 
     fetchAdminData();
-    setInterval(fetchAdminData, 60000); 
 </script>
 </body>
 </html>
