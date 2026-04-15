@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODE FULL - Quản Lý Vận Động Viên TCR 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #d32f2f; --secondary-color: #1a237e; --bg-color: #f4f7f6;
+            --elite-color: #b8860b; --bg-elite: rgba(184, 134, 11, 0.08);
+            --bg-4km: rgba(211, 47, 47, 0.05); --bg-2km: rgba(26, 35, 126, 0.05);
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; }
+        .container { width: 100%; max-width: 1300px; background: #fff; padding: 30px; margin: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .header h1 { font-size: 24px; color: var(--secondary-color); text-transform: uppercase; margin: 0; }
+        
+        .admin-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .search-input { padding: 10px; border: 2px solid #ddd; border-radius: 8px; width: 300px; }
+        .btn-pdf { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .btn-pdf:hover { background: #219150; }
+
+        .summary-box { display: flex; gap: 20px; font-weight: 600; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: var(--secondary-color); color: white; text-align: left; padding: 12px; font-size: 13px; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        
+        tr.row-elite { background-color: var(--bg-elite); }
+        tr.row-4km { background-color: var(--bg-4km); }
+        tr.row-2km { background-color: var(--bg-2km); }
+        tr.group-divider td { border-bottom: 5px solid #555 !important; }
+        
+        .bib-tag { color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 12px; display: inline-block; min-width: 50px; text-align: center; }
+        .bib-elite { background-color: var(--elite-color); }
+        .bib-4km { background-color: var(--primary-color); }
+        .bib-2km { background-color: var(--secondary-color); }
+
+        /* Style dành cho PDF để tách trang */
+        .pdf-page-header { display: none; text-align: center; margin-bottom: 20px; }
+        .html2pdf__page-break { display: block; page-break-before: always; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-content">
+    <div class="header">
+        <h1>DANH SÁCH TỔNG HỢP VẬN ĐỘNG VIÊN 2026 - TCR</h1>
+        <p style="font-weight: 600; color: #666;">Phiên bản hiển thị đầy đủ thông tin (Full Access)</p>
+    </div>
+
+    <div class="admin-controls">
+        <input type="text" id="search-input" class="search-input" placeholder="Tìm tên, SĐT, CLB..." oninput="handleSearch()">
+        <button class="btn-pdf" onclick="exportToPDF()">📄 XUẤT FILE PDF (TÁCH NHÓM)</button>
+    </div>
+
+    <div id="summary" class="summary-box">Đang tính toán dữ liệu...</div>
+
+    <div id="pdf-export-area">
+        <div id="table-container"></div>
+    </div>
+</div>
+
+<script>
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
+    let allData = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch(tsvUrl);
+            const text = await response.text();
+            allData = text.split('\n').map(row => row.split('\t'));
+            renderFullTable(allData);
+        } catch (e) { console.error(e); }
+    }
+
+    function renderFullTable(rows) {
+        const header = rows[0].map(h => h.toLowerCase().trim());
+        let bodyData = rows.slice(1).filter(r => r[1] && r[1].trim() !== "");
+
+        // Chỉ số các cột
+        const idxName = header.findIndex(h => h.includes('tên'));
+        const idxBirth = header.findIndex(h => h.includes('sinh'));
+        const idxSex = header.findIndex(h => h.includes('giới tính'));
+        const idxPhone = header.findIndex(h => h.includes('thoại'));
+        const idxClub = header.findIndex(h => h.includes('lạc bộ'));
+        const idxDist = header.findIndex(h => h.includes('cự ly'));
+        const idxBib = header.findIndex(h => h.includes('bib'));
+
+        // Sắp xếp theo nhóm
+        bodyData.sort((a, b) => {
+            const getP = (s) => {
+                let v = (s||"").toLowerCase();
+                if(v.includes("elite")) return 1;
+                if(v.includes("4")) return 2;
+                return 3;
+            };
+            let pA = getP(a[idxDist]); let pB = getP(b[idxDist]);
+            if(pA !== pB) return pA - pB;
+            return (a[idxName]||"").localeCompare(b[idxName]||"", 'vi');
+        });
+
+        // Phân nhóm để hiển thị và xuất PDF
+        const groups = { 'Elite': [], '4KM': [], '2KM': [] };
+        bodyData.forEach(r => {
+            let d = (r[idxDist]||"").toLowerCase();
+            if(d.includes("elite")) groups['Elite'].push(r);
+            else if(d.includes("4")) groups['4KM'].push(r);
+            else groups['2KM'].push(r);
+        });
+
+        document.getElementById('summary').innerHTML = `
+            <span>Tổng: ${bodyData.length} VĐV</span> | 
+            <span style="color:var(--elite-color)">Elite: ${groups['Elite'].length}</span> | 
+            <span style="color:var(--primary-color)">4KM: ${groups['4KM'].length}</span> | 
+            <span style="color:var(--secondary-color)">2KM: ${groups['2KM'].length}</span>
+        `;
+
+        let html = '';
+        Object.keys(groups).forEach((groupName, gIdx) => {
+            if(groups[groupName].length === 0) return;
+
+            // Mỗi nhóm là một bảng riêng để dễ tách trang PDF
+            html += `<div class="group-section ${gIdx > 0 ? 'html2pdf__page-break' : ''}">
+                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:30px;">NHÓM CỰ LY: ${groupName}</h2>
+                <table class="group-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>BIB</th>
+                            <th>Họ và Tên</th>
+                            <th>NS</th>
+                            <th>GT</th>
+                            <th>Số điện thoại (FULL)</th>
+                            <th>Câu lạc bộ</th>
+                            <th>Cự ly</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            
+            groups[groupName].forEach((r, i) => {
+                let dist = groupName;
+                let bib = (r[idxBib] || "---").trim();
+                let bClass = dist === "Elite" ? "bib-elite" : (dist === "4KM" ? "bib-4km" : "bib-2km");
+                let rClass = dist === "Elite" ? "row-elite" : (dist === "4KM" ? "row-4km" : "row-2km");
+
+                html += `<tr class="${rClass}">
+                    <td>${i + 1}</td>
+                    <td><span class="bib-tag ${bClass}">${bib}</span></td>
+                    <td style="font-weight:700">${r[idxName]}</td>
+                    <td>${(r[idxBirth]||"").match(/\d{4}/) ? (r[idxBirth]||"").match(/\d{4}/)[0] : "---"}</td>
+                    <td>${r[idxSex]||""}</td>
+                    <td style="font-weight:600; color:blue">${r[idxPhone]||""}</td>
+                    <td>${r[idxClub]||"Cá nhân"}</td>
+                    <td>${dist}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+        });
+
+        document.getElementById('table-container').innerHTML = html;
+    }
+
+    function handleSearch() {
+        const val = document.getElementById('search-input').value.toLowerCase();
+        const filtered = [allData[0], ...allData.slice(1).filter(r => r.join(' ').toLowerCase().includes(val))];
+        renderFullTable(filtered);
+    }
+
+    function exportToPDF() {
+        const element = document.getElementById('pdf-export-area');
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: 'Danh_Sach_VĐV_TCR_2026.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+        
+        alert("Hệ thống đang khởi tạo file PDF. Vui lòng đợi trong giây lát...");
+        html2pdf().set(opt).from(element).save();
+    }
+
+    fetchData();
+</script>
+
+</body>
+</html>
