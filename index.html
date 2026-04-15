@@ -413,7 +413,6 @@
                     <th>STT</th>
                     <th>BIB</th>
                     <th>Họ và Tên</th>
-                    <th>Tên trên BIB</th>
                     <th class="hide-mobile">Năm sinh</th>
                     <th class="hide-mobile">Giới tính</th>
                     <th class="hide-mobile">Số điện thoại</th>
@@ -423,7 +422,7 @@
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="10" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</td></tr>
             </tbody>
         </table>
     </div>
@@ -483,7 +482,7 @@
             }
         } catch (error) {
             console.error('Lỗi:', error);
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="10" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="9" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
         }
     }
 
@@ -517,7 +516,7 @@
             msgText.style.color = "#2e7d32";
             statusBar.style.display = 'none';
         } else {
-            document.getElementById('table-body').innerHTML = '<tr><td colspan="10" style="text-align:center; padding:30px; color:red; font-weight:bold;">Không tìm thấy thông tin vận động viên</td></tr>';
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:red; font-weight:bold;">Không tìm thấy thông tin vận động viên</td></tr>';
             resultArea.style.display = 'block';
             msgText.innerText = "Không tìm thấy thông tin";
             msgText.style.color = "red";
@@ -538,7 +537,6 @@
         const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
 
         const idxName = getIdx(['họ và tên', 'họ tên', 'tên']);
-        const idxBibName = getIdx(['tên trên bib']);
         const idxGender = getIdx(['giới tính']);
         const idxBirth = getIdx(['ngày sinh', 'năm sinh', 'sinh']);
         const idxPhone = getIdx(['số điện thoại', 'sđt', 'phone']);
@@ -571,7 +569,6 @@
         bodyData.forEach((row, index) => {
             count++;
             let name = row[idxName].trim().replace(/^"|"$/g, '');
-            let bibName = (row[idxBibName] || '---').trim().replace(/^"|"$/g, '');
             let distRaw = (row[idxDistance] || '---').replace(/^"|"$/g, '');
             let clubRaw = (row[idxClub] || 'Cá nhân').replace(/^"|"$/g, '');
             let bibRaw = (row[idxBib] || '---').replace(/^"|"$/g, '').trim();
@@ -609,7 +606,6 @@
                 <td>${count}</td>
                 <td><span class="bib-tag ${bibClass}">${bibRaw}</span></td>
                 <td style="font-weight:600; color:var(--secondary-color);">${name}</td>
-                <td style="font-weight:600; color:#555;">${bibName}</td>
                 <td class="hide-mobile">${yearOnly}</td>
                 <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                 <td class="hide-mobile">${hiddenPhone}</td>
