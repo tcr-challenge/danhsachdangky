@@ -39,7 +39,47 @@
             object-fit: cover;
         }
 
-        .container {
+        .tabs-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            background: #eee;
+            gap: 5px;
+            padding: 10px 10px 0 10px;
+            box-sizing: border-box;
+        }
+
+        .tab-link {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            border-radius: 12px 12px 0 0;
+            background: #e0e0e0;
+            border: none;
+            position: relative;
+        }
+
+        .tab-link:hover {
+            background: #d6d6d6;
+            color: var(--secondary-color);
+        }
+
+        .tab-link.active {
+            color: #fff;
+            background: var(--primary-color);
+            box-shadow: 0 -4px 12px rgba(211, 47, 47, 0.2);
+            transform: translateY(-2px);
+            z-index: 2;
+        }
+
+        .tab-content {
+            display: none;
             width: 100%;
             max-width: 1200px;
             background: #fff;
@@ -48,6 +88,21 @@
             border-radius: 0 0 12px 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .tabs-container { gap: 2px; padding: 5px 5px 0 5px; }
+            .tab-link { font-size: 10px; padding: 12px 2px; border-radius: 8px 8px 0 0; }
         }
 
         .header {
@@ -264,6 +319,7 @@
         tr:hover { filter: brightness(0.95); }
 
         .color-elite { color: var(--elite-color); font-weight: 700; }
+        .sub-elite { font-size: 11px; display: block; margin-top: 2px; opacity: 0.9; }
         .color-4km { color: var(--primary-color); font-weight: 700; }
         .color-2km { color: var(--secondary-color); font-weight: 700; }
         
@@ -358,7 +414,14 @@
 
 <img src="images/banner.jpg" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
 
-<div class="container">
+<div class="tabs-container">
+    <div class="tab-link active" onclick="openTab(event, 'tab-runners')">Danh sách VĐV</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ giải</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ đường chạy</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn VĐV</div>
+</div>
+
+<div id="tab-runners" class="tab-content active">
     <div class="header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
@@ -428,6 +491,33 @@
     </div>
 </div>
 
+<div id="tab-rules" class="tab-content">
+    <div class="header">
+        <h1>THỂ LỆ GIẢI CHẠY</h1>
+    </div>
+    <div style="line-height: 1.8; color: #444;">
+        <p><i>(Nội dung thể lệ giải chạy đang được cập nhật...)</i></p>
+    </div>
+</div>
+
+<div id="tab-map" class="tab-content">
+    <div class="header">
+        <h1>SƠ ĐỒ ĐƯỜNG CHẠY</h1>
+    </div>
+    <div style="text-align: center;">
+        <p><i>(Hình ảnh sơ đồ đường chạy đang được cập nhật...)</i></p>
+    </div>
+</div>
+
+<div id="tab-guide" class="tab-content">
+    <div class="header">
+        <h1>HƯỚNG DẪN VẬN ĐỘNG VIÊN</h1>
+    </div>
+    <div style="line-height: 1.8; color: #444;">
+        <p><i>(Nội dung hướng dẫn dành cho VĐV đang được cập nhật...)</i></p>
+    </div>
+</div>
+
 <div class="footer-info">
     <h2>THÔNG TIN LIÊN HỆ</h2>
     <div class="footer-grid">
@@ -450,6 +540,20 @@
 </div>
 
 <script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
     let allRunnersData = [];
 
@@ -574,20 +678,20 @@
             let bibRaw = (row[idxBib] || '---').replace(/^"|"$/g, '').trim();
             let distLower = distRaw.toLowerCase();
             
-            let displayDist = distRaw;
-            if (distLower.includes("4000") || distLower.includes("4km")) displayDist = "4KM";
-            else if (distLower.includes("2000") || distLower.includes("2km")) displayDist = "2KM";
-            else if (distLower.includes("elite")) displayDist = "Elite";
-
+            let displayDist = "";
             let distClass = "", rowClass = "", bibClass = "bib-default", currentDistGroup = "";
+
             if (distLower.includes("elite")) { 
-                distClass = "color-elite"; rowClass = "row-elite"; bibClass = "bib-elite";
+                displayDist = `<span class="color-elite">ELITE</span><span class="sub-elite">4KM</span>`;
+                rowClass = "row-elite"; bibClass = "bib-elite";
                 currentDistGroup = "elite"; countElite++; 
             } else if (distLower.includes("4")) { 
-                distClass = "color-4km"; rowClass = "row-4km"; bibClass = "bib-4km";
+                displayDist = `<span class="color-4km">4KM</span>`;
+                rowClass = "row-4km"; bibClass = "bib-4km";
                 currentDistGroup = "4km"; count4km++; 
             } else if (distLower.includes("2")) { 
-                distClass = "color-2km"; rowClass = "row-2km"; bibClass = "bib-2km";
+                displayDist = `<span class="color-2km">2KM</span>`;
+                rowClass = "row-2km"; bibClass = "bib-2km";
                 currentDistGroup = "2km"; count2km++; 
             }
 
@@ -610,10 +714,10 @@
                 <td class="hide-mobile">${(row[idxGender] || '---').replace(/^"|"$/g, '')}</td>
                 <td class="hide-mobile">${hiddenPhone}</td>
                 <td class="hide-mobile">${clubRaw}</td>
-                <td class="hide-mobile"><span class="${distClass}">${displayDist}</span></td>
+                <td class="hide-mobile">${displayDist}</td>
                 <td class="mobile-only">
                     <div style="font-weight:500;">CLB: ${clubRaw}</div>
-                    <div class="${distClass}">Cự ly: ${displayDist}</div>
+                    <div>${displayDist}</div>
                 </td>
             </tr>`;
         });
