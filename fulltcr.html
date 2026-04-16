@@ -31,15 +31,12 @@
         tr.row-elite { background-color: var(--bg-elite); }
         tr.row-4km { background-color: var(--bg-4km); }
         tr.row-2km { background-color: var(--bg-2km); }
-        tr.group-divider td { border-bottom: 5px solid #555 !important; }
         
         .bib-tag { color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 12px; display: inline-block; min-width: 50px; text-align: center; }
         .bib-elite { background-color: var(--elite-color); }
         .bib-4km { background-color: var(--primary-color); }
         .bib-2km { background-color: var(--secondary-color); }
 
-        /* Style dành cho PDF để tách trang */
-        .pdf-page-header { display: none; text-align: center; margin-bottom: 20px; }
         .html2pdf__page-break { display: block; page-break-before: always; }
     </style>
 </head>
@@ -80,7 +77,6 @@
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1).filter(r => r[1] && r[1].trim() !== "");
 
-        // Chỉ số các cột
         const idxName = header.findIndex(h => h.includes('tên'));
         const idxBirth = header.findIndex(h => h.includes('sinh'));
         const idxSex = header.findIndex(h => h.includes('giới tính'));
@@ -89,21 +85,9 @@
         const idxDist = header.findIndex(h => h.includes('cự ly'));
         const idxBib = header.findIndex(h => h.includes('bib'));
 
-        // Sắp xếp theo nhóm
-        bodyData.sort((a, b) => {
-            const getP = (s) => {
-                let v = (s||"").toLowerCase();
-                if(v.includes("elite")) return 1;
-                if(v.includes("4")) return 2;
-                return 3;
-            };
-            let pA = getP(a[idxDist]); let pB = getP(b[idxDist]);
-            if(pA !== pB) return pA - pB;
-            return (a[idxName]||"").localeCompare(b[idxName]||"", 'vi');
-        });
-
-        // Phân nhóm để hiển thị và xuất PDF
+        // Giữ nguyên thứ tự dòng từ Google Sheets (không dùng sort)
         const groups = { 'Elite': [], '4KM': [], '2KM': [] };
+        
         bodyData.forEach(r => {
             let d = (r[idxDist]||"").toLowerCase();
             if(d.includes("elite")) groups['Elite'].push(r);
@@ -122,7 +106,6 @@
         Object.keys(groups).forEach((groupName, gIdx) => {
             if(groups[groupName].length === 0) return;
 
-            // Mỗi nhóm là một bảng riêng để dễ tách trang PDF
             html += `<div class="group-section ${gIdx > 0 ? 'html2pdf__page-break' : ''}">
                 <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:30px;">NHÓM CỰ LY: ${groupName}</h2>
                 <table class="group-table">
@@ -145,6 +128,11 @@
                 let bib = (r[idxBib] || "---").trim();
                 let bClass = dist === "Elite" ? "bib-elite" : (dist === "4KM" ? "bib-4km" : "bib-2km");
                 let rClass = dist === "Elite" ? "row-elite" : (dist === "4KM" ? "row-4km" : "row-2km");
+                
+                let displayDistText = dist;
+                if(dist === "Elite") {
+                    displayDistText = `<div>ELITE</div><div style="font-size:10px; font-weight:normal;">4KM</div>`;
+                }
 
                 html += `<tr class="${rClass}">
                     <td>${i + 1}</td>
@@ -154,7 +142,7 @@
                     <td>${r[idxSex]||""}</td>
                     <td style="font-weight:600; color:blue">${r[idxPhone]||""}</td>
                     <td>${r[idxClub]||"Cá nhân"}</td>
-                    <td>${dist}</td>
+                    <td style="font-weight:700">${displayDistText}</td>
                 </tr>`;
             });
 
@@ -166,8 +154,8 @@
 
     function handleSearch() {
         const val = document.getElementById('search-input').value.toLowerCase();
-        const filtered = [allData[0], ...allData.slice(1).filter(r => r.join(' ').toLowerCase().includes(val))];
-        renderFullTable(filtered);
+        const filteredData = allData.slice(1).filter(r => r.join(' ').toLowerCase().includes(val));
+        renderFullTable([allData[0], ...filteredData]);
     }
 
     function exportToPDF() {
