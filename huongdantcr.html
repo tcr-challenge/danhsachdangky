@@ -1,4 +1,209 @@
-<body style="font-family: sans-serif; line-height: 1.6; padding: 20px;">
-    <h2 style="color: #1a237e;">HƯỚNG DẪN VẬN ĐỘNG VIÊN</h2>
-    <p>VĐV có mặt lúc 5:00 sáng tại Đình Làng...</p>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Vận Động Viên - Bước Chân Di Sản 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d35400;
+            --secondary: #2c3e50;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .guide-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--secondary);
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+
+        .guide-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+            background: #fffdfb;
+        }
+
+        .guide-section h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .guide-section h2 i {
+            margin-right: 12px;
+            width: 25px;
+            text-align: center;
+        }
+
+        .guide-content {
+            margin-left: 37px;
+        }
+
+        .guide-content ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .guide-content li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .guide-content li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .warning-box {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            color: #c53030;
+            font-weight: bold;
+        }
+
+        .address-highlight {
+            color: var(--secondary);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .guide-container { padding: 15px; margin: 10px; }
+            header h1 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="guide-container">
+    <header>
+        <h1>Cẩm Nang Vận Động Viên</h1>
+        <p>Giải chạy Bước Chân Di Sản 2026</p>
+    </header>
+
+    <div class="guide-section">
+        <h2><i class="fas fa-map-marker-alt"></i> Di chuyển & Gửi xe</h2>
+        <div class="guide-content">
+            <ul>
+                <li><b>Địa điểm tập trung:</b> <span class="address-highlight">Đình làng Thượng Cát</span>.</li>
+                <li><b>Gửi xe:</b> Khu vực sân bóng đối diện Đình (miễn phí cho VĐV).</li>
+                <li><b>Lưu ý:</b> Có mặt trước ít nhất 45 phút để ổn định vị trí.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-section">
+        <h2><i class="fas fa-id-card"></i> Nhận số báo danh (BIB)</h2>
+        <div class="guide-content">
+            <ul>
+                <li>Nên nhận BIB từ hôm trước tại Văn phòng BTC.</li>
+                <li>Sáng ngày đua: Hỗ trợ phát BIB từ 05:30 - 06:15 (chỉ cho khách ở xa).</li>
+                <li>Đeo BIB rõ ràng ở mặt trước áo suốt quá trình chạy.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-section">
+        <h2><i class="fas fa-utensils"></i> Ăn uống & Khởi động</h2>
+        <div class="guide-content">
+            <ul>
+                <li>Ăn nhẹ trước 90 phút (chuối, bánh mì). Tránh đồ uống có gas.</li>
+                <li><b>Khởi động:</b> Tập trung lúc 06:15 để thực hiện bài khởi động tập thể cùng HLV.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-section">
+        <h2><i class="fas fa-running"></i> Xuất phát & Đường chạy</h2>
+        <div class="guide-content">
+            <ul>
+                <li><b>Xuất phát:</b> Nhóm 4km (06:45), Nhóm 2km (07:00).</li>
+                <li><b>Tiếp nước:</b> Bố trí tại km thứ 1.5 và km số 3.</li>
+                <li>Tuân thủ chỉ dẫn của TNV và đường kẻ xanh viền trắng trên lộ trình.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-section">
+        <h2><i class="fas fa-shield-alt"></i> An ninh & Tài sản</h2>
+        <div class="guide-content">
+            <ul>
+                <li>Cảnh giác trộm cắp: Không để ví, điện thoại trong cốp xe hoặc chỗ sơ hở.</li>
+                <li>Khu vực gửi đồ: Chỉ nhận gửi quần áo, vật dụng cơ bản (không nhận tiền mặt/trang sức).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-section">
+        <h2><i class="fas fa-trophy"></i> Kết thúc & Trao giải</h2>
+        <div class="guide-content">
+            <ul>
+                <li>Nhận huy chương ngay khi về đích.</li>
+                <li><b>Ăn nhẹ phục hồi:</b> Trái cây, nước điện giải phục vụ miễn phí tại đích.</li>
+                <li><b>Trao giải:</b> Diễn ra lúc 08:00 tại sân khấu chính Đình làng.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="guide-section" style="border-left-color: #27ae60;">
+        <h2><i class="fas fa-beer"></i> Giao lưu sau giải</h2>
+        <div class="guide-content">
+            <ul>
+                <li>Thân mời toàn bộ anh em runner tập trung ăn nhẹ và giao lưu tại: <span class="address-highlight">[Nhập địa chỉ quán tại đây]</span>.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <i class="fas fa-heartbeat"></i> LƯU Ý SỨC KHỎE: Nếu có dấu hiệu bất thường (chóng mặt, tức ngực), vui lòng dừng lại ngay và báo cho y tế dọc đường.
+    </div>
+
+    <footer style="text-align: center; margin-top: 30px; color: #999; font-size: 13px;">
+        © 2026 Thượng Cát Runners | Photo by PHUC TRAN
+    </footer>
+</div>
+
 </body>
+</html>
