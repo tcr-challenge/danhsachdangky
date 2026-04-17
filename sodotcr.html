@@ -1,4 +1,149 @@
-<body style="font-family: sans-serif; text-align: center; padding: 20px;">
-    <h2 style="color: #1a237e;">SƠ ĐỒ ĐƯỜNG CHẠY</h2>
-    <img src="images/sodo.jpg" style="max-width: 100%; border: 2px solid #ddd; border-radius: 10px;">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ đồ Cung đường chạy Di sản</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --heritage-gold: #bca47b;
+            --heritage-dark: #2c3e50;
+            --heritage-cream: #fdfaf0;
+            --accent-orange: #d35400;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .map-wrapper {
+            max-width: 1000px;
+            width: 100%;
+            background: var(--heritage-cream);
+            padding: 30px;
+            border: 1px solid var(--heritage-gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        /* Khung viền trang trí kiểu cổ điển */
+        .map-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 1px solid var(--heritage-gold);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .map-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .map-header h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--heritage-dark);
+            font-size: 28px;
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .map-header .line {
+            width: 60px;
+            height: 3px;
+            background: var(--accent-orange);
+            margin: 10px auto;
+        }
+
+        .map-display {
+            background: #fff;
+            border: 2px solid var(--heritage-gold);
+            padding: 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .map-display img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 2px;
+            filter: sepia(10%) contrast(105%); /* Tạo hiệu ứng hơi cổ kính */
+        }
+
+        .map-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px dashed var(--heritage-gold);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            color: var(--heritage-dark);
+        }
+
+        .route-symbol {
+            width: 40px;
+            height: 8px;
+            background: #1e88e5; /* Màu xanh của cung đường */
+            border: 2px solid #fff;
+            box-shadow: 0 0 2px rgba(0,0,0,0.3);
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+
+        .location-tag {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            color: var(--accent-orange);
+        }
+
+        @media (max-width: 600px) {
+            .map-footer { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="map-wrapper">
+    <div class="map-header">
+        <h2>SƠ ĐỒ CUNG ĐƯỜNG DI SẢN</h2>
+        <div class="line"></div>
+        <p style="font-family: 'Roboto'; font-style: italic; color: #666;">Giải chạy Bước Chân Di Sản 2026 - Thượng Cát Runners</p>
+    </div>
+
+    <div class="map-display">
+        <img src="https://images2.imgbox.com/f0/54/R50f7p4h_o.jpg" alt="Sơ đồ cung đường chạy 2km - 4km">
+    </div>
+
+    <div class="map-footer">
+        <div class="legend-item">
+            <div class="route-symbol"></div>
+            <span><b>Lộ trình chính:</b> Đường xanh viền trắng (2km & 4km)</span>
+        </div>
+        <div class="location-tag">
+            <i class="fas fa-landmark"></i> THƯỢNG CÁT
+        </div>
+        <div class="legend-item" style="font-size: 12px; color: #999;">
+            <i class="fas fa-compass" style="margin-right: 5px;"></i> Tỉ lệ chuẩn thực tế
+        </div>
+    </div>
+</div>
+
 </body>
+</html>
