@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Quản Lý Nội Dung Giải Chạy</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --secondary-color: #1a237e;
+            --bg-admin: #eceff1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-admin);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .admin-container {
+            width: 100%; max-width: 1000px;
+            background: white; padding: 30px;
+            border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: var(--secondary-color); text-align: center; text-transform: uppercase; }
+        .section-box {
+            margin-bottom: 40px; padding: 20px;
+            border: 1px solid #ddd; border-radius: 8px;
+            background: #fafafa;
+        }
+        .section-title {
+            font-weight: 700; font-size: 18px;
+            color: var(--primary-color); margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .editor-container { height: 300px; background: white; }
+        .save-btn {
+            background: var(--secondary-color); color: white;
+            border: none; padding: 10px 25px;
+            border-radius: 6px; cursor: pointer;
+            font-weight: 600; transition: 0.3s;
+        }
+        .save-btn:hover { background: #0d1440; transform: scale(1.05); }
+        .notification {
+            position: fixed; top: 20px; right: 20px;
+            padding: 15px 25px; background: #2e7d32;
+            color: white; border-radius: 5px;
+            display: none; animation: slideIn 0.5s ease;
+            z-index: 9999;
+        }
+        @keyframes slideIn { from {right: -100px; opacity: 0;} to {right: 20px; opacity: 1;} }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="notification">✅ Đã lưu nội dung thành công!</div>
+
+<div class="admin-container">
+    <h1>QUẢN TRỊ NỘI DUNG GIẢI CHẠY 2026</h1>
+    <p style="text-align: center; color: #666;">Dữ liệu sau khi lưu sẽ tự động cập nhật vào trang chủ.</p>
+
+    <div class="section-box">
+        <div class="section-title">
+            <span>1. THỂ LỆ GIẢI</span>
+            <button class="save-btn" onclick="saveContent('rules')">LƯU THỂ LỆ</button>
+        </div>
+        <div id="editor-rules" class="editor-container"></div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">
+            <span>2. SƠ ĐỒ ĐƯỜNG CHẠY</span>
+            <button class="save-btn" onclick="saveContent('map')">LƯU SƠ ĐỒ</button>
+        </div>
+        <div id="editor-map" class="editor-container"></div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">
+            <span>3. HƯỚNG DẪN VĐV</span>
+            <button class="save-btn" onclick="saveContent('guide')">LƯU HƯỚNG DẪN</button>
+        </div>
+        <div id="editor-guide" class="editor-container"></div>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    // Cấu hình thanh công cụ soạn thảo
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote', 'code-block'],
+        [{ 'header': 1 }, { 'header': 2 }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        [{ 'color': [] }, { 'background': [] }],
+        ['link', 'image', 'video'],
+        ['clean']
+    ];
+
+    // Khởi tạo các trình soạn thảo
+    const quillRules = new Quill('#editor-rules', { modules: { toolbar: toolbarOptions }, theme: 'snow' });
+    const quillMap = new Quill('#editor-map', { modules: { toolbar: toolbarOptions }, theme: 'snow' });
+    const quillGuide = new Quill('#editor-guide', { modules: { toolbar: toolbarOptions }, theme: 'snow' });
+
+    // Load dữ liệu cũ từ LocalStorage (nếu có)
+    window.onload = () => {
+        if(localStorage.getItem('race_rules')) quillRules.clipboard.dangerouslyPasteHTML(localStorage.getItem('race_rules'));
+        if(localStorage.getItem('race_map')) quillMap.clipboard.dangerouslyPasteHTML(localStorage.getItem('race_map'));
+        if(localStorage.getItem('race_guide')) quillGuide.clipboard.dangerouslyPasteHTML(localStorage.getItem('race_guide'));
+    };
+
+    // Hàm lưu dữ liệu
+    function saveContent(type) {
+        let content = "";
+        let storageKey = "";
+
+        if(type === 'rules') {
+            content = quillRules.root.innerHTML;
+            storageKey = 'race_rules';
+        } else if(type === 'map') {
+            content = quillMap.root.innerHTML;
+            storageKey = 'race_map';
+        } else if(type === 'guide') {
+            content = quillGuide.root.innerHTML;
+            storageKey = 'race_guide';
+        }
+
+        localStorage.setItem(storageKey, content);
+        
+        // Hiển thị thông báo
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+</script>
+
+</body>
+</html>
