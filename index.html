@@ -490,8 +490,8 @@
     <div class="header">
         <h1>THỂ LỆ GIẢI CHẠY</h1>
     </div>
-    <div style="line-height: 1.8; color: #444;">
-        <p><i>(Nội dung thể lệ giải chạy đang được cập nhật...)</i></p>
+    <div id="content-rules" style="line-height: 1.8; color: #444;">
+        <p style="text-align:center;">Đang tải nội dung thể lệ...</p>
     </div>
 </div>
 
@@ -499,8 +499,8 @@
     <div class="header">
         <h1>SƠ ĐỒ ĐƯỜNG CHẠY</h1>
     </div>
-    <div style="text-align: center;">
-        <p><i>(Hình ảnh sơ đồ đường chạy đang được cập nhật...)</i></p>
+    <div id="content-map" style="text-align: center;">
+        <p>Đang tải sơ đồ đường chạy...</p>
     </div>
 </div>
 
@@ -508,8 +508,8 @@
     <div class="header">
         <h1>HƯỚNG DẪN VẬN ĐỘNG VIÊN</h1>
     </div>
-    <div style="line-height: 1.8; color: #444;">
-        <p><i>(Nội dung hướng dẫn dành cho VĐV đang được cập nhật...)</i></p>
+    <div id="content-guide" style="line-height: 1.8; color: #444;">
+        <p style="text-align:center;">Đang tải hướng dẫn...</p>
     </div>
 </div>
 
@@ -547,6 +547,29 @@
         }
         document.getElementById(tabName).classList.add("active");
         evt.currentTarget.classList.add("active");
+    }
+
+    // Hàm tải nội dung từ file HTML bên ngoài
+    async function loadTabContents() {
+        const tabs = [
+            { id: 'content-rules', file: 'theletcr.html' },
+            { id: 'content-map', file: 'sodotcr.html' },
+            { id: 'content-guide', file: 'huongdantcr.html' }
+        ];
+
+        tabs.forEach(async (tab) => {
+            try {
+                const response = await fetch(tab.file);
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById(tab.id).innerHTML = html;
+                } else {
+                    document.getElementById(tab.id).innerHTML = `<p style="color:red; text-align:center;">Không thể tải nội dung từ ${tab.file}</p>`;
+                }
+            } catch (error) {
+                console.error('Lỗi tải file:', error);
+            }
+        });
     }
 
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
@@ -731,7 +754,9 @@
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
+    // Khởi tạo
     fetchData();
+    loadTabContents();
     setInterval(fetchData, 60000); 
 </script>
 
