@@ -255,18 +255,19 @@
             border-top: 1px solid #eee;
         }
 
+        /* Sửa cỡ chữ phần tóm tắt to lên */
         .summary-box {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin-bottom: 10px;
-            padding: 12px;
+            padding: 15px;
             background: #f9f9f9;
             border-radius: 8px;
             font-weight: 700;
             color: #444;
             flex-wrap: wrap;
-            font-size: 17px;
+            font-size: 24px; /* Tăng từ 17px lên 24px */
         }
 
         .count-info {
@@ -277,7 +278,6 @@
 
         .table-wrapper { overflow-x: auto; margin-bottom: 40px; }
 
-        /* Tiêu đề nhóm - Đã tăng kích cỡ chữ */
         .group-header {
             padding: 18px;
             font-weight: 800;
@@ -285,7 +285,7 @@
             margin: 25px 0 0 0;
             text-transform: uppercase;
             border-radius: 12px 12px 0 0;
-            font-size: 24px; /* Tăng từ 18px */
+            font-size: 24px;
             border: 1px solid transparent;
             box-sizing: border-box;
             letter-spacing: 1px;
@@ -303,24 +303,22 @@
             margin-top: 0 !important;
         }
 
-        /* Hàng tiêu đề bảng - Đã tăng kích cỡ chữ */
         th {
             background-color: #444;
             color: white;
             text-align: center;
             padding: 16px 10px;
             font-weight: 700;
-            font-size: 16px; /* Tăng từ 14px */
+            font-size: 16px;
             white-space: nowrap;
             border: none;
         }
 
-        /* Nội dung bảng - Đã tăng kích cỡ chữ */
         td {
             padding: 14px 10px;
             border-bottom: 1px solid #ddd;
             border-right: 1px solid #eee;
-            font-size: 15px; /* Tăng từ 14px */
+            font-size: 15px;
             line-height: 1.4;
             text-align: center;
             vertical-align: middle;
@@ -355,7 +353,7 @@
             padding: 5px 15px; 
             border-radius: 6px; 
             font-weight: 800; 
-            font-size: 16px; /* Tăng cỡ BIB */
+            font-size: 16px;
             display: inline-block;
             text-align: center;
             min-width: 60px;
@@ -368,6 +366,7 @@
         .mobile-only { display: none; }
 
         @media (max-width: 768px) {
+            .summary-box { font-size: 18px; gap: 10px; }
             .group-header { font-size: 20px; padding: 15px; }
             th { font-size: 14px; padding: 12px 5px; }
             td { font-size: 14px; padding: 10px 5px; }
@@ -425,7 +424,7 @@
 
 <div id="tab-runners" class="tab-content active">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦT THỨ I</h1>
         <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
         <div class="announcement">
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
