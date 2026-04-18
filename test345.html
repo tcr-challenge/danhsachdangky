@@ -3,96 +3,663 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Đăng Ký - Giải Chạy Đình Làng Thượng Cát 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            font-family: Arial, sans-serif;
+        :root {
+            --primary-color: #d32f2f; 
+            --primary-hover: #b71c1c;
+            --secondary-color: #1a237e; 
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --elite-color: #b8860b;
+            --bg-elite: #fff9e6;
+            --bg-4km: #fdf2f2;
+            --bg-2km: #f0f2ff;
         }
 
-        /* Phần tiêu đề nhóm màu vàng */
-        .group-header {
-            background-color: #FFD700;
-            color: #000;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cover-photo {
+            width: 100%;
+            max-width: 1200px;
+            height: auto;
+            min-height: 200px;
+            background: #ddd;
+            display: block;
+            border-bottom: 5px solid var(--primary-color);
+            object-fit: cover;
+        }
+
+        .tabs-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            background: #eee;
+            gap: 5px;
+            padding: 10px 10px 0 10px;
+            box-sizing: border-box;
+        }
+
+        .tab-link {
+            flex: 1;
+            padding: 15px 10px;
             text-align: center;
-            padding: 15px;
-            font-weight: bold;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            border-radius: 12px 12px 0 0;
+            background: #e0e0e0;
+            border: none;
+            position: relative;
+        }
+
+        .tab-link:hover {
+            background: #d6d6d6;
+            color: var(--secondary-color);
+        }
+
+        .tab-link.active {
+            color: #fff;
+            background: var(--primary-color);
+            box-shadow: 0 -4px 12px rgba(211, 47, 47, 0.2);
+            transform: translateY(-2px);
+            z-index: 2;
+        }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: #fff;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            line-height: 1.3;
+            font-weight: 800;
+        }
+
+        .header .sub-title {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .announcement {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: rgba(211, 47, 47, 0.1);
+            border-left: 5px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 15px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+
+        .race-date {
+            margin-top: 15px;
             font-size: 18px;
-            border-radius: 10px 10px 0 0; /* Bo góc trên */
-            margin-bottom: 0; /* Quan trọng: Xóa bỏ khoảng cách dưới */
+            font-weight: 800;
+            color: var(--secondary-color);
             text-transform: uppercase;
         }
+        
+        .registration-deadline {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
 
-        /* Phần bảng thông tin */
+        .search-container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #eee;
+        }
+        .search-input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 280px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-input:focus { border-color: var(--secondary-color); }
+        .search-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .search-btn:hover { opacity: 0.9; }
+        
+        .search-result-msg {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        .success-msg { color: #2e7d32; font-weight: 700; font-size: 18px; margin-bottom: 10px; }
+        .back-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #666;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .countdown-container {
+            margin: 10px auto;
+            text-align: center;
+            max-width: 500px;
+        }
+        .countdown-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .timer-box {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 60px;
+        }
+        .timer-num {
+            display: block;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .timer-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        .reg-button {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        }
+        .reg-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+            color: white;
+        }
+
+        .status-bar {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .summary-box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #444;
+            flex-wrap: wrap;
+        }
+
+        .count-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-wrapper { overflow-x: auto; margin-bottom: 40px; }
+
+        .group-header {
+            padding: 15px;
+            font-weight: 800;
+            text-align: center;
+            margin: 20px 0 0 0;
+            text-transform: uppercase;
+            border-radius: 12px 12px 0 0;
+            font-size: 18px;
+            border-bottom: none; /* Đảm bảo không hở viền dưới */
+        }
+
+        .header-elite { background-color: #ffd700; color: #000; border: 1px solid #b8860b; border-bottom: none; }
+        .header-4km { background-color: #ff5252; color: #fff; border: 1px solid #d32f2f; border-bottom: none; }
+        .header-2km { background-color: #3949ab; color: #fff; border: 1px solid #1a237e; border-bottom: none; }
+
         table {
             width: 100%;
-            border-collapse: collapse; /* Đảm bảo không có khoảng cách giữa các ô */
+            border-collapse: collapse;
+            min-width: 900px;
+            border: 1px solid #ddd;
             margin-top: 0; /* Quan trọng: Xóa bỏ khoảng cách trên của bảng */
         }
 
-        /* Hàng tiêu đề màu xanh */
-        thead th {
-            background-color: #2C3E50;
+        th {
+            background-color: #444;
             color: white;
-            padding: 12px 8px;
-            text-align: left;
+            text-align: center;
+            padding: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #eee;
             font-size: 14px;
-            border: none;
+            line-height: 1.4;
+            text-align: center;
+            vertical-align: middle;
         }
 
-        /* Các ô nội dung */
-        tbody td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #eee;
-            background-color: #FFFDF5;
+        tr.row-elite { background-color: var(--bg-elite); }
+        tr.row-4km { background-color: var(--bg-4km); }
+        tr.row-2km { background-color: var(--bg-2km); }
+        tr:hover { filter: brightness(0.97); }
+
+        .dist-pill {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 12px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 70px;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        /* Định dạng cột BIB */
-        .bib-tag {
-            background-color: #B8860B;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 5px;
+        .color-elite { color: var(--elite-color); font-weight: 800; font-size: 13px; }
+        .sub-elite { font-size: 10px; font-weight: 700; color: #666; margin-top: -2px; }
+        .color-4km { color: var(--primary-color); font-weight: 800; font-size: 14px; }
+        .color-2km { color: var(--secondary-color); font-weight: 800; font-size: 14px; }
+        
+        .bib-tag { 
+            color: #fff; 
+            padding: 4px 12px; 
+            border-radius: 6px; 
+            font-weight: 800; 
+            font-size: 15px;
             display: inline-block;
-            font-weight: bold;
+            text-align: center;
+            min-width: 55px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .bib-elite { background-color: var(--elite-color); }
+        .bib-4km { background-color: var(--primary-color); }
+        .bib-2km { background-color: var(--secondary-color); }
+
+        .mobile-only { display: none; }
+
+        @media (max-width: 768px) {
+            .tabs-container { gap: 2px; padding: 5px 5px 0 5px; }
+            .tab-link { font-size: 10px; padding: 12px 2px; border-radius: 8px 8px 0 0; }
+            table { min-width: 100%; }
+            .hide-mobile { display: none; }
+            .mobile-only { 
+                display: block; 
+                font-size: 12px; 
+                margin-top: 5px; 
+                padding-top: 5px; 
+                border-top: 1px dashed #ccc; 
+            }
+            th, td { padding: 10px 5px; font-size: 13px; }
+            .header h1 { font-size: 18px; }
+        }
+
+        .footer-info {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 60px;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+
+        .footer-info h2 {
+            font-size: 18px;
+            color: var(--secondary-color);
+            margin: 0 0 20px 0;
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .footer-grid {
+            display: flex;
+            align-items: stretch;
+            gap: 20px;
+        }
+
+        .footer-column {
+            flex: 1;
+            padding: 0 20px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #444;
+        }
+
+        .footer-column p { margin: 8px 0; }
+        .footer-divider { width: 1px; background-color: #ccc; margin: 0 10px; }
+        .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="group-header">
-        NHÓM ELITE (4KM) (10 VĐV)
-    </div>
+<img src="images/banner.jpg" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
 
-    <table>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>BIB</th>
-                <th>Họ và Tên</th>
-                <th>Năm sinh</th>
-                <th>Giới tính</th>
-                <th>Số điện thoại</th>
-                <th>Câu lạc bộ</th>
-                <th>Nhóm</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td><span class="bib-tag">1111</span></td>
-                <td>Cường Ngô</td>
-                <td>1980</td>
-                <td>Nam</td>
-                <td>09xx xxx xxx</td>
-                <td>Cá nhân</td>
-                <td>ELITE 4KM</td>
-            </tr>
-        </tbody>
-    </table>
+<div class="tabs-container">
+    <div class="tab-link active" onclick="openTab(event, 'tab-runners')">Danh sách VĐV</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ giải</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ đường chạy</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn VĐV</div>
 </div>
 
+<div id="tab-runners" class="tab-content active">
+    <div class="header">
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
+        <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
+        <div class="announcement">
+            📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
+        </div>
+
+        <div class="race-date">🗓 Ngày Race: 27/04/2026 (11/03 Âm lịch)</div>
+        <div class="registration-deadline">Hạn Đăng Ký: 23/04/2026</div>
+
+        <div class="countdown-container">
+            <div class="countdown-title">Thời gian đăng ký còn lại</div>
+            <div class="countdown-timer">
+                <div class="timer-box"><span class="timer-num" id="days">00</span><span class="timer-label">Ngày</span></div>
+                <div class="timer-box"><span class="timer-num" id="hours">00</span><span class="timer-label">Giờ</span></div>
+                <div class="timer-box"><span class="timer-num" id="minutes">00</span><span class="timer-label">Phút</span></div>
+                <div class="timer-box"><span class="timer-num" id="seconds">00</span><span class="timer-label">Giây</span></div>
+            </div>
+            <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên, Số điện thoại hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
+        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
+    </div>
+
+    <div id="search-result-area" class="search-result-msg">
+        <div id="msg-text" class="success-msg">Bạn đã đăng ký giải chạy</div>
+        <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Quay về trang ban đầu</a>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+        <div id="summary" class="summary-box"></div>
+        <div class="count-info">
+            <div id="count" style="font-weight: bold; color: var(--secondary-color);">Đang kết nối dữ liệu...</div>
+            <div id="update-time" style="color: #666; font-style: italic;"></div>
+        </div>
+    </div>
+
+    <div id="tables-container">
+        <div style="text-align:center; padding:40px;">Đang tải danh sách vận động viên...</div>
+    </div>
+</div>
+
+<div id="tab-rules" class="tab-content">
+    <div id="content-rules"><p style="text-align:center;">Đang tải nội dung thể lệ...</p></div>
+</div>
+<div id="tab-map" class="tab-content">
+    <div id="content-map" style="text-align: center;"><p>Đang tải sơ đồ đường chạy...</p></div>
+</div>
+<div id="tab-guide" class="tab-content">
+    <div id="content-guide"><p style="text-align:center;">Đang tải hướng dẫn...</p></div>
+</div>
+
+<div class="footer-info">
+    <h2>THÔNG TIN LIÊN HỆ</h2>
+    <div class="footer-grid">
+        <div class="footer-column">
+            <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
+            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
+            <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
+            <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
+            <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-column">
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
+            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
+            <p>Bản đồ: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) tabcontent[i].classList.remove("active");
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    async function loadTabContents() {
+        const tabs = [{ id: 'content-rules', file: 'theletcr.html' }, { id: 'content-map', file: 'sodotcr.html' }, { id: 'content-guide', file: 'huongdantcr.html' }];
+        tabs.forEach(async (tab) => {
+            try {
+                const response = await fetch(tab.file);
+                if (response.ok) document.getElementById(tab.id).innerHTML = await response.text();
+            } catch (e) { console.error(e); }
+        });
+    }
+
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
+    let allRunnersData = [];
+
+    const deadline = "2026-04-23T23:59:00"; 
+    function updateCountdown() {
+        const t = Date.parse(deadline) - Date.parse(new Date());
+        if (t >= 0) {
+            document.getElementById("days").innerText = Math.floor(t / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = ('0' + Math.floor((t / (1000 * 60 * 60)) % 24)).slice(-2);
+            document.getElementById("minutes").innerText = ('0' + Math.floor((t / 1000 / 60) % 60)).slice(-2);
+            document.getElementById("seconds").innerText = ('0' + Math.floor((t / 1000) % 60)).slice(-2);
+        }
+    }
+    setInterval(updateCountdown, 1000);
+
+    async function fetchData() {
+        try {
+            const response = await fetch(tsvUrl);
+            const text = await response.text();
+            const rows = text.split('\n').map(row => row.split('\t'));
+            if (rows.length > 1) { allRunnersData = rows; renderTable(rows); }
+        } catch (e) { console.error(e); }
+    }
+
+    function handleSearch() {
+        const input = document.getElementById('search-input').value.trim().toLowerCase();
+        if (!input) { resetTable(); return; }
+        const header = allRunnersData[0].map(h => h.toLowerCase().trim());
+        const bodyData = allRunnersData.slice(1);
+        const idxName = header.findIndex(h => h.includes('tên'));
+        const idxPhone = header.findIndex(h => h.includes('thoại'));
+        const idxBib = header.findIndex(h => h.includes('bib'));
+
+        const filtered = bodyData.filter(row => {
+            return (row[idxName]||"").toLowerCase().includes(input) || (row[idxPhone]||"").includes(input) || (row[idxBib]||"").toLowerCase().includes(input);
+        });
+
+        if (filtered.length > 0) {
+            renderTable([allRunnersData[0], ...filtered], true);
+            document.getElementById('search-result-area').style.display = 'block';
+            document.getElementById('msg-text').innerText = `Tìm thấy ${filtered.length} kết quả`;
+            document.getElementById('status-bar').style.display = 'none';
+        } else {
+            document.getElementById('tables-container').innerHTML = '<p style="text-align:center; color:red; font-weight:bold;">Không tìm thấy thông tin</p>';
+            document.getElementById('search-result-area').style.display = 'block';
+            document.getElementById('msg-text').innerText = "Không tìm thấy thông tin";
+            document.getElementById('status-bar').style.display = 'none';
+        }
+    }
+
+    function resetTable() {
+        document.getElementById('search-input').value = "";
+        document.getElementById('search-result-area').style.display = 'none';
+        document.getElementById('status-bar').style.display = 'block';
+        renderTable(allRunnersData);
+    }
+
+    function createTableHtml(title, runners, type, idxs) {
+        if (runners.length === 0) return "";
+        let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
+        let html = `<div class="group-header ${headerClass}">${title} (${runners.length} VĐV)</div>`;
+        html += `<div class="table-wrapper"><table><thead><tr>
+                    <th>STT</th><th>BIB</th><th>Họ và Tên</th>
+                    <th class="hide-mobile">Năm sinh</th><th class="hide-mobile">Giới tính</th>
+                    <th class="hide-mobile">Số điện thoại</th><th class="hide-mobile">Câu lạc bộ</th>
+                    <th>Nhóm</th>
+                </tr></thead><tbody>`;
+
+        runners.forEach((row, i) => {
+            let name = row[idxs.idxName].trim().replace(/^"|"$/g, '');
+            let distRaw = (row[idxs.idxDistance] || '').toLowerCase();
+            let clubRaw = (row[idxs.idxClub] || 'Cá nhân').trim();
+            let bibRaw = (row[idxs.idxBib] || '---').trim();
+            
+            let distDisplay = "";
+            let rowClass = "";
+
+            if (distRaw.includes("elite")) {
+                distDisplay = `<div class="dist-pill"><span class="color-elite">ELITE</span><span class="sub-elite">4KM</span></div>`;
+                rowClass = "row-elite";
+            } else if (distRaw.includes("4")) {
+                distDisplay = `<div class="dist-pill"><span class="color-4km">4KM</span></div>`;
+                rowClass = "row-4km";
+            } else {
+                distDisplay = `<div class="dist-pill"><span class="color-2km">2KM</span></div>`;
+                rowClass = "row-2km";
+            }
+
+            let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
+            let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
+
+            html += `<tr class="${rowClass}">
+                <td>${i + 1}</td>
+                <td><span class="bib-tag ${type===1?'bib-elite':(type===2?'bib-4km':'bib-2km')}">${bibRaw}</span></td>
+                <td style="font-weight:600; color:var(--secondary-color);">${name}
+                    <div class="mobile-only">CLB: ${clubRaw}</div>
+                </td>
+                <td class="hide-mobile">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
+                <td class="hide-mobile">${row[idxs.idxGender]||'---'}</td>
+                <td class="hide-mobile">${hiddenPhone}</td>
+                <td class="hide-mobile">${clubRaw}</td>
+                <td>${distDisplay}</td>
+            </tr>`;
+        });
+        return html + `</tbody></table></div>`;
+    }
+
+    function renderTable(rows, isSearch = false) {
+        const header = rows[0].map(h => h.toLowerCase().trim());
+        let bodyData = rows.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
+        const getIdx = (k) => header.findIndex(h => k.some(x => h.includes(x)));
+        const idxs = {
+            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
+            idxPhone: getIdx(['thoại']), idxClub: getIdx(['clb', 'đơn vị']), 
+            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
+        };
+
+        if (isSearch) {
+            document.getElementById('tables-container').innerHTML = createTableHtml("Kết quả tìm kiếm", bodyData, 0, idxs);
+            return;
+        }
+
+        const elite = bodyData.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
+        const km4 = bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
+        const km2 = bodyData.filter(r => (r[idxs.idxDistance]||"").includes("2"));
+
+        document.getElementById('tables-container').innerHTML = createTableHtml("Nhóm Elite (4KM)", elite, 1, idxs) + createTableHtml("Nhóm 4KM", km4, 2, idxs) + createTableHtml("Nhóm 2KM", km2, 3, idxs);
+        document.getElementById('summary').innerHTML = `<span>Elite: <b class="color-elite">${elite.length}</b></span> | <span>4KM: <b class="color-4km">${km4.length}</b></span> | <span>2KM: <b class="color-2km">${km2.length}</b></span>`;
+        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} VĐV`;
+        document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
+    }
+
+    fetchData();
+    loadTabContents();
+    setInterval(fetchData, 60000);
+</script>
+<footer style="text-align: center; margin-top: 30px; color: #999; font-size: 13px; padding-bottom: 20px;">
+    © 2026 Thượng Cát Runners | BƯỚC CHÂN DI SẢN
+</footer>
 </body>
 </html>
