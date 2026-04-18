@@ -199,52 +199,67 @@
             margin-top: 10px;
         }
 
+        /* ĐIỀU CHỈNH ĐỒNG HỒ TO VÀ NỔI BẬT HƠN */
         .countdown-container {
-            margin: 10px auto;
+            margin: 15px auto;
             text-align: center;
-            max-width: 500px;
+            max-width: 600px;
         }
         .countdown-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #555;
-            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 15px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .countdown-timer {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
         }
         .timer-box {
             background: var(--secondary-color);
             color: white;
-            padding: 10px;
-            border-radius: 8px;
-            min-width: 60px;
+            padding: 15px 10px;
+            border-radius: 12px;
+            min-width: 85px;
+            box-shadow: 0 5px 15px rgba(26, 35, 126, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .timer-num {
             display: block;
-            font-size: 24px;
+            font-size: 42px; /* Tăng từ 24px */
             font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         .timer-label {
-            font-size: 10px;
+            font-size: 12px;
             text-transform: uppercase;
-            opacity: 0.8;
+            font-weight: 700;
+            opacity: 0.9;
+            letter-spacing: 1px;
         }
+
         .reg-button {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 25px;
             background-color: var(--primary-color);
             color: white;
-            padding: 12px 30px;
+            padding: 15px 40px;
             border-radius: 50px;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
+            font-weight: 800;
+            font-size: 18px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+            text-transform: uppercase;
+        }
+        .reg-button:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
         }
 
         .status-bar {
@@ -255,11 +270,10 @@
             border-top: 1px solid #eee;
         }
 
-        /* Sửa cỡ chữ phần tóm tắt to lên */
         .summary-box {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 10px;
             padding: 15px;
             background: #f9f9f9;
@@ -267,7 +281,12 @@
             font-weight: 700;
             color: #444;
             flex-wrap: wrap;
-            font-size: 24px; /* Tăng từ 17px lên 24px */
+            font-size: 24px; 
+        }
+
+        .summary-box b {
+            font-size: 28px;
+            vertical-align: middle;
         }
 
         .count-info {
@@ -366,7 +385,11 @@
         .mobile-only { display: none; }
 
         @media (max-width: 768px) {
+            .timer-box { min-width: 65px; padding: 10px 5px; }
+            .timer-num { font-size: 28px; }
+            .timer-label { font-size: 10px; }
             .summary-box { font-size: 18px; gap: 10px; }
+            .summary-box b { font-size: 20px; }
             .group-header { font-size: 20px; padding: 15px; }
             th { font-size: 14px; padding: 12px 5px; }
             td { font-size: 14px; padding: 10px 5px; }
@@ -424,7 +447,7 @@
 
 <div id="tab-runners" class="tab-content active">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦT THỨ I</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
         <div class="announcement">
             📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
