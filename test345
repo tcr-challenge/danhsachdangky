@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Phần tiêu đề nhóm màu vàng */
+        .group-header {
+            background-color: #FFD700;
+            color: #000;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 10px 10px 0 0; /* Bo góc trên */
+            margin-bottom: 0; /* Quan trọng: Xóa bỏ khoảng cách dưới */
+            text-transform: uppercase;
+        }
+
+        /* Phần bảng thông tin */
+        table {
+            width: 100%;
+            border-collapse: collapse; /* Đảm bảo không có khoảng cách giữa các ô */
+            margin-top: 0; /* Quan trọng: Xóa bỏ khoảng cách trên của bảng */
+        }
+
+        /* Hàng tiêu đề màu xanh */
+        thead th {
+            background-color: #2C3E50;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 14px;
+            border: none;
+        }
+
+        /* Các ô nội dung */
+        tbody td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            background-color: #FFFDF5;
+        }
+
+        /* Định dạng cột BIB */
+        .bib-tag {
+            background-color: #B8860B;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="group-header">
+        NHÓM ELITE (4KM) (10 VĐV)
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>BIB</th>
+                <th>Họ và Tên</th>
+                <th>Năm sinh</th>
+                <th>Giới tính</th>
+                <th>Số điện thoại</th>
+                <th>Câu lạc bộ</th>
+                <th>Nhóm</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td><span class="bib-tag">1111</span></td>
+                <td>Cường Ngô</td>
+                <td>1980</td>
+                <td>Nam</td>
+                <td>09xx xxx xxx</td>
+                <td>Cá nhân</td>
+                <td>ELITE 4KM</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
