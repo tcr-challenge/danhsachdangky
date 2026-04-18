@@ -667,9 +667,9 @@
         const km4 = bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
         const km2 = bodyData.filter(r => (r[idxs.idxDistance]||"").includes("2"));
 
-        document.getElementById('tables-container').innerHTML = createTableHtml("Nhóm Elite (4KM)", elite, 1, idxs) + createTableHtml("Nhóm 4KM", km4, 2, idxs) + createTableHtml("Nhóm 2KM", km2, 3, idxs);
+        document.getElementById('tables-container').innerHTML = createTableHtml("Nhóm Elite - 4KM", elite, 1, idxs) + createTableHtml("Nhóm 4KM", km4, 2, idxs) + createTableHtml("Nhóm 2KM", km2, 3, idxs);
         document.getElementById('summary').innerHTML = `<span>Elite: <b class="color-elite">${elite.length}</b></span> | <span>4KM: <b class="color-4km">${km4.length}</b></span> | <span>2KM: <b class="color-2km">${km2.length}</b></span>`;
-        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} VĐV`;
+        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} Vận động viên đã đăng ký`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
