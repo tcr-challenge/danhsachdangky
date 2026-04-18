@@ -281,15 +281,17 @@
 
         .table-wrapper { overflow-x: auto; margin-bottom: 40px; }
 
+        /* Sửa tiêu đề nhóm để dính sát vào bảng */
         .group-header {
             padding: 15px;
             font-weight: 800;
             text-align: center;
-            margin: 20px 0 0 0;
+            margin: 20px 0 0 0; /* Chỉ giữ margin-top để tách các khối */
             text-transform: uppercase;
             border-radius: 12px 12px 0 0;
             font-size: 18px;
-            border-bottom: none; /* Đảm bảo không hở viền dưới */
+            border: 1px solid transparent;
+            box-sizing: border-box;
         }
 
         .header-elite { background-color: #ffd700; color: #000; border: 1px solid #b8860b; border-bottom: none; }
@@ -301,7 +303,7 @@
             border-collapse: collapse;
             min-width: 900px;
             border: 1px solid #ddd;
-            margin-top: 0; /* Quan trọng: Xóa bỏ khoảng cách trên của bảng */
+            margin-top: 0 !important; /* Triệt tiêu khoảng cách phía trên bảng */
         }
 
         th {
@@ -311,6 +313,7 @@
             padding: 15px;
             font-weight: 600;
             white-space: nowrap;
+            border: none;
         }
 
         td {
