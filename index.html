@@ -560,8 +560,8 @@
     <h2>THÔNG TIN LIÊN HỆ</h2>
     <div class="footer-grid">
         <div class="footer-column">
-            <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
-            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
+            <p><strong>TIỂU BAN TỔ CHỨC GIẢI CHẠY</strong></p>
+            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng Tiểu BTC - Chủ nhiệm TCR)</p>
             <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
             <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
             <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
@@ -660,7 +660,7 @@
         if (filtered.length > 0) {
             renderTable([allRunnersData[0], ...filtered], true);
             document.getElementById('search-result-area').style.display = 'block';
-            document.getElementById('msg-text').innerText = `Tìm thấy ${filtered.length} VĐV`;
+            document.getElementById('msg-text').innerText = `Tìm thấy ${filtered.length} vận động viên`;
             document.getElementById('status-bar').style.display = 'none';
         } else {
             document.getElementById('tables-container').innerHTML = '<p style="text-align:center; color:red; font-weight:bold; margin-top:20px;">Không tìm thấy thông tin</p>';
@@ -747,7 +747,7 @@
 
         document.getElementById('tables-container').innerHTML = createTableHtml("Nhóm Elite - 4KM", elite, 1, idxs) + createTableHtml("Nhóm 4KM", km4, 2, idxs) + createTableHtml("Nhóm 2KM", km2, 3, idxs);
         document.getElementById('summary').innerHTML = `<span>Elite: <b class="color-elite">${elite.length}</b></span> | <span>4KM: <b class="color-4km">${km4.length}</b></span> | <span>2KM: <b class="color-2km">${km2.length}</b></span>`;
-        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} VĐV`;
+        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} vận động viên đã đăng ký`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
