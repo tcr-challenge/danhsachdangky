@@ -328,13 +328,14 @@
         .header-4km { background-color: #ff5252; color: #fff; border: 1px solid #d32f2f; border-bottom: none; }
         .header-2km { background-color: #3949ab; color: #fff; border: 1px solid #1a237e; border-bottom: none; }
 
+        /* PHÂN BỔ ĐỘ RỘNG CỘT TRÊN DESKTOP */
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 900px;
             border: 1px solid #ddd;
             margin-top: 0 !important;
-            table-layout: fixed;
+            table-layout: fixed; /* Khóa độ rộng cột */
         }
 
         th, td {
@@ -343,7 +344,7 @@
             border-right: 1px solid #eee;
             font-size: 15px;
             line-height: 1.4;
-            text-align: center; /* Căn giữa toàn bộ theo yêu cầu */
+            text-align: center;
             vertical-align: middle;
             color: #333;
             word-wrap: break-word;
@@ -351,14 +352,14 @@
 
         th { background-color: #444; color: white; font-weight: 700; }
 
-        /* Phân bổ độ rộng cột */
+        /* Thiết lập độ rộng cụ thể cho từng cột */
         .col-stt { width: 50px; }
         .col-bib { width: 80px; }
-        .col-name { width: 220px; text-align: left; padding-left: 15px; } /* Tên giữ căn trái */
+        .col-name { width: 220px; text-align: left; padding-left: 15px; }
         .col-birth { width: 90px; }
         .col-gender { width: 90px; }
         .col-phone { width: 130px; }
-        .col-club { width: auto; text-align: left; padding-left: 10px; } /* CLB giữ căn trái */
+        .col-club { width: auto; text-align: left; padding-left: 10px; }
         .col-group { width: 90px; }
 
         tr.row-elite { background-color: var(--bg-elite); }
@@ -408,13 +409,16 @@
             .summary-box { font-size: 16px; gap: 8px; }
             .group-header { font-size: 16px; padding: 12px; }
             
-            table { min-width: 100%; table-layout: auto; }
-            th, td { font-size: 13px; padding: 10px 2px; text-align: center; }
-            .col-name { text-align: left; }
+            table { 
+                min-width: 100%; 
+                table-layout: auto; 
+            }
+            th, td { font-size: 13px; padding: 10px 2px; }
             
             .hide-mobile { display: none; }
             .mobile-only { display: block; font-size: 11px; margin-top: 4px; color: #666; font-weight: 400; border-top: 1px dashed #ccc; padding-top: 4px; }
             
+            /* Tỷ lệ mobile */
             .col-stt { width: 35px; }
             .col-bib { width: 65px; }
             .col-group { width: 70px; }
@@ -669,9 +673,8 @@
                 rowClass = "row-2km";
             }
 
-            // Xử lý ẩn số điện thoại theo yêu cầu mới: TCR-xxxx
             let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
-            let hiddenPhone = phoneVal.length >= 4 ? `TCR-${phoneVal.slice(-4)}` : '---';
+            let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
 
             html += `<tr class="${rowClass}">
                 <td class="col-stt">${i + 1}</td>
