@@ -26,6 +26,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
 
         .cover-photo {
@@ -215,7 +216,7 @@
         .countdown-timer {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
         }
         .timer-box {
             background: var(--secondary-color);
@@ -294,7 +295,11 @@
             align-items: center;
         }
 
-        .table-wrapper { overflow-x: auto; margin-bottom: 40px; }
+        .table-wrapper { 
+            overflow-x: hidden; 
+            margin-bottom: 40px; 
+            width: 100%;
+        }
 
         .group-header {
             padding: 18px;
@@ -307,6 +312,7 @@
             border: 1px solid transparent;
             box-sizing: border-box;
             letter-spacing: 1px;
+            width: 100%;
         }
 
         .header-elite { background-color: #ffd700; color: #000; border: 1px solid #b8860b; border-bottom: none; }
@@ -319,21 +325,21 @@
             min-width: 900px;
             border: 1px solid #ddd;
             margin-top: 0 !important;
+            table-layout: fixed;
         }
 
         th {
             background-color: #444;
             color: white;
             text-align: center;
-            padding: 16px 10px;
+            padding: 16px 5px;
             font-weight: 700;
             font-size: 16px;
-            white-space: nowrap;
             border: none;
         }
 
         td {
-            padding: 14px 10px;
+            padding: 14px 5px;
             border-bottom: 1px solid #ddd;
             border-right: 1px solid #eee;
             font-size: 15px;
@@ -341,6 +347,7 @@
             text-align: center;
             vertical-align: middle;
             color: #333;
+            word-wrap: break-word;
         }
 
         tr.row-elite { background-color: var(--bg-elite); }
@@ -353,11 +360,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 6px 14px;
+            padding: 4px 8px;
             border-radius: 8px;
             background: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            min-width: 75px;
+            min-width: 60px;
             border: 1px solid rgba(0,0,0,0.05);
         }
 
@@ -368,13 +375,13 @@
         
         .bib-tag { 
             color: #fff; 
-            padding: 5px 15px; 
+            padding: 5px 8px; 
             border-radius: 6px; 
             font-weight: 800; 
-            font-size: 16px;
+            font-size: 14px;
             display: inline-block;
             text-align: center;
-            min-width: 60px;
+            min-width: 50px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .bib-elite { background-color: var(--elite-color); }
@@ -384,18 +391,29 @@
         .mobile-only { display: none; }
 
         @media (max-width: 768px) {
-            .timer-box { min-width: 65px; padding: 10px 5px; }
-            .timer-num { font-size: 28px; }
-            .timer-label { font-size: 10px; }
-            .summary-box { font-size: 18px; gap: 10px; }
-            .summary-box b { font-size: 20px; }
-            .group-header { font-size: 20px; padding: 15px; }
-            th { font-size: 14px; padding: 12px 5px; }
-            td { font-size: 14px; padding: 10px 5px; }
-            .bib-tag { font-size: 14px; padding: 4px 10px; }
-            .header h1 { font-size: 18px; }
-            .mobile-only { display: block; font-size: 13px; margin-top: 5px; color: #666; font-weight: 400; border-top: 1px dashed #ccc; padding-top: 5px; }
+            .tab-content { padding: 15px; }
+            .timer-box { min-width: 60px; padding: 10px 5px; }
+            .timer-num { font-size: 24px; }
+            .timer-label { font-size: 9px; }
+            .summary-box { font-size: 16px; gap: 8px; }
+            .summary-box b { font-size: 18px; }
+            .group-header { font-size: 16px; padding: 12px; }
+            
+            /* Tối ưu hóa bảng cho Mobile - KHÔNG TRÀN NGANG */
+            table { 
+                min-width: 100%; 
+                table-layout: auto; 
+            }
+            th { font-size: 13px; padding: 10px 2px; }
+            td { font-size: 13px; padding: 10px 2px; }
+            
             .hide-mobile { display: none; }
+            .mobile-only { display: block; font-size: 11px; margin-top: 4px; color: #666; font-weight: 400; border-top: 1px dashed #ccc; padding-top: 4px; }
+            
+            /* Chỉ định chiều rộng cụ thể cho các cột quan trọng */
+            th:nth-child(1), td:nth-child(1) { width: 35px; } /* STT */
+            th:nth-child(2), td:nth-child(2) { width: 65px; } /* BIB */
+            th:nth-child(8), td:nth-child(8) { width: 70px; } /* Nhóm/Cự ly */
         }
 
         .footer-info {
@@ -419,11 +437,13 @@
             display: flex;
             align-items: stretch;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         .footer-column {
             flex: 1;
-            padding: 0 20px;
+            min-width: 280px;
+            padding: 0 10px;
             font-size: 14px;
             line-height: 1.4;
             color: #444;
@@ -432,6 +452,12 @@
         .footer-column p { margin: 8px 0; }
         .footer-divider { width: 1px; background-color: #ccc; margin: 0 10px; }
         .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+
+        @media (max-width: 600px) {
+            .footer-divider { display: none; }
+            .header h1 { font-size: 18px; }
+            .search-input { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -440,82 +466,74 @@
 
 <div class="tabs-container">
     <div class="tab-link active" onclick="openTab(event, 'tab-runners')">Danh sách VĐV</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ giải</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ đường chạy</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn VĐV</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn</div>
 </div>
 
 <div id="tab-runners" class="tab-content active">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>
         <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
-        <div class="announcement">
-            📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
-        </div>
-
-        <div class="race-date">🗓 Ngày Race: 27/04/2026 (11/03 Âm lịch)</div>
-        <div class="registration-deadline">Hạn Đăng Ký: 23/04/2026</div>
+        
+        <div class="race-date">🗓 27/04/2026 (11/03 Âm lịch)</div>
 
         <div class="countdown-container">
-            <div class="countdown-title">Thời gian đăng ký còn lại</div>
             <div class="countdown-timer">
                 <div class="timer-box"><span class="timer-num" id="days">00</span><span class="timer-label">Ngày</span></div>
                 <div class="timer-box"><span class="timer-num" id="hours">00</span><span class="timer-label">Giờ</span></div>
                 <div class="timer-box"><span class="timer-num" id="minutes">00</span><span class="timer-label">Phút</span></div>
                 <div class="timer-box"><span class="timer-num" id="seconds">00</span><span class="timer-label">Giây</span></div>
             </div>
-            <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
+            <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ NGAY</a>
         </div>
     </div>
 
     <div class="search-container">
-        <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên, Số điện thoại hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
-        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
+        <input type="text" id="search-input" class="search-input" placeholder="Tên, SĐT hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
+        <button class="search-btn" onclick="handleSearch()">Tìm</button>
     </div>
 
     <div id="search-result-area" class="search-result-msg">
-        <div id="msg-text" class="success-msg">Bạn đã đăng ký giải chạy</div>
-        <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Quay về trang ban đầu</a>
+        <div id="msg-text" class="success-msg">Kết quả tìm kiếm</div>
+        <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Tất cả danh sách</a>
     </div>
 
     <div class="status-bar" id="status-bar">
         <div id="summary" class="summary-box"></div>
         <div class="count-info">
-            <div id="count" style="font-weight: bold; color: var(--secondary-color); font-size: 18px;">Đang kết nối dữ liệu...</div>
-            <div id="update-time" style="color: #666; font-style: italic;"></div>
+            <div id="count" style="font-weight: bold; color: var(--secondary-color);">...</div>
+            <div id="update-time" style="color: #666; font-size: 12px;"></div>
         </div>
     </div>
 
     <div id="tables-container">
-        <div style="text-align:center; padding:40px; font-size: 18px;">Đang tải danh sách vận động viên...</div>
+        <div style="text-align:center; padding:40px;">Đang tải dữ liệu...</div>
     </div>
 </div>
 
 <div id="tab-rules" class="tab-content">
-    <div id="content-rules"><p style="text-align:center;">Đang tải nội dung thể lệ...</p></div>
+    <div id="content-rules"><p style="text-align:center;">Đang tải...</p></div>
 </div>
 <div id="tab-map" class="tab-content">
-    <div id="content-map" style="text-align: center;"><p>Đang tải sơ đồ đường chạy...</p></div>
+    <div id="content-map" style="text-align: center;"><p>Đang tải...</p></div>
 </div>
 <div id="tab-guide" class="tab-content">
-    <div id="content-guide"><p style="text-align:center;">Đang tải hướng dẫn...</p></div>
+    <div id="content-guide"><p style="text-align:center;">Đang tải...</p></div>
 </div>
 
 <div class="footer-info">
-    <h2>THÔNG TIN LIÊN HỆ</h2>
+    <h2>LIÊN HỆ</h2>
     <div class="footer-grid">
         <div class="footer-column">
-            <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
-            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
-            <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
-            <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
-            <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
+            <p><strong>BAN TỔ CHỨC</strong></p>
+            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606</p>
+            <p>Facebook: <a href="https://vnshort.com/WL5A" target="_blank">TCR - Thượng Cát Runners</a></p>
         </div>
         <div class="footer-divider"></div>
         <div class="footer-column">
-            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
-            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
-            <p>Bản đồ: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
+            <p><strong>THÔNG TIN LỄ HỘI</strong></p>
+            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a></p>
         </div>
     </div>
 </div>
@@ -581,13 +599,12 @@
         if (filtered.length > 0) {
             renderTable([allRunnersData[0], ...filtered], true);
             document.getElementById('search-result-area').style.display = 'block';
-            document.getElementById('msg-text').innerText = `Tìm thấy ${filtered.length} kết quả`;
+            document.getElementById('msg-text').innerText = `Tìm thấy ${filtered.length} VĐV`;
             document.getElementById('status-bar').style.display = 'none';
         } else {
-            document.getElementById('tables-container').innerHTML = '<p style="text-align:center; color:red; font-weight:bold; font-size:18px;">Không tìm thấy thông tin</p>';
+            document.getElementById('tables-container').innerHTML = '<p style="text-align:center; color:red; font-weight:bold; margin-top:20px;">Không tìm thấy thông tin</p>';
             document.getElementById('search-result-area').style.display = 'block';
-            document.getElementById('msg-text').innerText = "Không tìm thấy thông tin";
-            document.getElementById('status-bar').style.display = 'none';
+            document.getElementById('msg-text').innerText = "Không tìm thấy";
         }
     }
 
@@ -601,29 +618,26 @@
     function createTableHtml(title, runners, type, idxs) {
         if (runners.length === 0) return "";
         let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
-        let html = `<div class="group-header ${headerClass}">${title} (${runners.length} VĐV)</div>`;
+        let html = `<div class="group-header ${headerClass}">${title} (${runners.length})</div>`;
         html += `<div class="table-wrapper"><table><thead><tr>
                     <th>STT</th><th>BIB</th><th>Họ và Tên</th>
                     <th class="hide-mobile">Năm sinh</th><th class="hide-mobile">Giới tính</th>
-                    <th class="hide-mobile">Số điện thoại</th><th class="hide-mobile">Câu lạc bộ</th>
+                    <th class="hide-mobile">SĐT</th><th class="hide-mobile">CLB/Địa phương</th>
                     <th>Nhóm</th>
                 </tr></thead><tbody>`;
 
         runners.forEach((row, i) => {
             let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
             let distRaw = (row[idxs.idxDistance] || '').toLowerCase();
-            
-            // Cập nhật logic: Lấy đúng cột theo tiêu đề dài. Nếu dữ liệu thô là "Cá Nhân" hoặc trống thì mới hiển thị "Cá nhân"
             let rawClubValue = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '');
             let clubRaw = (rawClubValue === "" || rawClubValue.toLowerCase() === "cá nhân") ? 'Cá nhân' : rawClubValue;
-            
             let bibRaw = (row[idxs.idxBib] || '---').trim();
             
             let distDisplay = "";
             let rowClass = "";
 
             if (distRaw.includes("elite")) {
-                distDisplay = `<div class="dist-pill"><span class="color-elite">ELITE</span><span class="sub-elite">4KM</span></div>`;
+                distDisplay = `<div class="dist-pill"><span class="color-elite">ELITE</span></div>`;
                 rowClass = "row-elite";
             } else if (distRaw.includes("4")) {
                 distDisplay = `<div class="dist-pill"><span class="color-4km">4KM</span></div>`;
@@ -639,7 +653,7 @@
             html += `<tr class="${rowClass}">
                 <td>${i + 1}</td>
                 <td><span class="bib-tag ${type===1?'bib-elite':(type===2?'bib-4km':'bib-2km')}">${bibRaw}</span></td>
-                <td style="font-weight:700; color:var(--secondary-color);">${name}
+                <td style="font-weight:700; color:var(--secondary-color); text-align:left; padding-left:5px;">${name}
                     <div class="mobile-only">CLB: ${clubRaw}</div>
                 </td>
                 <td class="hide-mobile">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
@@ -657,17 +671,13 @@
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
         
-        // CẬP NHẬT TÌM KIẾM CHỈ SỐ CỘT (Dựa trên tiêu đề thực tế anh gửi)
-        const getIdx = (keywords) => {
-            return header.findIndex(h => keywords.some(k => h.includes(k)));
-        };
+        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
 
         const idxs = {
             idxName: getIdx(['tên']), 
             idxGender: getIdx(['giới']), 
             idxBirth: getIdx(['sinh']),
             idxPhone: getIdx(['thoại', 'phone']), 
-            // Dò tìm thông minh: chứa 'club' hoặc 'địa phương' sẽ trúng cột G
             idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
             idxDistance: getIdx(['cự ly']), 
             idxBib: getIdx(['bib'])
@@ -684,7 +694,7 @@
 
         document.getElementById('tables-container').innerHTML = createTableHtml("Nhóm Elite - 4KM", elite, 1, idxs) + createTableHtml("Nhóm 4KM", km4, 2, idxs) + createTableHtml("Nhóm 2KM", km2, 3, idxs);
         document.getElementById('summary').innerHTML = `<span>Elite: <b class="color-elite">${elite.length}</b></span> | <span>4KM: <b class="color-4km">${km4.length}</b></span> | <span>2KM: <b class="color-2km">${km2.length}</b></span>`;
-        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} Vận động viên đã đăng ký`;
+        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} VĐV`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
 
@@ -692,7 +702,7 @@
     loadTabContents();
     setInterval(fetchData, 60000);
 </script>
-<footer style="text-align: center; margin-top: 30px; color: #999; font-size: 14px; padding-bottom: 20px;">
+<footer style="text-align: center; margin-top: 30px; color: #999; font-size: 12px; padding-bottom: 20px;">
     © 2026 Thượng Cát Runners | BƯỚC CHÂN DI SẢN
 </footer>
 </body>
