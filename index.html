@@ -473,48 +473,58 @@
 
 <div class="tabs-container">
     <div class="tab-link active" onclick="openTab(event, 'tab-runners')">Danh sách VĐV</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ giải</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ đường chạy</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn VĐV</div>
 </div>
 
 <div id="tab-runners" class="tab-content active">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
         <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
-        <div class="race-date">🗓 27/04/2026 (11/03 Âm lịch)</div>
+        <div class="announcement">
+            📢 THÔNG BÁO: BTC điều chỉnh cự ly thi đấu (4KM & 2KM) nhằm đảm bảo cung đường chạy tốt nhất cho các vận động viên.
+        </div>
+
+        <div class="race-date">🗓 Ngày Race: 27/04/2026 (11/03 Âm lịch)</div>
+        <div class="registration-deadline">Hạn Đăng Ký: 23/04/2026</div>
+
         <div class="countdown-container">
+            <div class="countdown-title">Thời gian đăng ký còn lại</div>
             <div class="countdown-timer">
                 <div class="timer-box"><span class="timer-num" id="days">00</span><span class="timer-label">Ngày</span></div>
                 <div class="timer-box"><span class="timer-num" id="hours">00</span><span class="timer-label">Giờ</span></div>
                 <div class="timer-box"><span class="timer-num" id="minutes">00</span><span class="timer-label">Phút</span></div>
                 <div class="timer-box"><span class="timer-num" id="seconds">00</span><span class="timer-label">Giây</span></div>
             </div>
-            <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ NGAY</a>
+            <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
         </div>
     </div>
-    <div class="search-container">
-        <input type="text" id="search-input" class="search-input" placeholder="Tên, SĐT hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
-        <button class="search-btn" onclick="handleSearch()">Tìm</button>
+<div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên, Số điện thoại hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
+        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
     </div>
+
     <div id="search-result-area" class="search-result-msg">
-        <div id="msg-text" class="success-msg">Kết quả tìm kiếm</div>
-        <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Tất cả danh sách</a>
+        <div id="msg-text" class="success-msg">Bạn đã đăng ký giải chạy</div>
+        <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Quay về trang ban đầu</a>
     </div>
-    <div class="status-bar" id="status-bar">
+<div class="status-bar" id="status-bar">
         <div id="summary" class="summary-box"></div>
         <div class="count-info">
-            <div id="count" style="font-weight: bold; color: var(--secondary-color);">...</div>
-            <div id="update-time" style="color: #666; font-size: 12px;"></div>
+            <div id="count" style="font-weight: bold; color: var(--secondary-color); font-size: 18px;">Đang kết nối dữ liệu...</div>
+            <div id="update-time" style="color: #666; font-style: italic;"></div>
         </div>
     </div>
+    </div>
+    
     <div id="tables-container">
         <div style="text-align:center; padding:40px;">Đang tải dữ liệu...</div>
     </div>
 </div>
 
 <div id="tab-rules" class="tab-content">
-    <div id="content-rules"><p style="text-align:center;">Đang tải...</p></div>
+    <div id="content-rules"><p style="text-align:center;">Đang tải nội dung thể lệ...</p></div>
 </div>
 
 <div id="tab-map" class="tab-content">
@@ -532,17 +542,20 @@
 </div>
 
 <div class="footer-info">
-    <h2>LIÊN HỆ</h2>
+    <h2>THÔNG TIN LIÊN HỆ</h2>
     <div class="footer-grid">
         <div class="footer-column">
-            <p><strong>BAN TỔ CHỨC</strong></p>
-            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606</p>
-            <p>Facebook: <a href="https://vnshort.com/WL5A" target="_blank">TCR - Thượng Cát Runners</a></p>
+            <p><strong>BAN TỔ CHỨC GIẢI CHẠY</strong></p>
+            <p>Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
+            <p>Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank">@ThuongCatRunners - TCR</a></p>
+            <p>Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank">Thượng Cát Runners</a></p>
+            <p>Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank">vnshort.com/vy6J</a></p>
         </div>
         <div class="footer-divider"></div>
         <div class="footer-column">
-            <p><strong>THÔNG TIN LỄ HỘI</strong></p>
-            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a></p>
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
+            <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
+            <p>Bản đồ: <a href="https://www.google.com/maps" target="_blank">Xem trên Google Maps</a></p>
         </div>
     </div>
 </div>
