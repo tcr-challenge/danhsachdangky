@@ -101,6 +101,42 @@
             display: block;
         }
 
+        #content-map {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #content-map img {
+            max-width: 100%;
+            height: auto;
+            cursor: zoom-in;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        #map-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+
+        #map-overlay img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
@@ -123,31 +159,12 @@
             font-weight: 500;
         }
 
-        .announcement {
-            margin-top: 20px;
-            padding: 12px;
-            background-color: rgba(211, 47, 47, 0.1);
-            border-left: 5px solid var(--primary-color);
-            color: var(--primary-color);
-            font-weight: 700;
-            font-size: 15px;
-            display: inline-block;
-            border-radius: 4px;
-        }
-
         .race-date {
             margin-top: 15px;
             font-size: 18px;
             font-weight: 800;
             color: var(--secondary-color);
             text-transform: uppercase;
-        }
-        
-        .registration-deadline {
-            margin-top: 5px;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary-color);
         }
 
         .search-container {
@@ -204,14 +221,6 @@
             margin: 15px auto;
             text-align: center;
             max-width: 600px;
-        }
-        .countdown-title {
-            font-size: 16px;
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .countdown-timer {
             display: flex;
@@ -319,26 +328,17 @@
         .header-4km { background-color: #ff5252; color: #fff; border: 1px solid #d32f2f; border-bottom: none; }
         .header-2km { background-color: #3949ab; color: #fff; border: 1px solid #1a237e; border-bottom: none; }
 
+        /* PHÂN BỔ ĐỘ RỘNG CỘT TRÊN DESKTOP */
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 900px;
             border: 1px solid #ddd;
             margin-top: 0 !important;
-            table-layout: fixed;
+            table-layout: fixed; /* Khóa độ rộng cột */
         }
 
-        th {
-            background-color: #444;
-            color: white;
-            text-align: center;
-            padding: 16px 5px;
-            font-weight: 700;
-            font-size: 16px;
-            border: none;
-        }
-
-        td {
+        th, td {
             padding: 14px 5px;
             border-bottom: 1px solid #ddd;
             border-right: 1px solid #eee;
@@ -349,6 +349,18 @@
             color: #333;
             word-wrap: break-word;
         }
+
+        th { background-color: #444; color: white; font-weight: 700; }
+
+        /* Thiết lập độ rộng cụ thể cho từng cột */
+        .col-stt { width: 50px; }
+        .col-bib { width: 80px; }
+        .col-name { width: 220px; text-align: left; padding-left: 15px; }
+        .col-birth { width: 90px; }
+        .col-gender { width: 90px; }
+        .col-phone { width: 130px; }
+        .col-club { width: auto; text-align: left; padding-left: 10px; }
+        .col-group { width: 90px; }
 
         tr.row-elite { background-color: var(--bg-elite); }
         tr.row-4km { background-color: var(--bg-4km); }
@@ -369,7 +381,6 @@
         }
 
         .color-elite { color: var(--elite-color); font-weight: 800; font-size: 14px; }
-        .sub-elite { font-size: 11px; font-weight: 700; color: #666; margin-top: -2px; }
         .color-4km { color: var(--primary-color); font-weight: 800; font-size: 14px; }
         .color-2km { color: var(--secondary-color); font-weight: 800; font-size: 14px; }
         
@@ -396,24 +407,21 @@
             .timer-num { font-size: 24px; }
             .timer-label { font-size: 9px; }
             .summary-box { font-size: 16px; gap: 8px; }
-            .summary-box b { font-size: 18px; }
             .group-header { font-size: 16px; padding: 12px; }
             
-            /* Tối ưu hóa bảng cho Mobile - KHÔNG TRÀN NGANG */
             table { 
                 min-width: 100%; 
                 table-layout: auto; 
             }
-            th { font-size: 13px; padding: 10px 2px; }
-            td { font-size: 13px; padding: 10px 2px; }
+            th, td { font-size: 13px; padding: 10px 2px; }
             
             .hide-mobile { display: none; }
             .mobile-only { display: block; font-size: 11px; margin-top: 4px; color: #666; font-weight: 400; border-top: 1px dashed #ccc; padding-top: 4px; }
             
-            /* Chỉ định chiều rộng cụ thể cho các cột quan trọng */
-            th:nth-child(1), td:nth-child(1) { width: 35px; } /* STT */
-            th:nth-child(2), td:nth-child(2) { width: 65px; } /* BIB */
-            th:nth-child(8), td:nth-child(8) { width: 70px; } /* Nhóm/Cự ly */
+            /* Tỷ lệ mobile */
+            .col-stt { width: 35px; }
+            .col-bib { width: 65px; }
+            .col-group { width: 70px; }
         }
 
         .footer-info {
@@ -449,7 +457,6 @@
             color: #444;
         }
 
-        .footer-column p { margin: 8px 0; }
         .footer-divider { width: 1px; background-color: #ccc; margin: 0 10px; }
         .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
 
@@ -475,9 +482,7 @@
     <div class="header">
         <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>
         <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
-        
         <div class="race-date">🗓 27/04/2026 (11/03 Âm lịch)</div>
-
         <div class="countdown-container">
             <div class="countdown-timer">
                 <div class="timer-box"><span class="timer-num" id="days">00</span><span class="timer-label">Ngày</span></div>
@@ -488,17 +493,14 @@
             <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ NGAY</a>
         </div>
     </div>
-
     <div class="search-container">
         <input type="text" id="search-input" class="search-input" placeholder="Tên, SĐT hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
         <button class="search-btn" onclick="handleSearch()">Tìm</button>
     </div>
-
     <div id="search-result-area" class="search-result-msg">
         <div id="msg-text" class="success-msg">Kết quả tìm kiếm</div>
         <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Tất cả danh sách</a>
     </div>
-
     <div class="status-bar" id="status-bar">
         <div id="summary" class="summary-box"></div>
         <div class="count-info">
@@ -506,7 +508,6 @@
             <div id="update-time" style="color: #666; font-size: 12px;"></div>
         </div>
     </div>
-
     <div id="tables-container">
         <div style="text-align:center; padding:40px;">Đang tải dữ liệu...</div>
     </div>
@@ -515,9 +516,17 @@
 <div id="tab-rules" class="tab-content">
     <div id="content-rules"><p style="text-align:center;">Đang tải...</p></div>
 </div>
+
 <div id="tab-map" class="tab-content">
-    <div id="content-map" style="text-align: center;"><p>Đang tải...</p></div>
+    <div id="content-map">
+        <p style="color:#666; font-style:italic; font-size: 14px; margin-bottom: 10px;">* Bấm vào ảnh để xem kích thước lớn</p>
+    </div>
 </div>
+
+<div id="map-overlay" onclick="this.style.display='none'">
+    <img id="overlay-img" src="" alt="Sơ đồ chi tiết">
+</div>
+
 <div id="tab-guide" class="tab-content">
     <div id="content-guide"><p style="text-align:center;">Đang tải...</p></div>
 </div>
@@ -549,14 +558,33 @@
         evt.currentTarget.classList.add("active");
     }
 
+    async function loadMap() {
+        try {
+            const response = await fetch('sodotcr.html');
+            if (response.ok) {
+                const html = await response.text();
+                const container = document.getElementById('content-map');
+                container.innerHTML += html; 
+                const imgs = container.getElementsByTagName('img');
+                for(let img of imgs) {
+                    img.onclick = function() {
+                        document.getElementById('overlay-img').src = this.src;
+                        document.getElementById('map-overlay').style.display = 'flex';
+                    };
+                }
+            }
+        } catch (e) { console.error(e); }
+    }
+
     async function loadTabContents() {
-        const tabs = [{ id: 'content-rules', file: 'theletcr.html' }, { id: 'content-map', file: 'sodotcr.html' }, { id: 'content-guide', file: 'huongdantcr.html' }];
+        const tabs = [{ id: 'content-rules', file: 'theletcr.html' }, { id: 'content-guide', file: 'huongdantcr.html' }];
         tabs.forEach(async (tab) => {
             try {
                 const response = await fetch(tab.file);
                 if (response.ok) document.getElementById(tab.id).innerHTML = await response.text();
             } catch (e) { console.error(e); }
         });
+        loadMap(); 
     }
 
     const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
@@ -620,19 +648,17 @@
         let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
         let html = `<div class="group-header ${headerClass}">${title} (${runners.length})</div>`;
         html += `<div class="table-wrapper"><table><thead><tr>
-                    <th>STT</th><th>BIB</th><th>Họ và Tên</th>
-                    <th class="hide-mobile">Năm sinh</th><th class="hide-mobile">Giới tính</th>
-                    <th class="hide-mobile">SĐT</th><th class="hide-mobile">CLB/Địa phương</th>
-                    <th>Nhóm</th>
+                    <th class="col-stt">STT</th><th class="col-bib">BIB</th><th class="col-name">Họ và Tên</th>
+                    <th class="col-birth hide-mobile">Năm sinh</th><th class="col-gender hide-mobile">Giới tính</th>
+                    <th class="col-phone hide-mobile">SĐT</th><th class="col-club hide-mobile">CLB/Địa phương</th>
+                    <th class="col-group">Nhóm</th>
                 </tr></thead><tbody>`;
 
         runners.forEach((row, i) => {
             let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
             let distRaw = (row[idxs.idxDistance] || '').toLowerCase();
-            let rawClubValue = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '');
-            let clubRaw = (rawClubValue === "" || rawClubValue.toLowerCase() === "cá nhân") ? 'Cá nhân' : rawClubValue;
+            let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
             let bibRaw = (row[idxs.idxBib] || '---').trim();
-            
             let distDisplay = "";
             let rowClass = "";
 
@@ -651,16 +677,16 @@
             let hiddenPhone = phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---';
 
             html += `<tr class="${rowClass}">
-                <td>${i + 1}</td>
-                <td><span class="bib-tag ${type===1?'bib-elite':(type===2?'bib-4km':'bib-2km')}">${bibRaw}</span></td>
-                <td style="font-weight:700; color:var(--secondary-color); text-align:left; padding-left:5px;">${name}
+                <td class="col-stt">${i + 1}</td>
+                <td class="col-bib"><span class="bib-tag ${type===1?'bib-elite':(type===2?'bib-4km':'bib-2km')}">${bibRaw}</span></td>
+                <td class="col-name" style="font-weight:700; color:var(--secondary-color);">${name}
                     <div class="mobile-only">CLB: ${clubRaw}</div>
                 </td>
-                <td class="hide-mobile">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
-                <td class="hide-mobile">${row[idxs.idxGender]||'---'}</td>
-                <td class="hide-mobile">${hiddenPhone}</td>
-                <td class="hide-mobile">${clubRaw}</td>
-                <td>${distDisplay}</td>
+                <td class="col-birth hide-mobile">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
+                <td class="col-gender hide-mobile">${row[idxs.idxGender]||'---'}</td>
+                <td class="col-phone hide-mobile">${hiddenPhone}</td>
+                <td class="col-club hide-mobile">${clubRaw}</td>
+                <td class="col-group">${distDisplay}</td>
             </tr>`;
         });
         return html + `</tbody></table></div>`;
@@ -670,17 +696,11 @@
         if (!rows || rows.length === 0) return;
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
-        
         const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
-
         const idxs = {
-            idxName: getIdx(['tên']), 
-            idxGender: getIdx(['giới']), 
-            idxBirth: getIdx(['sinh']),
-            idxPhone: getIdx(['thoại', 'phone']), 
-            idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
-            idxDistance: getIdx(['cự ly']), 
-            idxBib: getIdx(['bib'])
+            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
+            idxPhone: getIdx(['thoại', 'phone']), idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
+            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
         };
 
         if (isSearch) {
