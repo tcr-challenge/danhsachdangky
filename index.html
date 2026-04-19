@@ -395,6 +395,7 @@
             .bib-tag { font-size: 14px; padding: 4px 10px; }
             .header h1 { font-size: 18px; }
             .mobile-only { display: block; font-size: 13px; margin-top: 5px; color: #666; font-weight: 400; border-top: 1px dashed #ccc; padding-top: 5px; }
+            .hide-mobile { display: none; }
         }
 
         .footer-info {
@@ -512,7 +513,7 @@
         </div>
         <div class="footer-divider"></div>
         <div class="footer-column">
-            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀOWNG THƯỢNG CÁT 2026</strong></p>
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
             <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
             <p>Bản đồ: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
         </div>
@@ -611,7 +612,11 @@
         runners.forEach((row, i) => {
             let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
             let distRaw = (row[idxs.idxDistance] || '').toLowerCase();
-            let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
+            
+            // Cập nhật logic: Lấy đúng cột theo tiêu đề dài. Nếu dữ liệu thô là "Cá Nhân" hoặc trống thì mới hiển thị "Cá nhân"
+            let rawClubValue = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '');
+            let clubRaw = (rawClubValue === "" || rawClubValue.toLowerCase() === "cá nhân") ? 'Cá nhân' : rawClubValue;
+            
             let bibRaw = (row[idxs.idxBib] || '---').trim();
             
             let distDisplay = "";
@@ -648,13 +653,24 @@
     }
 
     function renderTable(rows, isSearch = false) {
+        if (!rows || rows.length === 0) return;
         const header = rows[0].map(h => h.toLowerCase().trim());
         let bodyData = rows.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
-        const getIdx = (k) => header.findIndex(h => k.some(x => h.includes(x)));
+        
+        // CẬP NHẬT TÌM KIẾM CHỈ SỐ CỘT (Dựa trên tiêu đề thực tế anh gửi)
+        const getIdx = (keywords) => {
+            return header.findIndex(h => keywords.some(k => h.includes(k)));
+        };
+
         const idxs = {
-            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
-            idxPhone: getIdx(['thoại']), idxClub: getIdx(['clb', 'đơn vị']), 
-            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
+            idxName: getIdx(['tên']), 
+            idxGender: getIdx(['giới']), 
+            idxBirth: getIdx(['sinh']),
+            idxPhone: getIdx(['thoại', 'phone']), 
+            // Dò tìm thông minh: chứa 'club' hoặc 'địa phương' sẽ trúng cột G
+            idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
+            idxDistance: getIdx(['cự ly']), 
+            idxBib: getIdx(['bib'])
         };
 
         if (isSearch) {
