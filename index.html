@@ -199,7 +199,6 @@
             margin-top: 10px;
         }
 
-        /* ĐIỀU CHỈNH ĐỒNG HỒ TO VÀ NỔI BẬT HƠN */
         .countdown-container {
             margin: 15px auto;
             text-align: center;
@@ -229,7 +228,7 @@
         }
         .timer-num {
             display: block;
-            font-size: 42px; /* Tăng từ 24px */
+            font-size: 42px;
             font-weight: 800;
             line-height: 1;
             margin-bottom: 5px;
@@ -513,7 +512,7 @@
         </div>
         <div class="footer-divider"></div>
         <div class="footer-column">
-            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</strong></p>
+            <p><strong>LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀOWNG THƯỢNG CÁT 2026</strong></p>
             <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
             <p>Bản đồ: <a href="https://maps.google.com" target="_blank">Xem trên Google Maps</a></p>
         </div>
@@ -610,9 +609,9 @@
                 </tr></thead><tbody>`;
 
         runners.forEach((row, i) => {
-            let name = row[idxs.idxName].trim().replace(/^"|"$/g, '');
+            let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
             let distRaw = (row[idxs.idxDistance] || '').toLowerCase();
-            let clubRaw = (row[idxs.idxClub] || 'Cá nhân').trim();
+            let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
             let bibRaw = (row[idxs.idxBib] || '---').trim();
             
             let distDisplay = "";
