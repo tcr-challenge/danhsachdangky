@@ -369,14 +369,14 @@
         th { background-color: #444; color: white; font-weight: 700; }
 
         /* Thiết lập độ rộng cụ thể cho từng cột */
-        .col-stt { width: 40px; text-align: center; /* Thêm dòng này để căn giữa chữ số thứ tự */}
-        .col-bib { width: 80px; text-align: center; /* Thêm dòng này để căn giữa chữ số thứ tự */}
+        .col-stt { width: 40px; text-align: center; }
+        .col-bib { width: 80px; text-align: center; }
         .col-name { width: 220px; text-align: left; padding-left: 15px; }
-        .col-birth { width: 90px; text-align: center; /* Thêm dòng này để căn giữa chữ số thứ tự */}
-        .col-gender { width: 90px; text-align: center; /* Thêm dòng này để căn giữa chữ số thứ tự */}
+        .col-birth { width: 90px; text-align: center; }
+        .col-gender { width: 90px; text-align: center; }
         .col-phone { width: 130px; }
         .col-club { width: auto; text-align: left; padding-left: 10px; }
-        .col-group  { width: 90px; text-align: center; /* Thêm dòng này để căn giữa chữ số thứ tự */}
+        .col-group  { width: 90px; text-align: center; }
 
         tr.row-elite { background-color: var(--bg-elite); }
         tr.row-4km { background-color: var(--bg-4km); }
@@ -516,7 +516,7 @@
             <a href="https://forms.gle/sAPZgzAuM1zC9m7S7" class="reg-button" target="_blank">ĐĂNG KÝ THAM GIA NGAY</a>
         </div>
     </div>
-<div class="search-container">
+    <div class="search-container">
         <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên, Số điện thoại hoặc BIB..." onkeyup="if(event.keyCode===13) handleSearch()">
         <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
     </div>
@@ -525,13 +525,12 @@
         <div id="msg-text" class="success-msg">Bạn đã đăng ký giải chạy</div>
         <a href="javascript:void(0)" class="back-btn" onclick="resetTable()">Quay về trang ban đầu</a>
     </div>
-<div class="status-bar" id="status-bar">
+    <div class="status-bar" id="status-bar">
         <div id="summary" class="summary-box"></div>
         <div class="count-info">
             <div id="count" style="font-weight: bold; color: var(--secondary-color); font-size: 18px;">Đang kết nối dữ liệu...</div>
             <div id="update-time" style="color: #666; font-style: italic;"></div>
         </div>
-    </div>
     </div>
     
     <div id="tables-container">
@@ -540,7 +539,7 @@
 </div>
 
 <div id="tab-rules" class="tab-content">
-    <div id="content-rules"><p style="text-align:center;">Đang tải nội dung thể lệ...</p></div>
+    <div id="content-rules"></div>
 </div>
 
 <div id="tab-map" class="tab-content">
@@ -554,7 +553,7 @@
 </div>
 
 <div id="tab-guide" class="tab-content">
-    <div id="content-guide"><p style="text-align:center;">Đang tải...</p></div>
+    <div id="content-guide"></div>
 </div>
 
 <div class="footer-info">
@@ -606,13 +605,18 @@
     }
 
     async function loadTabContents() {
-        const tabs = [{ id: 'content-rules', file: 'theletcr.html' }, { id: 'content-guide', file: 'huongdantcr.html' }];
-        tabs.forEach(async (tab) => {
+        const tabs = [
+            { id: 'content-rules', file: 'theletcr.html' }, 
+            { id: 'content-guide', file: 'huongdantcr.html' }
+        ];
+        for (const tab of tabs) {
             try {
                 const response = await fetch(tab.file);
-                if (response.ok) document.getElementById(tab.id).innerHTML = await response.text();
+                if (response.ok) {
+                    document.getElementById(tab.id).innerHTML = await response.text();
+                }
             } catch (e) { console.error(e); }
-        });
+        }
         loadMap(); 
     }
 
