@@ -167,8 +167,8 @@
 
 <div class="tabs-container no-print">
     <div class="tab-link active" onclick="openTab(event, 'tab-1')">Elite & 4KM</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-2')">Pen A (Mạnh/Lớn)</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-3')">Pen B (Trẻ em/Nhỏ)</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-2')">Pen A (1960 - 2012)</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-3')">Pen B (2012 - 2026)</div>
 </div>
 
 <div id="tab-1" class="tab-content active">
@@ -209,7 +209,7 @@
     <div class="pdf-export-area" id="area-tab-2">
         <div class="pdf-header">
             <h2 style="margin:0; color:#1a237e;">DANH SÁCH VĐV: NHÓM 2KM - PEN A</h2>
-            <p style="margin:5px 0;">(VĐV có sức chạy tốt: Sinh năm 1960 - 2013)</p>
+            <p style="margin:5px 0;">(Cân đối: 1960 - 2012 linh hoạt)</p>
         </div>
         <table id="table-2">
             <thead>
@@ -237,7 +237,7 @@
     <div class="pdf-export-area" id="area-tab-3">
         <div class="pdf-header">
             <h2 style="margin:0; color:#1a237e;">DANH SÁCH VĐV: NHÓM 2KM - PEN B</h2>
-            <p style="margin:5px 0;">(VĐV nhỏ tuổi: Sinh năm 2014 trở đi)</p>
+            <p style="margin:5px 0;">(Cân đối: 2012 linh hoạt - 2026)</p>
         </div>
         <table id="table-3">
             <thead>
@@ -299,23 +299,43 @@
             return d.includes("elite") || d.includes("4");
         });
 
-        // Nhóm 2KM
-        const vdv2km = bodyData.filter(r => (r[idx.dist]||"").includes("2"));
+        // Nhóm 2KM gốc
+        const vdv2km = bodyData.filter(r => (r[idx.dist]||"").includes("2")).sort(sortDescByBirth);
+        
+        const group_1960_2011 = vdv2km.filter(r => {
+            const y = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
+            return y >= 1960 && y <= 2011;
+        });
 
-        // Logic chia lại Pen theo yêu cầu anh:
-        // Pen A: Nhấc người 1960-2005 từ B sang + Nhóm cũ (giữ đến 2013 để cân đối lực)
-        const penA = vdv2km.filter(r => {
-            const year = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
-            // Lấy từ 1960 đến 2013 (Bao gồm cả nhóm cũ và nhóm người lớn mới chuyển sang)
-            return year >= 1960 && year <= 2013;
-        }).sort(sortDescByBirth);
+        const group_2012 = vdv2km.filter(r => {
+            const y = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
+            return y === 2012;
+        });
 
-        // Pen B: Chuyển các bạn sinh năm 2014-2015 từ A sang + Các bạn nhỏ tuổi còn lại
-        const penB = vdv2km.filter(r => {
-            const year = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
-            // Các bạn sinh từ 2014 trở đi
-            return year >= 2014 || year < 1960; // Bao gồm cả những người không rõ năm sinh hoặc quá nhỏ/quá lớn ngoài dải 1960
-        }).sort(sortDescByBirth);
+        const group_2013_plus = vdv2km.filter(r => {
+            const y = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
+            return y >= 2013 || y < 1960;
+        });
+
+        // Logic cân bằng linh hoạt:
+        // Mục tiêu: Mỗi pen có khoảng (vdv2km.length / 2) người.
+        const targetPerPen = Math.ceil(vdv2km.length / 2);
+        
+        let penA = [...group_1960_2011];
+        let penB = [...group_2013_plus];
+
+        // Phân phối nhóm 2012
+        group_2012.forEach(v => {
+            if (penA.length < targetPerPen) {
+                penA.push(v);
+            } else {
+                penB.push(v);
+            }
+        });
+
+        // Đảm bảo sắp xếp lại theo năm sinh trong mỗi Pen
+        penA.sort(sortDescByBirth);
+        penB.sort(sortDescByBirth);
         
         renderSingleTable('table-1', elite4km, idx, 'elite-4km');
         renderSingleTable('table-2', penA, idx, '2km');
