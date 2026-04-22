@@ -110,7 +110,6 @@
 
         .pdf-btn:hover { background: #1b5e20; }
 
-        /* Style Table */
         .pdf-export-area { width: 100%; }
         
         table {
@@ -148,9 +147,8 @@
         .bib-4km { background: var(--primary-color); }
         .bib-2km { background: var(--secondary-color); }
 
-        /* Định dạng riêng khi xuất PDF để trông đẹp hơn */
         .pdf-header {
-            display: none; /* Chỉ hiện trong file PDF */
+            display: none;
             text-align: center;
             margin-bottom: 20px;
             border-bottom: 2px solid #333;
@@ -213,7 +211,7 @@
     <div class="pdf-export-area" id="area-tab-2">
         <div class="pdf-header">
             <h2 style="margin:0; color:#1a237e;">DANH SÁCH VĐV: NHÓM 2KM - PEN A</h2>
-            <p style="margin:5px 0;">(VĐV sinh năm 2007 đến 2014)</p>
+            <p style="margin:5px 0;">(VĐV sinh năm 2007 đến 2014 - Ưu tiên sắp xếp theo năm sinh)</p>
         </div>
         <table id="table-2">
             <thead>
@@ -241,7 +239,7 @@
     <div class="pdf-export-area" id="area-tab-3">
         <div class="pdf-header">
             <h2 style="margin:0; color:#1a237e;">DANH SÁCH VĐV: NHÓM 2KM - PEN B</h2>
-            <p style="margin:5px 0;">(VĐV sinh năm 2015 đến 2026)</p>
+            <p style="margin:5px 0;">(VĐV sinh năm 2015 đến 2026 - Ưu tiên sắp xếp theo năm sinh)</p>
         </div>
         <table id="table-3">
             <thead>
@@ -291,30 +289,36 @@
             dist: getIdx(['cự ly']), bib: getIdx(['bib'])
         };
 
-        // Lọc các nhóm
         const elite4km = bodyData.filter(r => {
             const d = (r[idx.dist]||"").toLowerCase();
             return d.includes("elite") || d.includes("4");
         });
 
+        // Sắp xếp mặc định nhóm Elite/4km theo BIB hoặc STT nếu anh cần, ở đây giữ nguyên.
+
+        // Lọc và Sắp xếp nhóm 2KM theo năm sinh từ Lớn đến Nhỏ (Thứ tự già đến trẻ)
+        const sortDescByBirth = (a, b) => {
+            let yearA = parseInt((a[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
+            let yearB = parseInt((b[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
+            return yearA - yearB; // Sắp xếp năm sinh 19xx -> 20xx (lớn tuổi đến nhỏ tuổi)
+        };
+
         const penA = bodyData.filter(r => {
             const year = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
             return (r[idx.dist]||"").includes("2") && year >= 2007 && year <= 2014;
-        });
+        }).sort(sortDescByBirth);
 
         const penB = bodyData.filter(r => {
             const year = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
             return (r[idx.dist]||"").includes("2") && year >= 2015 && year <= 2026;
-        });
+        }).sort(sortDescByBirth);
 
-        // Những người không thuộc khoảng năm sinh yêu cầu nhưng chạy 2km sẽ cho vào Pen A hoặc B tùy logic (Ở đây mặc định Pen B nếu trẻ hơn, Pen A nếu già hơn)
         const others = bodyData.filter(r => {
             const d = (r[idx.dist]||"").includes("2");
             const year = parseInt((r[idx.birth]||"").match(/\d{4}/)?.[0] || 0);
             return d && (year < 2007 || year > 2026);
-        });
+        }).sort(sortDescByBirth);
         
-        // Render từng bảng
         renderSingleTable('table-1', elite4km, idx, 'elite-4km');
         renderSingleTable('table-2', penA, idx, '2km');
         renderSingleTable('table-3', penB.concat(others), idx, '2km');
@@ -356,7 +360,6 @@
 
     function exportPDF(tabId, fileName) {
         const element = document.getElementById(`area-${tabId}`);
-        // Hiển thị tạm thời header PDF
         const pdfHeader = element.querySelector('.pdf-header');
         pdfHeader.style.display = 'block';
 
@@ -369,7 +372,7 @@
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
-            pdfHeader.style.display = 'none'; // Ẩn lại sau khi xuất
+            pdfHeader.style.display = 'none';
         });
     }
 
