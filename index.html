@@ -123,32 +123,6 @@
             line-height: 1.5;
             font-weight: 500;
         }
-        .announcement {
-            margin-top: 20px;
-            padding: 12px;
-            background-color: rgba(211, 47, 47, 0.1);
-            border-left: 5px solid var(--primary-color);
-            color: red;
-            font-weight: 700;
-            font-size: 15px;
-            display: inline-block;
-            border-radius: 4px;
-            text-align: left;
-        }
-        .race-date {
-            margin-top: 15px;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--secondary-color);
-            text-transform: uppercase;
-        }
-
-        .registration-deadline {
-            margin-top: 5px;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
         
         .search-container {
             background: #f9f9f9;
@@ -162,6 +136,7 @@
             flex-wrap: wrap;
             border: 1px solid #eee;
         }
+
         .search-input {
             padding: 12px 15px;
             border: 2px solid #ddd;
@@ -170,6 +145,7 @@
             font-size: 16px;
             outline: none;
         }
+
         .search-btn {
             background: var(--secondary-color);
             color: white;
@@ -180,7 +156,7 @@
             font-weight: 700;
             font-size: 16px;
         }
-        
+
         /* Nút xuất PDF */
         .export-btn {
             background: #2e7d32;
@@ -194,6 +170,14 @@
             margin-left: 10px;
         }
         .export-btn:hover { background: #1b5e20; }
+
+        .status-bar {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
 
         .summary-box {
             display: flex;
@@ -267,10 +251,8 @@
 
         th { background-color: #444; color: white; font-weight: 700; }
 
-        /* Cấu trúc ngắt trang PDF */
-        tr { page-break-inside: avoid; page-break-after: auto; }
-        .group-container { page-break-before: always; }
-        .group-container:first-child { page-break-before: auto; }
+        /* Chống ngắt dòng giữa trang khi in PDF */
+        tr { page-break-inside: avoid !important; }
 
         .col-stt { width: 40px; }
         .col-bib { width: 80px; }
@@ -294,11 +276,12 @@
         .bib-4km { background-color: var(--primary-color); }
         .bib-2km { background-color: var(--secondary-color); }
 
-        /* CSS chỉ dùng khi xuất PDF để ép tiêu đề hiển thị đẹp */
-        .pdf-only-title { display: none; text-align: center; margin-bottom: 20px; }
-        
-        @media print {
-            .pdf-only-title { display: block; }
+        .footer-info {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 60px;
+            padding: 25px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -338,7 +321,7 @@
     </div>
 </div>
 
-<div id="pdf-export-temp" style="display: none; width: 1000px; padding: 20px; background: #fff;"></div>
+<div id="pdf-export-temp" style="position: absolute; left: -9999px; width: 1000px; background: #fff; padding: 20px;"></div>
 
 <script>
     let allRunnersData = [];
@@ -357,25 +340,25 @@
         if (runners.length === 0) return "";
         let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
         
-        let html = `<div class="group-container">`;
+        let html = `<div>`;
         if(isForPdf) {
-            html += `<div style="text-align:center; margin-bottom:20px;">
-                        <h2 style="text-transform:uppercase; color:#1a237e; margin-bottom:5px;">DANH SÁCH VẬN ĐỘNG VIÊN</h2>
-                        <h1 style="text-transform:uppercase; color:#d32f2f; margin:0;">CỰ LY: ${title.split('-')[1] || title}</h1>
-                        <p style="font-style:italic;">Giải chạy Lễ hội Đình làng Thượng Cát 2026</p>
+            html += `<div style="text-align:center; margin-bottom:20px; font-family:'Inter', sans-serif;">
+                        <h2 style="text-transform:uppercase; color:#1a237e; margin-bottom:5px;">DANH SÁCH VẬN ĐỘNG VIÊN ĐĂNG KÝ</h2>
+                        <h1 style="text-transform:uppercase; color:#d32f2f; margin:0;">CỰ LY: ${title.toUpperCase()}</h1>
+                        <p style="font-size:14px; color:#555;">Giải chạy Lễ hội Truyền thống Đình làng Thượng Cát 2026</p>
                      </div>`;
         }
         
-        html += `<div class="group-header ${headerClass}">${title} (${runners.length})</div>`;
-        html += `<div class="table-wrapper"><table style="width:100%; border-collapse:collapse; border:1px solid #ddd;">
+        html += `<div class="group-header ${headerClass}" style="background-color:${type===1?'#ffd700':(type===2?'#ff5252':'#3949ab')}; color:${type===1?'#000':'#fff'}; padding:15px; font-weight:800; text-align:center; text-transform:uppercase;">${title} (${runners.length} VĐV)</div>`;
+        html += `<table style="width:100%; border-collapse:collapse; border:1px solid #ddd; font-family:'Inter', sans-serif;">
                     <thead><tr>
-                        <th style="width:40px; background:#444; color:#fff;">STT</th>
-                        <th style="width:80px; background:#444; color:#fff;">BIB</th>
-                        <th style="width:250px; background:#444; color:#fff; text-align:left; padding-left:10px;">Họ và Tên</th>
-                        <th style="width:80px; background:#444; color:#fff;">Năm sinh</th>
-                        <th style="width:80px; background:#444; color:#fff;">Giới tính</th>
-                        <th style="width:120px; background:#444; color:#fff;">SĐT</th>
-                        <th style="background:#444; color:#fff; text-align:left; padding-left:10px;">CLB/Địa phương</th>
+                        <th style="width:40px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">STT</th>
+                        <th style="width:80px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">BIB</th>
+                        <th style="width:250px; background:#444; color:#fff; border:1px solid #ddd; padding:10px; text-align:left;">Họ và Tên</th>
+                        <th style="width:70px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">Năm sinh</th>
+                        <th style="width:80px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">Giới tính</th>
+                        <th style="width:120px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">Số điện thoại</th>
+                        <th style="background:#444; color:#fff; border:1px solid #ddd; padding:10px; text-align:left;">CLB/Địa phương</th>
                     </tr></thead><tbody>`;
 
         runners.forEach((row, i) => {
@@ -383,19 +366,21 @@
             let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
             let bibRaw = (row[idxs.idxBib] || '---').trim();
             let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
-            let hiddenPhone = isForPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
+            
+            // Khi xuất PDF thì hiện số đầy đủ, trên web thì ẩn
+            let phoneDisplay = isForPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
 
-            html += `<tr>
-                <td style="text-align:center; border:1px solid #ddd; padding:10px;">${i + 1}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:10px; font-weight:bold;">${bibRaw}</td>
-                <td style="text-align:left; border:1px solid #ddd; padding:10px; font-weight:700;">${name}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:10px;">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:10px;">${row[idxs.idxGender]||'---'}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:10px;">${hiddenPhone}</td>
-                <td style="text-align:left; border:1px solid #ddd; padding:10px;">${clubRaw}</td>
+            html += `<tr style="page-break-inside:avoid;">
+                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${i + 1}</td>
+                <td style="text-align:center; border:1px solid #ddd; padding:8px; font-weight:bold;">${bibRaw}</td>
+                <td style="text-align:left; border:1px solid #ddd; padding:8px; font-weight:700;">${name}</td>
+                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
+                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${row[idxs.idxGender]||'---'}</td>
+                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${phoneDisplay}</td>
+                <td style="text-align:left; border:1px solid #ddd; padding:8px;">${clubRaw}</td>
             </tr>`;
         });
-        return html + `</tbody></table></div></div>`;
+        return html + `</tbody></table></div>`;
     }
 
     async function exportSeparatePDFs() {
@@ -408,35 +393,32 @@
             idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
         };
 
-        const groups = [
-            { name: "Elite", data: bodyData.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite")), type: 1 },
-            { name: "4KM", data: bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4")), type: 2 },
-            { name: "2KM", data: bodyData.filter(r => (r[idxs.idxDistance]||"").includes("2")), type: 3 }
+        const categories = [
+            { id: 'Elite', filter: r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"), type: 1 },
+            { id: '4KM', filter: r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"), type: 2 },
+            { id: '2KM', filter: r => (r[idxs.idxDistance]||"").includes("2"), type: 3 }
         ];
 
-        const opt = {
-            margin: [10, 10],
-            filename: '',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
+        const tempBox = document.getElementById('pdf-export-temp');
 
-        const tempContainer = document.getElementById('pdf-export-temp');
-        tempContainer.style.display = 'block';
+        for (const cat of categories) {
+            const groupData = bodyData.filter(cat.filter);
+            if (groupData.length === 0) continue;
 
-        for (const group of groups) {
-            if (group.data.length === 0) continue;
-            
-            tempContainer.innerHTML = createTableHtml(`Cự ly - ${group.name}`, group.data, group.type, idxs, true);
-            opt.filename = `Danh-sach-${group.name}.pdf`;
-            
-            await html2pdf().set(opt).from(tempContainer).save();
-            tempContainer.innerHTML = ""; // Xóa sau khi xuất để chuẩn bị cho nhóm tiếp theo
+            tempBox.innerHTML = createTableHtml(cat.id, groupData, cat.type, idxs, true);
+
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `Danh-sach-${cat.id}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+                pagebreak: { mode: 'avoid-all' }
+            };
+
+            await html2pdf().set(opt).from(tempBox).save();
+            tempBox.innerHTML = ""; // Clear để làm nhóm tiếp theo
         }
-        
-        tempContainer.style.display = 'none';
     }
 
     function renderTable(rows) {
