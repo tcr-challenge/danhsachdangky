@@ -14,73 +14,124 @@
             --bg-color: #f4f7f6;
             --text-color: #333;
             --elite-color: #b8860b;
+            --bg-elite: #fff9e6;
+            --bg-4km: #fdf2f2;
+            --bg-2km: #f0f2ff;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
         }
 
-        .cover-photo { width: 100%; max-width: 1200px; height: auto; border-bottom: 5px solid var(--primary-color); }
+        .cover-photo {
+            width: 100%;
+            max-width: 1200px;
+            height: auto;
+            min-height: 200px;
+            background: #ddd;
+            display: block;
+            border-bottom: 5px solid var(--primary-color);
+            object-fit: cover;
+        }
 
         .tabs-container {
-            width: 100%; max-width: 1200px; display: flex; background: #eee; gap: 5px; padding: 10px 10px 0 10px; box-sizing: border-box;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            background: #eee;
+            gap: 5px;
+            padding: 10px 10px 0 10px;
+            box-sizing: border-box;
         }
 
         .tab-link {
-            flex: 1; padding: 15px 10px; text-align: center; cursor: pointer; font-weight: 700;
-            text-transform: uppercase; border-radius: 12px 12px 0 0; background: #e0e0e0; border: none;
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            border-radius: 12px 12px 0 0;
+            background: #e0e0e0;
+            border: none;
+            position: relative;
         }
 
-        .tab-link.active { color: #fff; background: var(--primary-color); }
+        .tab-link.active {
+            color: #fff;
+            background: var(--primary-color);
+            box-shadow: 0 -4px 12px rgba(211, 47, 47, 0.2);
+            transform: translateY(-2px);
+            z-index: 2;
+        }
 
         .tab-content {
-            display: none; width: 100%; max-width: 1200px; background: #fff; padding: 30px; box-sizing: border-box;
-            border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px;
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: #fff;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            animation: fadeIn 0.4s ease;
         }
 
         .tab-content.active { display: block; }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 26px; color: var(--secondary-color); text-transform: uppercase; font-weight: 800; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { margin: 0; font-size: 26px; color: var(--secondary-color); text-transform: uppercase; font-weight: 800; }
+        .header .sub-title { margin-top: 15px; font-size: 16px; color: #555; font-weight: 500; }
+        
         .search-container {
             background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 25px;
             display: flex; gap: 10px; justify-content: center; align-items: center; border: 1px solid #eee;
         }
 
-        .search-input { padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; width: 300px; font-size: 16px; }
-
-        .btn { padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 700; border: none; color: white; }
-        .search-btn { background: var(--secondary-color); }
-        .pdf-btn { background: #c62828; } /* Màu đỏ cho nút PDF */
+        .search-input { padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; width: 300px; font-size: 16px; outline: none; }
+        .search-btn { background: var(--secondary-color); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .export-btn { background: #2e7d32; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 700; margin-left: 10px; }
 
         .summary-box {
-            display: flex; justify-content: center; gap: 20px; padding: 15px; background: #f9f9f9;
-            border-radius: 8px; font-weight: 700; font-size: 20px; margin-bottom: 15px;
+            display: flex; justify-content: center; gap: 25px; margin-bottom: 10px; padding: 15px;
+            background: #f9f9f9; border-radius: 8px; font-weight: 700; font-size: 24px; 
         }
 
         .group-header {
-            padding: 15px; font-weight: 800; text-align: center; text-transform: uppercase;
-            border-radius: 12px 12px 0 0; font-size: 20px; margin-top: 25px;
+            padding: 18px; font-weight: 800; text-align: center; margin: 25px 0 0 0;
+            text-transform: uppercase; border-radius: 12px 12px 0 0; font-size: 24px; width: 100%;
         }
-        .header-elite { background: #ffd700; color: #000; }
-        .header-4km { background: #ff5252; color: #fff; }
-        .header-2km { background: #3949ab; color: #fff; }
 
-        table { width: 100%; border-collapse: collapse; border: 1px solid #ddd; table-layout: fixed; }
-        th, td { padding: 12px 5px; border: 1px solid #ddd; text-align: center; font-size: 14px; word-wrap: break-word; }
-        th { background: #444; color: white; }
+        .header-elite { background-color: #ffd700; color: #000; }
+        .header-4km { background-color: #ff5252; color: #fff; }
+        .header-2km { background-color: #3949ab; color: #fff; }
 
-        /* Style phân biệt CLB */
-        .row-bold td { font-weight: 800 !important; background-color: #f2f2f2; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; border: 1px solid #ddd; table-layout: fixed; }
+        th, td { padding: 14px 5px; border-bottom: 1px solid #ddd; border-right: 1px solid #eee; font-size: 15px; text-align: center; word-wrap: break-word; }
+        th { background-color: #444; color: white; }
 
-        /* Style đặc biệt khi in PDF */
-        .pdf-page-break { page-break-before: always; }
-        .no-split { page-break-inside: avoid !important; }
+        /* Tránh kẹt vận động viên giữa 2 trang */
+        tr { page-break-inside: avoid !important; }
+        .row-bold td { font-weight: 800 !important; background-color: #f0f0f0; }
 
+        /* Vùng xuất PDF ẩn trên web */
+        #pdf-export-content { display: none; }
     </style>
 </head>
 <body>
@@ -89,24 +140,28 @@
 
 <div class="tabs-container">
     <div class="tab-link active" onclick="openTab(event, 'tab-runners')">Danh sách VĐV</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ giải</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ đường chạy</div>
+    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn VĐV</div>
 </div>
 
 <div id="tab-runners" class="tab-content active">
     <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>
+        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</h1>
+        <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
     </div>
 
     <div class="search-container">
         <input type="text" id="search-input" class="search-input" placeholder="Tìm tên, BIB, SĐT...">
-        <button class="btn search-btn" onclick="handleSearch()">Tìm kiếm</button>
-        <button class="btn pdf-btn" onclick="exportFullPDF()">Xuất PDF để In</button>
+        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
+        <button class="export-btn" onclick="generatePrintPDF()">Xuất file PDF (Mỗi nhóm 1 trang)</button>
     </div>
 
     <div id="summary" class="summary-box"></div>
     <div id="tables-container">Đang tải dữ liệu...</div>
 </div>
 
-<div id="pdf-content" style="display: none;"></div>
+<div id="pdf-export-content"></div>
 
 <script>
     let allRunnersData = [];
@@ -136,126 +191,142 @@
     function createTableHtml(title, runners, type, idxs, isPdf = false) {
         if (runners.length === 0) return "";
         let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
-        let sorted = sortRunners([...runners], idxs);
+        let sortedRunners = sortRunners([...runners], idxs);
 
-        // Mỗi nhóm bắt đầu một trang mới trong PDF
-        let html = `<div class="${isPdf ? 'pdf-page-break' : ''}">`;
+        // Lệnh ngắt trang cho PDF: Nhóm mới luôn nằm ở trang mới
+        let breakStyle = isPdf ? 'style="page-break-before: always; padding-top: 20px;"' : '';
         
+        let html = `<div ${breakStyle}>`;
         if(isPdf) {
-            html += `<div style="text-align:center; margin-bottom:20px;">
-                        <h2 style="color:#1a237e; margin:0;">DANH SÁCH VẬN ĐỘNG VIÊN - CỰ LY: ${title.toUpperCase()}</h2>
-                        <hr style="border:1px solid #d32f2f; width:100px;">
+            html += `<div style="text-align:center; margin-bottom:15px; font-family:'Inter', sans-serif;">
+                        <h2 style="text-transform:uppercase; color:#1a237e; margin-bottom:5px;">DANH SÁCH VẬN ĐỘNG VIÊN</h2>
+                        <h1 style="text-transform:uppercase; color:#d32f2f; margin:0;">CỰ LY: ${title.toUpperCase()}</h1>
+                        <p style="font-size:14px; color:#555;">Di sản Thượng Cát 2026</p>
                      </div>`;
         }
-
+        
         html += `<div class="group-header ${headerClass}">${title} (${runners.length} VĐV)</div>`;
-        html += `<table><thead><tr>
-                    <th style="width:40px;">STT</th><th style="width:70px;">BIB</th>
-                    <th style="width:200px; text-align:left; padding-left:10px;">Họ và Tên</th>
-                    <th style="width:100px;">Năm sinh</th><th style="width:100px;">Giới tính</th>
-                    <th style="width:150px;">Điện thoại</th><th style="text-align:left; padding-left:10px;">CLB/Địa phương</th>
-                </tr></thead><tbody>`;
+        html += `<table>
+                    <thead><tr>
+                        <th style="width:40px;">STT</th><th style="width:70px;">BIB</th>
+                        <th style="width:250px; text-align:left; padding-left:15px;">Họ và Tên</th>
+                        <th style="width:80px;">Năm sinh</th><th style="width:80px;">Giới</th>
+                        <th style="width:120px;">SĐT</th><th style="text-align:left; padding-left:10px;">CLB/Địa phương</th>
+                    </tr></thead><tbody>`;
 
         let currentClub = "";
-        let isBold = false;
+        let isBoldGroup = false;
 
-        sorted.forEach((row, i) => {
-            let club = (row[idxs.idxClub] || 'Cá nhân').trim();
-            if (club.toLowerCase() !== currentClub.toLowerCase()) { currentClub = club; isBold = !isBold; }
+        sortedRunners.forEach((row, i) => {
+            let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
+            let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
+            let bibRaw = (row[idxs.idxBib] || '---').trim();
+            let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
             
-            let phone = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
-            let phoneDisplay = isPdf ? phone : (phone.length > 4 ? `xxx.xxx.${phone.slice(-4)}` : '---');
+            if (clubRaw.toLowerCase() !== currentClub.toLowerCase()) {
+                currentClub = clubRaw;
+                isBoldGroup = !isBoldGroup;
+            }
 
-            // no-split giúp hàng không bị cắt ngang trang
-            html += `<tr class="${isBold ? 'row-bold' : ''} no-split">
-                <td>${i + 1}</td><td><b>${(row[idxs.idxBib] || '---')}</b></td>
-                <td style="text-align:left; padding-left:10px;">${(row[idxs.idxName] || '').replace(/"/g, '')}</td>
+            let phoneDisplay = isPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
+            let rowClass = isBoldGroup ? 'class="row-bold"' : '';
+
+            html += `<tr ${rowClass}>
+                <td>${i + 1}</td><td style="font-weight:bold;">${bibRaw}</td>
+                <td style="text-align:left; padding-left:15px;">${name}</td>
                 <td>${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
                 <td>${row[idxs.idxGender]||'---'}</td><td>${phoneDisplay}</td>
-                <td style="text-align:left; padding-left:10px;">${club}</td>
+                <td style="text-align:left; padding-left:10px;">${clubRaw}</td>
             </tr>`;
         });
         return html + `</tbody></table></div>`;
     }
 
-    function getIndices(header) {
-        const h = header.map(v => v.toLowerCase());
-        const find = (keys) => h.findIndex(v => keys.some(k => v.includes(k)));
-        return {
-            idxName: find(['tên']), idxBirth: find(['sinh']), idxGender: find(['giới']),
-            idxPhone: find(['thoại', 'phone']), idxClub: find(['club', 'địa phương', 'đơn vị']),
-            idxDistance: find(['cự ly']), idxBib: find(['bib'])
+    async function generatePrintPDF() {
+        const header = allRunnersData[0].map(h => h.toLowerCase().trim());
+        const bodyData = allRunnersData.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
+        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
+        const idxs = {
+            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
+            idxPhone: getIdx(['thoại', 'phone']), idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
+            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
         };
+
+        const currentYear = new Date().getFullYear();
+        const elite = bodyData.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
+        const km4 = bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
+        const km2Child = bodyData.filter(r => {
+            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+            return (r[idxs.idxDistance]||"").includes("2") && year && (currentYear - year < 12);
+        });
+        const km2Adult = bodyData.filter(r => {
+            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+            const age = currentYear - year;
+            return (r[idxs.idxDistance]||"").includes("2") && year && (age >= 12 && age <= 55);
+        });
+
+        const pdfBox = document.getElementById('pdf-export-content');
+        pdfBox.style.display = 'block';
+        // Xây dựng nội dung PDF với logic ngắt trang
+        pdfBox.innerHTML = 
+            createTableHtml("Nhóm Elite", elite, 1, idxs, true) + 
+            createTableHtml("Nhóm 4KM", km4, 2, idxs, true) + 
+            createTableHtml("Nhóm 2KM (Dưới 12 tuổi)", km2Child, 3, idxs, true) +
+            createTableHtml("Nhóm 2KM (Từ 12-55 tuổi)", km2Adult, 3, idxs, true);
+
+        const opt = {
+            margin: [10, 5, 10, 5],
+            filename: 'Danh_Sach_In_TCR_2026.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            pagebreak: { mode: ['css', 'legacy'] } // Sử dụng CSS để kiểm soát ngắt trang
+        };
+
+        await html2pdf().set(opt).from(pdfBox).save();
+        pdfBox.style.display = 'none';
+        pdfBox.innerHTML = '';
     }
 
     function renderTable(rows) {
-        const idxs = getIndices(rows[0]);
-        const body = rows.slice(1).filter(r => r[idxs.idxName]);
-        const currentYear = new Date().getFullYear();
+        if (!rows || rows.length === 0) return;
+        const header = rows[0].map(h => h.toLowerCase().trim());
+        const bodyData = rows.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
+        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
+        const idxs = {
+            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
+            idxPhone: getIdx(['thoại', 'phone']), idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
+            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
+        };
 
-        const elite = body.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
-        const km4 = body.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
-        const km2Child = body.filter(r => {
-            let y = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-            return (r[idxs.idxDistance]||"").includes("2") && y && (currentYear - y < 12);
+        const currentYear = new Date().getFullYear();
+        const elite = bodyData.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
+        const km4 = bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
+        const km2Child = bodyData.filter(r => {
+            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+            return (r[idxs.idxDistance]||"").includes("2") && year && (currentYear - year < 12);
         });
-        const km2Adult = body.filter(r => {
-            let y = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-            let age = currentYear - y;
-            return (r[idxs.idxDistance]||"").includes("2") && y && (age >= 12 && age <= 55);
+        const km2Adult = bodyData.filter(r => {
+            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+            const age = currentYear - year;
+            return (r[idxs.idxDistance]||"").includes("2") && year && (age >= 12 && age <= 55);
         });
 
         document.getElementById('tables-container').innerHTML = 
             createTableHtml("Nhóm Elite", elite, 1, idxs) + 
             createTableHtml("Nhóm 4KM", km4, 2, idxs) + 
-            createTableHtml("Nhóm 2KM (<12 tuổi)", km2Child, 3, idxs) +
-            createTableHtml("Nhóm 2KM (12-55 tuổi)", km2Adult, 3, idxs);
+            createTableHtml("Nhóm 2KM - Dưới 12 tuổi", km2Child, 3, idxs) +
+            createTableHtml("Nhóm 2KM - Từ 12-55 tuổi", km2Adult, 3, idxs);
 
-        document.getElementById('summary').innerHTML = `Tổng: ${body.length} VĐV | Elite: ${elite.length} | 4KM: ${km4.length} | 2KM: ${km2Child.length + km2Adult.length}`;
+        document.getElementById('summary').innerHTML = `<span>Elite: ${elite.length}</span> | <span>4KM: ${km4.length}</span> | <span>2KM: ${km2Child.length + km2Adult.length}</span>`;
     }
 
-    // Chức năng xuất PDF quan trọng
-    async function exportFullPDF() {
-        const container = document.getElementById('tables-container');
-        const idxs = getIndices(allRunnersData[0]);
-        const body = allRunnersData.slice(1).filter(r => r[idxs.idxName]);
-        const currentYear = new Date().getFullYear();
-
-        const elite = body.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
-        const km4 = body.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
-        const km2Child = body.filter(r => {
-            let y = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-            return (r[idxs.idxDistance]||"").includes("2") && y && (currentYear - y < 12);
-        });
-        const km2Adult = body.filter(r => {
-            let y = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-            let age = currentYear - y;
-            return (r[idxs.idxDistance]||"").includes("2") && y && (age >= 12 && age <= 55);
-        });
-
-        // Tạo nội dung riêng để xuất PDF (với định dạng trang riêng)
-        const pdfBox = document.getElementById('pdf-content');
-        pdfBox.style.display = "block";
-        pdfBox.innerHTML = `<h1 style="text-align:center; text-transform:uppercase;">Danh sách VĐV Thượng Cát 2026</h1>` +
-            createTableHtml("Elite", elite, 1, idxs, true) + 
-            createTableHtml("4KM", km4, 2, idxs, true) + 
-            createTableHtml("2KM (<12)", km2Child, 3, idxs, true) +
-            createTableHtml("2KM (12-55)", km2Adult, 3, idxs, true);
-
-        const opt = {
-            margin: [10, 5, 10, 5],
-            filename: 'Danh_Sach_In_An_TCR_2026.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['avoid-all', 'css'] } // Kết hợp CSS để ngắt trang chuẩn
-        };
-
-        await html2pdf().set(opt).from(pdfBox).save();
-        pdfBox.style.display = "none";
+    function openTab(evt, tabName) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
     }
-
-    function openTab(evt, tabName) { fetchData(); }
 
     fetchData();
     setInterval(fetchData, 60000);
