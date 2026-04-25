@@ -265,6 +265,12 @@
         .bib-4km { background-color: var(--primary-color); }
         .bib-2km { background-color: var(--secondary-color); }
 
+        /* Style cho hàng được tô đậm */
+        .row-bold td {
+            font-weight: 800 !important;
+            background-color: #f0f0f0;
+        }
+
         .footer-info {
             width: 100%;
             max-width: 1000px;
@@ -325,17 +331,20 @@
         } catch (e) { console.error(e); }
     }
 
-    // Hàm sắp xếp dữ liệu theo CLB/Địa phương
-    function sortRunnersByClub(runners, idxs) {
+    // Hàm sắp xếp dữ liệu theo CLB và Tuổi (Nhỏ -> Lớn)
+    function sortRunners(runners, idxs) {
         return runners.sort((a, b) => {
             let clubA = (a[idxs.idxClub] || 'Cá nhân').trim().toLowerCase();
             let clubB = (b[idxs.idxClub] || 'Cá nhân').trim().toLowerCase();
+            
+            // Sắp xếp theo CLB trước
             if (clubA < clubB) return -1;
             if (clubA > clubB) return 1;
-            // Nếu cùng CLB, sắp xếp theo tên
-            let nameA = (a[idxs.idxName] || '').trim().toLowerCase();
-            let nameB = (b[idxs.idxName] || '').trim().toLowerCase();
-            return nameA.localeCompare(nameB);
+            
+            // Nếu cùng CLB, sắp xếp theo Năm sinh (Năm lớn hơn = Tuổi nhỏ hơn -> Đưa lên trước)
+            let yearA = parseInt((a[idxs.idxBirth] || '').match(/\d{4}/)?.[0] || 0);
+            let yearB = parseInt((b[idxs.idxBirth] || '').match(/\d{4}/)?.[0] || 0);
+            return yearB - yearA; 
         });
     }
 
@@ -343,8 +352,7 @@
         if (runners.length === 0) return "";
         let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
         
-        // Sắp xếp lại danh sách trước khi hiển thị
-        let sortedRunners = sortRunnersByClub([...runners], idxs);
+        let sortedRunners = sortRunners([...runners], idxs);
 
         let html = `<div>`;
         if(isForPdf) {
@@ -367,18 +375,28 @@
                         <th style="background:#444; color:#fff; border:1px solid #ddd; padding:10px; text-align:left;">CLB/Địa phương</th>
                     </tr></thead><tbody>`;
 
+        let currentClub = "";
+        let isBoldGroup = false;
+
         sortedRunners.forEach((row, i) => {
             let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
             let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
             let bibRaw = (row[idxs.idxBib] || '---').trim();
             let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
             
-            let phoneDisplay = isForPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
+            // Xử lý đổi trạng thái tô đậm khi đổi CLB
+            if (clubRaw.toLowerCase() !== currentClub.toLowerCase()) {
+                currentClub = clubRaw;
+                isBoldGroup = !isBoldGroup;
+            }
 
-            html += `<tr style="page-break-inside:avoid;">
+            let phoneDisplay = isForPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
+            let rowClass = isBoldGroup ? 'class="row-bold"' : '';
+
+            html += `<tr ${rowClass} style="page-break-inside:avoid;">
                 <td style="text-align:center; border:1px solid #ddd; padding:8px;">${i + 1}</td>
                 <td style="text-align:center; border:1px solid #ddd; padding:8px; font-weight:bold;">${bibRaw}</td>
-                <td style="text-align:left; border:1px solid #ddd; padding:8px; font-weight:700;">${name}</td>
+                <td style="text-align:left; border:1px solid #ddd; padding:8px;">${name}</td>
                 <td style="text-align:center; border:1px solid #ddd; padding:8px;">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
                 <td style="text-align:center; border:1px solid #ddd; padding:8px;">${row[idxs.idxGender]||'---'}</td>
                 <td style="text-align:center; border:1px solid #ddd; padding:8px;">${phoneDisplay}</td>
