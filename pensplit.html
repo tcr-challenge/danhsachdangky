@@ -24,11 +24,11 @@
 
         .summary-box { display: flex; gap: 20px; font-weight: 600; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; border: 1px solid #ddd; }
         th { background-color: var(--secondary-color); color: white; text-align: left; padding: 12px; font-size: 13px; border: 1px solid #ddd; }
         td { padding: 10px 12px; border: 1px solid #eee; font-size: 13px; line-height: 1.2; }
         
-        /* Chống ngắt dòng giữa trang */
+        /* Chống ngắt dòng giữa chừng */
         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
         
         tr.row-elite { background-color: var(--bg-elite); }
@@ -42,15 +42,17 @@
 
         .club-divider { background-color: #e0e0e0 !important; font-weight: 800; color: #000; text-transform: uppercase; border-top: 2px solid #999; }
 
+        /* Khối gom nhóm để chống tách rời tiêu đề và bảng */
+        .pdf-group-wrapper { page-break-inside: avoid; margin-bottom: 20px; }
+
         @media print {
             .club-divider { -webkit-print-color-adjust: exact; background-color: #e0e0e0 !important; }
-            table { font-size: 11px; width: 100% !important; }
-            td, th { padding: 6px 8px !important; }
+            table { font-size: 11px; width: 100% !important; border: 1px solid #000; }
+            td, th { padding: 6px 8px !important; border: 0.5px solid #ccc !important; }
             .bib-tag { -webkit-print-color-adjust: exact; }
-            h2 { page-break-after: avoid; }
+            h2 { page-break-after: avoid !important; margin-bottom: 5px !important; }
         }
 
-        .group-section { page-break-inside: auto; margin-bottom: 20px; }
         .html2pdf__page-break { display: block; height: 0; page-break-before: always; }
     </style>
 </head>
@@ -145,9 +147,9 @@
                 return clubA.localeCompare(clubB);
             });
 
-            html += `${gIdx > 0 ? '<div class="html2pdf__page-break"></div>' : ''}
-            <div class="group-section">
-                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:10px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
+            // Gom tiêu đề và bảng vào pdf-group-wrapper để tránh bị tách trang
+            html += `<div class="pdf-group-wrapper">
+                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:20px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
                 <table class="group-table">
                     <thead>
                         <tr>
@@ -215,14 +217,13 @@
             html2canvas: { 
                 scale: 2, 
                 useCORS: true, 
-                logging: false,
                 letterRendering: true
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Chế độ tránh ngắt giữa phần tử
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
         
-        alert("Hệ thống đang xử lý và chống cắt dòng. Vui lòng đợi...");
+        alert("Hệ thống đang căn chỉnh tiêu đề và dữ liệu. Vui lòng đợi...");
         html2pdf().set(opt).from(element).save();
     }
 
