@@ -39,15 +39,16 @@
 
         .club-divider { background-color: #e0e0e0 !important; font-weight: 800; color: #000; text-transform: uppercase; border-top: 2px solid #999; }
 
-        /* Tối ưu riêng cho PDF */
         @media print {
             .club-divider { -webkit-print-color-adjust: exact; background-color: #e0e0e0 !important; }
-            table { font-size: 11px; }
+            table { font-size: 11px; width: 100% !important; }
             td, th { padding: 6px 8px !important; }
             .bib-tag { -webkit-print-color-adjust: exact; }
+            h2 { page-break-after: avoid; } /* Không cho ngắt trang ngay sau tiêu đề */
         }
 
-        .html2pdf__page-break { display: block; page-break-before: always; }
+        .group-section { page-break-inside: auto; margin-bottom: 20px; }
+        .html2pdf__page-break { display: block; height: 0; page-break-before: always; }
     </style>
 </head>
 <body>
@@ -135,15 +136,16 @@
         Object.keys(groups).forEach((groupName, gIdx) => {
             if(groups[groupName].length === 0) return;
 
-            // Sắp xếp theo CLB
             groups[groupName].sort((a, b) => {
                 let clubA = (a[idxClub] || "Cá nhân").trim().toLowerCase();
                 let clubB = (b[idxClub] || "Cá nhân").trim().toLowerCase();
                 return clubA.localeCompare(clubB);
             });
 
-            html += `<div class="group-section ${gIdx > 0 ? 'html2pdf__page-break' : ''}">
-                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:30px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
+            // Sử dụng div bao ngoài để kiểm soát ngắt trang cho tiêu đề và bảng đi kèm
+            html += `${gIdx > 0 ? '<div class="html2pdf__page-break"></div>' : ''}
+            <div class="group-section">
+                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:10px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
                 <table class="group-table">
                     <thead>
                         <tr>
@@ -205,15 +207,20 @@
     function exportToPDF() {
         const element = document.getElementById('pdf-export-area');
         const opt = {
-            margin: [8, 5, 8, 5],
+            margin: [10, 5, 10, 5],
             filename: 'Danh_Sach_VĐV_TCR_2026.pdf',
-            image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                letterRendering: true
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            pagebreak: { mode: ['css', 'legacy'] }
         };
         
-        alert("Hệ thống đang nén và khởi tạo PDF. Vui lòng giữ cửa sổ trình duyệt...");
+        alert("Hệ thống đang xử lý định dạng. Vui lòng đợi trong giây lát...");
         html2pdf().set(opt).from(element).save();
     }
 
