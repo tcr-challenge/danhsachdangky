@@ -37,6 +37,8 @@
         .bib-4km { background-color: var(--primary-color); }
         .bib-2km { background-color: var(--secondary-color); }
 
+        .club-divider { background-color: #f0f0f0 !important; font-weight: 800; color: #333; text-transform: uppercase; letter-spacing: 0.5px; border-top: 2px solid #ccc; }
+
         .html2pdf__page-break { display: block; page-break-before: always; }
     </style>
 </head>
@@ -125,6 +127,13 @@
         Object.keys(groups).forEach((groupName, gIdx) => {
             if(groups[groupName].length === 0) return;
 
+            // Sắp xếp theo CLB trước khi render table
+            groups[groupName].sort((a, b) => {
+                let clubA = (a[idxClub] || "Cá nhân").trim().toLowerCase();
+                let clubB = (b[idxClub] || "Cá nhân").trim().toLowerCase();
+                return clubA.localeCompare(clubB);
+            });
+
             html += `<div class="group-section ${gIdx > 0 ? 'html2pdf__page-break' : ''}">
                 <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:30px;">NHÓM CỰ LY: ${groupName}</h2>
                 <table class="group-table">
@@ -142,7 +151,9 @@
                     </thead>
                     <tbody>`;
             
+            let lastClub = null;
             groups[groupName].forEach((r, i) => {
+                let currentClub = (r[idxClub] || "Cá nhân").trim();
                 let bib = (r[idxBib] || "---").trim();
                 let distLabel = groupName.includes("Elite") ? "Elite" : (groupName.includes("4KM") ? "4KM" : "2KM");
                 
@@ -154,6 +165,12 @@
                     displayDistText = `<div>ELITE</div><div style="font-size:10px; font-weight:normal;">4KM</div>`;
                 }
 
+                // Nếu đổi CLB thì chèn dòng phân cách tô đậm
+                if (currentClub !== lastClub) {
+                    html += `<tr class="club-divider"><td colspan="8">CLB: ${currentClub}</td></tr>`;
+                    lastClub = currentClub;
+                }
+
                 html += `<tr class="${rClass}">
                     <td>${i + 1}</td>
                     <td><span class="bib-tag ${bClass}">${bib}</span></td>
@@ -161,7 +178,7 @@
                     <td>${(r[idxBirth]||"").match(/\d{4}/) ? (r[idxBirth]||"").match(/\d{4}/)[0] : "---"}</td>
                     <td>${r[idxSex]||""}</td>
                     <td style="font-weight:600; color:blue">${r[idxPhone]||""}</td>
-                    <td>${r[idxClub]||"Cá nhân"}</td>
+                    <td style="font-weight:700">${currentClub}</td>
                     <td style="font-weight:700">${displayDistText}</td>
                 </tr>`;
             });
