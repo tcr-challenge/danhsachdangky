@@ -28,6 +28,9 @@
         th { background-color: var(--secondary-color); color: white; text-align: left; padding: 12px; font-size: 13px; border: 1px solid #ddd; }
         td { padding: 10px 12px; border: 1px solid #eee; font-size: 13px; line-height: 1.2; }
         
+        /* Chống ngắt dòng giữa trang */
+        tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+        
         tr.row-elite { background-color: var(--bg-elite); }
         tr.row-4km { background-color: var(--bg-4km); }
         tr.row-2km { background-color: var(--bg-2km); }
@@ -44,7 +47,7 @@
             table { font-size: 11px; width: 100% !important; }
             td, th { padding: 6px 8px !important; }
             .bib-tag { -webkit-print-color-adjust: exact; }
-            h2 { page-break-after: avoid; } /* Không cho ngắt trang ngay sau tiêu đề */
+            h2 { page-break-after: avoid; }
         }
 
         .group-section { page-break-inside: auto; margin-bottom: 20px; }
@@ -142,7 +145,6 @@
                 return clubA.localeCompare(clubB);
             });
 
-            // Sử dụng div bao ngoài để kiểm soát ngắt trang cho tiêu đề và bảng đi kèm
             html += `${gIdx > 0 ? '<div class="html2pdf__page-break"></div>' : ''}
             <div class="group-section">
                 <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:10px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
@@ -217,10 +219,10 @@
                 letterRendering: true
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-            pagebreak: { mode: ['css', 'legacy'] }
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Chế độ tránh ngắt giữa phần tử
         };
         
-        alert("Hệ thống đang xử lý định dạng. Vui lòng đợi trong giây lát...");
+        alert("Hệ thống đang xử lý và chống cắt dòng. Vui lòng đợi...");
         html2pdf().set(opt).from(element).save();
     }
 
