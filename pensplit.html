@@ -24,9 +24,9 @@
 
         .summary-box { display: flex; gap: 20px; font-weight: 600; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background-color: var(--secondary-color); color: white; text-align: left; padding: 12px; font-size: 13px; }
-        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
+        th { background-color: var(--secondary-color); color: white; text-align: left; padding: 12px; font-size: 13px; border: 1px solid #ddd; }
+        td { padding: 10px 12px; border: 1px solid #eee; font-size: 13px; line-height: 1.2; }
         
         tr.row-elite { background-color: var(--bg-elite); }
         tr.row-4km { background-color: var(--bg-4km); }
@@ -37,7 +37,15 @@
         .bib-4km { background-color: var(--primary-color); }
         .bib-2km { background-color: var(--secondary-color); }
 
-        .club-divider { background-color: #f0f0f0 !important; font-weight: 800; color: #333; text-transform: uppercase; letter-spacing: 0.5px; border-top: 2px solid #ccc; }
+        .club-divider { background-color: #e0e0e0 !important; font-weight: 800; color: #000; text-transform: uppercase; border-top: 2px solid #999; }
+
+        /* Tối ưu riêng cho PDF */
+        @media print {
+            .club-divider { -webkit-print-color-adjust: exact; background-color: #e0e0e0 !important; }
+            table { font-size: 11px; }
+            td, th { padding: 6px 8px !important; }
+            .bib-tag { -webkit-print-color-adjust: exact; }
+        }
 
         .html2pdf__page-break { display: block; page-break-before: always; }
     </style>
@@ -127,7 +135,7 @@
         Object.keys(groups).forEach((groupName, gIdx) => {
             if(groups[groupName].length === 0) return;
 
-            // Sắp xếp theo CLB trước khi render table
+            // Sắp xếp theo CLB
             groups[groupName].sort((a, b) => {
                 let clubA = (a[idxClub] || "Cá nhân").trim().toLowerCase();
                 let clubB = (b[idxClub] || "Cá nhân").trim().toLowerCase();
@@ -135,18 +143,18 @@
             });
 
             html += `<div class="group-section ${gIdx > 0 ? 'html2pdf__page-break' : ''}">
-                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:30px;">NHÓM CỰ LY: ${groupName}</h2>
+                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:30px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
                 <table class="group-table">
                     <thead>
                         <tr>
-                            <th>STT</th>
-                            <th>BIB</th>
+                            <th style="width: 40px;">STT</th>
+                            <th style="width: 70px;">BIB</th>
                             <th>Họ và Tên</th>
-                            <th>NS</th>
-                            <th>GT</th>
+                            <th style="width: 50px;">NS</th>
+                            <th style="width: 40px;">GT</th>
                             <th>Số điện thoại (FULL)</th>
                             <th>Câu lạc bộ</th>
-                            <th>Cự ly</th>
+                            <th style="width: 60px;">Cự ly</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -162,12 +170,11 @@
                 
                 let displayDistText = distLabel;
                 if(distLabel === "Elite") {
-                    displayDistText = `<div>ELITE</div><div style="font-size:10px; font-weight:normal;">4KM</div>`;
+                    displayDistText = `<div>ELITE</div><div style="font-size:9px; font-weight:normal;">4KM</div>`;
                 }
 
-                // Nếu đổi CLB thì chèn dòng phân cách tô đậm
                 if (currentClub !== lastClub) {
-                    html += `<tr class="club-divider"><td colspan="8">CLB: ${currentClub}</td></tr>`;
+                    html += `<tr class="club-divider"><td colspan="8" style="padding: 8px 12px;">CLB: ${currentClub}</td></tr>`;
                     lastClub = currentClub;
                 }
 
@@ -179,7 +186,7 @@
                     <td>${r[idxSex]||""}</td>
                     <td style="font-weight:600; color:blue">${r[idxPhone]||""}</td>
                     <td style="font-weight:700">${currentClub}</td>
-                    <td style="font-weight:700">${displayDistText}</td>
+                    <td style="font-weight:700; text-align: center;">${displayDistText}</td>
                 </tr>`;
             });
 
@@ -198,15 +205,15 @@
     function exportToPDF() {
         const element = document.getElementById('pdf-export-area');
         const opt = {
-            margin: [10, 10, 10, 10],
+            margin: [8, 5, 8, 5],
             filename: 'Danh_Sach_VĐV_TCR_2026.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            image: { type: 'jpeg', quality: 1.0 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
         
-        alert("Hệ thống đang khởi tạo file PDF. Vui lòng đợi trong giây lát...");
+        alert("Hệ thống đang nén và khởi tạo PDF. Vui lòng giữ cửa sổ trình duyệt...");
         html2pdf().set(opt).from(element).save();
     }
 
