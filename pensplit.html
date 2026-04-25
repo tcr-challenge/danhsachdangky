@@ -28,7 +28,6 @@
         th { background-color: var(--secondary-color); color: white; text-align: left; padding: 12px; font-size: 13px; border: 1px solid #ddd; }
         td { padding: 10px 12px; border: 1px solid #eee; font-size: 13px; line-height: 1.2; }
         
-        /* Chống ngắt dòng giữa chừng */
         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
         
         tr.row-elite { background-color: var(--bg-elite); }
@@ -42,18 +41,19 @@
 
         .club-divider { background-color: #e0e0e0 !important; font-weight: 800; color: #000; text-transform: uppercase; border-top: 2px solid #999; }
 
-        /* Khối gom nhóm để chống tách rời tiêu đề và bảng */
-        .pdf-group-wrapper { page-break-inside: avoid; margin-bottom: 20px; }
+        /* Lớp bao quanh để đảm bảo tiêu đề và bảng luôn đi cùng nhau */
+        .pdf-group-wrapper { page-break-inside: avoid; margin-bottom: 40px; }
 
         @media print {
             .club-divider { -webkit-print-color-adjust: exact; background-color: #e0e0e0 !important; }
             table { font-size: 11px; width: 100% !important; border: 1px solid #000; }
             td, th { padding: 6px 8px !important; border: 0.5px solid #ccc !important; }
             .bib-tag { -webkit-print-color-adjust: exact; }
-            h2 { page-break-after: avoid !important; margin-bottom: 5px !important; }
+            h2 { page-break-after: avoid !important; margin-top: 0 !important; }
         }
 
-        .html2pdf__page-break { display: block; height: 0; page-break-before: always; }
+        /* Thẻ ngắt trang cưỡng bách */
+        .html2pdf__page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -66,7 +66,7 @@
 
     <div class="admin-controls">
         <input type="text" id="search-input" class="search-input" placeholder="Tìm tên, SĐT, CLB..." oninput="handleSearch()">
-        <button class="btn-pdf" onclick="exportToPDF()">📄 XUẤT FILE PDF (TÁCH NHÓM)</button>
+        <button class="btn-pdf" onclick="exportToPDF()">📄 XUẤT FILE PDF (TÁCH TRANG NHÓM)</button>
     </div>
 
     <div id="summary" class="summary-box">Đang tính toán dữ liệu...</div>
@@ -138,7 +138,9 @@
         `;
 
         let html = '';
-        Object.keys(groups).forEach((groupName, gIdx) => {
+        const groupKeys = Object.keys(groups);
+        
+        groupKeys.forEach((groupName, gIdx) => {
             if(groups[groupName].length === 0) return;
 
             groups[groupName].sort((a, b) => {
@@ -147,9 +149,13 @@
                 return clubA.localeCompare(clubB);
             });
 
-            // Gom tiêu đề và bảng vào pdf-group-wrapper để tránh bị tách trang
+            // Nếu không phải nhóm đầu tiên, chèn lệnh ngắt trang
+            if (gIdx > 0) {
+                html += `<div class="html2pdf__page-break"></div>`;
+            }
+
             html += `<div class="pdf-group-wrapper">
-                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:20px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
+                <h2 style="color:var(--secondary-color); border-left: 5px solid red; padding-left: 10px; margin-top:10px; font-size: 18px;">NHÓM CỰ LY: ${groupName}</h2>
                 <table class="group-table">
                     <thead>
                         <tr>
@@ -211,19 +217,15 @@
     function exportToPDF() {
         const element = document.getElementById('pdf-export-area');
         const opt = {
-            margin: [10, 5, 10, 5],
+            margin: [15, 8, 15, 8],
             filename: 'Danh_Sach_VĐV_TCR_2026.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2, 
-                useCORS: true, 
-                letterRendering: true
-            },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            pagebreak: { mode: ['css', 'legacy'] }
         };
         
-        alert("Hệ thống đang căn chỉnh tiêu đề và dữ liệu. Vui lòng đợi...");
+        alert("Hệ thống đang thực hiện tách trang từng nhóm cự ly. Vui lòng đợi...");
         html2pdf().set(opt).from(element).save();
     }
 
