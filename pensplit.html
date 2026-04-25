@@ -305,7 +305,7 @@
     <div class="search-container">
         <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên, Số điện thoại hoặc BIB...">
         <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
-        <button class="export-btn" onclick="exportSeparatePDFs()">Xuất file PDF (3 Cự ly)</button>
+        <button class="export-btn" onclick="exportSeparatePDFs()">Xuất file PDF (Theo nhóm)</button>
     </div>
 
     <div class="status-bar" id="status-bar">
@@ -367,7 +367,6 @@
             let bibRaw = (row[idxs.idxBib] || '---').trim();
             let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
             
-            // Khi xuất PDF thì hiện số đầy đủ, trên web thì ẩn
             let phoneDisplay = isForPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
 
             html += `<tr style="page-break-inside:avoid;">
@@ -393,10 +392,19 @@
             idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
         };
 
+        const currentYear = new Date().getFullYear();
         const categories = [
             { id: 'Elite', filter: r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"), type: 1 },
             { id: '4KM', filter: r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"), type: 2 },
-            { id: '2KM', filter: r => (r[idxs.idxDistance]||"").includes("2"), type: 3 }
+            { id: '2KM_Duoi_12', filter: r => {
+                const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+                return (r[idxs.idxDistance]||"").includes("2") && year && (currentYear - year < 12);
+            }, type: 3 },
+            { id: '2KM_12_55', filter: r => {
+                const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+                const age = currentYear - year;
+                return (r[idxs.idxDistance]||"").includes("2") && year && (age >= 12 && age <= 55);
+            }, type: 3 }
         ];
 
         const tempBox = document.getElementById('pdf-export-temp');
@@ -404,9 +412,8 @@
         for (const cat of categories) {
             const groupData = bodyData.filter(cat.filter);
             if (groupData.length === 0) continue;
-
-            tempBox.innerHTML = createTableHtml(cat.id, groupData, cat.type, idxs, true);
-
+            let displayTitle = cat.id.replace('_Duoi_', ' Dưới ').replace('_12_55', ' (12-55 tuổi)').replace('_', ' ');
+            tempBox.innerHTML = createTableHtml(displayTitle, groupData, cat.type, idxs, true);
             const opt = {
                 margin: [10, 10, 10, 10],
                 filename: `Danh-sach-${cat.id}.pdf`,
@@ -415,9 +422,8 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
                 pagebreak: { mode: 'avoid-all' }
             };
-
             await html2pdf().set(opt).from(tempBox).save();
-            tempBox.innerHTML = ""; // Clear để làm nhóm tiếp theo
+            tempBox.innerHTML = "";
         }
     }
 
@@ -432,16 +438,34 @@
             idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
         };
 
+        const currentYear = new Date().getFullYear();
         const elite = bodyData.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
         const km4 = bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
-        const km2 = bodyData.filter(r => (r[idxs.idxDistance]||"").includes("2"));
+        
+        // Tách 2KM theo độ tuổi
+        const km2Child = bodyData.filter(r => {
+            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+            return (r[idxs.idxDistance]||"").includes("2") && year && (currentYear - year < 12);
+        });
+        const km2Adult = bodyData.filter(r => {
+            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+            const age = currentYear - year;
+            return (r[idxs.idxDistance]||"").includes("2") && year && (age >= 12 && age <= 55);
+        });
+        const km2Other = bodyData.filter(r => {
+             const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
+             const age = currentYear - year;
+             return (r[idxs.idxDistance]||"").includes("2") && (!year || age > 55);
+        });
 
         document.getElementById('tables-container').innerHTML = 
             createTableHtml("Nhóm Elite - 4KM", elite, 1, idxs) + 
             createTableHtml("Nhóm 4KM", km4, 2, idxs) + 
-            createTableHtml("Nhóm 2KM", km2, 3, idxs);
+            createTableHtml("Nhóm 2KM - Dưới 12 tuổi", km2Child, 3, idxs) +
+            createTableHtml("Nhóm 2KM - Từ 12 đến 55 tuổi", km2Adult, 3, idxs) +
+            (km2Other.length > 0 ? createTableHtml("Nhóm 2KM - Khác", km2Other, 3, idxs) : "");
 
-        document.getElementById('summary').innerHTML = `<span>Elite: <b style="color:var(--elite-color)">${elite.length}</b></span> | <span>4KM: <b style="color:var(--primary-color)">${km4.length}</b></span> | <span>2KM: <b style="color:var(--secondary-color)">${km2.length}</b></span>`;
+        document.getElementById('summary').innerHTML = `<span>Elite: <b style="color:var(--elite-color)">${elite.length}</b></span> | <span>4KM: <b style="color:var(--primary-color)">${km4.length}</b></span> | <span>2KM (<12): <b style="color:var(--secondary-color)">${km2Child.length}</b></span> | <span>2KM (12-55): <b style="color:var(--secondary-color)">${km2Adult.length}</b></span>`;
         document.getElementById('count').innerText = `Tổng số: ${bodyData.length} vận động viên đã đăng ký`;
         document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
     }
