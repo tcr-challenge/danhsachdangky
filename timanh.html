@@ -3,80 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Runner Photos - TCR</title>
+    <title>Hệ Thống Tìm Ảnh - TCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font chữ chuyên dụng cho thể thao -->
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,700;1,900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { font-family: 'Barlow', sans-serif; overflow-x: hidden; }
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .thumb-active { border: 3px solid #ef4444; transform: scale(1.1); z-index: 10; }
+        .thumb-active { border: 3px solid #ef4444; transform: scale(1.1); z-index: 10; filter: saturate(1.2); }
         .gallery-thumbs::-webkit-scrollbar { height: 4px; }
         .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
 
-        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 60vh; margin-top: 20px; }
-        #fullImg { max-width: 95%; max-height: 100%; object-fit: contain; border-radius: 4px; transition: opacity 0.3s ease; }
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 65vh; margin-top: 10px; }
+        #fullImg { max-width: 95%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         
-        .nav-btn { position: absolute; background: rgba(255,255,255,0.05); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; }
-        .nav-btn:hover { background: #ef4444; }
-        .nav-prev { left: 10px; }
-        .nav-next { right: 10px; }
+        .nav-btn { position: absolute; background: rgba(255,255,255,0.1); color: white; border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:hover { background: #ef4444; transform: scale(1.1); border-color: transparent; }
+        .nav-prev { left: 20px; }
+        .nav-next { right: 20px; }
 
-        .gallery-wrapper { width: 100%; max-width: 1000px; overflow: hidden; display: flex; justify-content: center; margin-top: auto; padding-bottom: 20px; }
+        .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: auto; padding-bottom: 30px; }
+        
+        /* Banner Gradient */
+        .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); position: relative; overflow: hidden; }
+        .banner-bg::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
+        
+        /* Glassmorphism */
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-10">
-        <!-- Header -->
-        <div class="text-center mb-8 text-slate-500 font-bold uppercase text-xs">Chairman: Nguyễn Anh Tuấn - TCR</div>
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-black text-red-600 uppercase tracking-tighter italic">Hệ Thống Tìm Ảnh TCR</h1>
-            <div class="inline-block mt-3 px-6 py-1 bg-red-100 rounded-full">
-                <p id="totalStats" class="text-sm font-black text-red-700 uppercase tracking-widest">Đang kết nối Drive...</p>
+<body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
+
+    <!-- Banner Giải Chạy Chuyên Nghiệp -->
+    <div class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">Thượng Cát Runners Presents</p>
+            <h1 class="text-5xl md:text-8xl font-black italic uppercase tracking-tighter mb-4 drop-shadow-2xl">
+                BƯỚC CHÂN <span class="text-yellow-400 text-outline">DI SẢN</span> 2026
+            </h1>
+            <div class="flex items-center justify-center gap-4 text-sm md:text-lg font-bold uppercase tracking-widest opacity-90">
+                <span>28 THÁNG 04, 2026</span>
+                <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                <span>HÀ NỘI, VIỆT NAM</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-20 relative z-20">
+        <!-- Ô Tìm kiếm tập trung -->
+        <div class="max-w-3xl mx-auto mb-10">
+            <div class="glass-card p-2 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col md:flex-row gap-2 border border-white">
+                <input type="text" id="searchInput" 
+                    placeholder="Nhập số BIB, Tên hoặc CLB của bạn..." 
+                    class="flex-1 p-6 bg-transparent text-slate-800 font-bold outline-none text-xl placeholder:text-slate-400" 
+                    oninput="debounceSearch()">
+                <button onclick="startSearch()" class="bg-red-600 hover:bg-red-700 text-white px-10 py-4 rounded-2xl font-black uppercase italic tracking-widest transition-all shadow-lg active:scale-95">
+                    TÌM ẢNH
+                </button>
+            </div>
+            <div class="text-center mt-4">
+                <div class="inline-block px-5 py-1.5 bg-slate-800 rounded-full shadow-lg">
+                    <p id="totalStats" class="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Đang tải dữ liệu từ Drive...</p>
+                </div>
             </div>
         </div>
 
-        <!-- Tìm kiếm -->
-        <div class="bg-white p-2 rounded-3xl shadow-2xl flex flex-col md:flex-row gap-2 mb-6 border border-slate-100">
-            <input type="text" id="searchInput" placeholder="Nhập BIB, Họ Tên hoặc Câu Lạc Bộ..." class="flex-1 p-5 bg-transparent text-slate-700 font-bold outline-none text-xl" oninput="debounceSearch()">
-        </div>
-
-        <!-- Kết quả tìm kiếm (PHẦN NÀY ĐÃ ĐƯỢC SỬA) -->
-        <div id="searchResultHeader" class="hidden bg-red-600 text-white p-6 rounded-2xl shadow-lg mb-8 text-center md:text-left transition-all">
-            <h2 id="foundCount" class="text-2xl font-black mb-2 italic uppercase">Tìm thấy 0 ảnh</h2>
-            <div class="flex flex-col md:flex-row gap-4 md:gap-10 font-bold text-sm md:text-base border-t border-red-400 pt-4">
-                <p>Số BIB: <span id="infoBib" class="text-yellow-300">--</span></p>
-                <p>Vận động viên: <span id="infoName" class="text-yellow-300">--</span></p>
-                <p>Câu lạc bộ: <span id="infoClub" class="text-yellow-300">--</span></p>
+        <!-- Kết quả tìm kiếm -->
+        <div id="searchResultHeader" class="hidden glass-card overflow-hidden rounded-[2rem] shadow-xl mb-12 border border-slate-200 transition-all animate-fade-in">
+            <div class="bg-red-600 p-4 text-center">
+                <h2 id="foundCount" class="text-white text-2xl font-black italic uppercase tracking-tight">Tìm thấy 0 ảnh</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 p-8">
+                <div class="py-2 md:px-6 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Số BIB</p>
+                    <p id="infoBib" class="text-2xl font-black text-red-600 tracking-tighter">--</p>
+                </div>
+                <div class="py-2 md:px-6 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Vận động viên</p>
+                    <p id="infoName" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p>
+                </div>
+                <div class="py-2 md:px-6 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Câu lạc bộ</p>
+                    <p id="infoClub" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p>
+                </div>
             </div>
         </div>
 
         <div id="loading" class="hidden text-center py-20">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16 mx-auto mb-6"></div>
+            <p class="font-bold text-slate-400 uppercase tracking-widest animate-pulse">Đang bốc ảnh từ kho...</p>
         </div>
 
-        <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
+        <!-- Photo Grid -->
+        <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8"></div>
 
-        <div id="pagination" class="mt-12 flex justify-center items-center gap-6 hidden">
-            <button onclick="changePage(-1)" id="btnPrev" class="p-4 bg-white rounded-2xl shadow-md hover:bg-red-50 disabled:opacity-30 transition-all font-bold">←</button>
-            <span id="pageInfo" class="font-black bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-lg min-w-[100px] text-center italic">1 / 1</span>
-            <button onclick="changePage(1)" id="btnNext" class="p-4 bg-white rounded-2xl shadow-md hover:bg-red-50 disabled:opacity-30 transition-all font-bold">→</button>
+        <!-- Pagination -->
+        <div id="pagination" class="mt-16 flex justify-center items-center gap-4 hidden">
+            <button onclick="changePage(-1)" id="btnPrev" class="w-14 h-14 bg-white rounded-2xl shadow-xl hover:bg-red-600 hover:text-white disabled:opacity-20 transition-all flex items-center justify-center text-xl font-bold border border-slate-100">←</button>
+            <div class="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black italic tracking-widest">
+                PAGE <span id="pageInfo" class="text-yellow-400 ml-2">1 / 1</span>
+            </div>
+            <button onclick="changePage(1)" id="btnNext" class="w-14 h-14 bg-white rounded-2xl shadow-xl hover:bg-red-600 hover:text-white disabled:opacity-20 transition-all flex items-center justify-center text-xl font-bold border border-slate-100">→</button>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-24 pt-10 border-t border-slate-200 text-center">
+            <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Chairman</p>
+            <p class="text-slate-800 font-black italic text-lg uppercase">Nguyễn Anh Tuấn (TCR)</p>
         </div>
     </div>
 
     <!-- Lightbox Gallery -->
     <div id="lightbox">
-        <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-4xl hover:text-red-500 z-[1020]">&times;</button>
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white text-5xl hover:text-red-500 z-[1020] transition-colors">&times;</button>
+        
         <div class="main-img-container">
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
             <img id="fullImg" src="" alt="TCR Runner Photo">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
         </div>
-        <div class="text-center mt-4 z-[1010]">
-            <p class="text-white text-sm font-bold uppercase tracking-widest bg-red-600/50 inline-block px-4 py-1 rounded-full mb-2">Giữ tay vào ảnh để lưu bản HD</p>
+
+        <div class="text-center mt-6 z-[1010]">
+            <span class="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-red-600 px-6 py-2 rounded-full shadow-lg">
+                Giữ tay vào ảnh để lưu bản HD gốc
+            </span>
         </div>
+
         <div class="gallery-wrapper">
             <div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div>
         </div>
@@ -84,7 +139,7 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
-        const PAGE_SIZE = 15;
+        const PAGE_SIZE = 16;
         let allData = [];
         let currentPage = 1;
         let currentIndex = 0;
@@ -111,23 +166,25 @@
                 const result = await res.json();
                 allData = result.photos;
                 
-                document.getElementById('totalStats').innerText = `HỆ THỐNG ĐANG CÓ: ${result.total} ẢNH`;
+                document.getElementById('totalStats').innerText = `HỆ THỐNG ĐANG LƯU TRỮ: ${result.total} ẢNH`;
                 
                 if(query.trim() !== "") {
                     resHeader.classList.remove('hidden');
                     document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
-                    
-                    // LẤY DỮ LIỆU THẬT TỪ BACKEND TRẢ VỀ
                     document.getElementById('infoBib').innerText = result.infoBib || query;
-                    document.getElementById('infoName').innerText = result.infoName || "Không tìm thấy tên";
-                    document.getElementById('infoClub').innerText = result.infoClub || "Không tìm thấy CLB";
+                    document.getElementById('infoName').innerText = result.infoName || "---";
+                    document.getElementById('infoClub').innerText = result.infoClub || "---";
                 } else {
                     resHeader.classList.add('hidden');
                 }
 
                 currentPage = 1;
                 render();
-            } catch (e) { console.error(e); } finally { loading.classList.add('hidden'); }
+            } catch (e) { 
+                console.error(e); 
+            } finally { 
+                loading.classList.add('hidden'); 
+            }
         }
 
         function render() {
@@ -138,8 +195,12 @@
             grid.innerHTML = currentItems.map((p, index) => {
                 const globalIndex = start + index;
                 return `
-                <div class="relative bg-white p-2 rounded-2xl shadow-md cursor-pointer border border-slate-100 group" onclick="openLightbox(${globalIndex})">
-                    <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-52 object-cover rounded-xl" loading="lazy">
+                <div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border border-white hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
+                    <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" 
+                         class="w-full h-64 md:h-72 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <span class="text-white font-bold text-xs uppercase tracking-widest">Xem ảnh lớn</span>
+                    </div>
                 </div>`;
             }).join('');
             updateUI();
@@ -168,7 +229,7 @@
             const container = document.getElementById('galleryThumbs');
             container.innerHTML = allData.map((p, idx) => `
                 <img src="https://lh3.googleusercontent.com/d/${p.id}=s100" 
-                     class="h-16 w-16 object-cover rounded-lg cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-40'}"
+                     class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-30'}"
                      onclick="openLightbox(${idx})">
             `).join('');
             
@@ -188,7 +249,11 @@
             document.getElementById('btnNext').disabled = (currentPage === total);
         }
 
-        function changePage(step) { currentPage += step; render(); window.scrollTo({top: 0, behavior: 'smooth'}); }
+        function changePage(step) { 
+            currentPage += step; 
+            render(); 
+            window.scrollTo({top: 400, behavior: 'smooth'}); 
+        }
     </script>
 </body>
 </html>
