@@ -1,139 +1,191 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TCR Thượng Cát - Kho Ảnh Di Sản</title>
-  <style>
-    :root { --primary: #e67e22; --dark: #2c3e50; --light: #f4f7f6; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--light); }
-    
-    /* Giao diện Header */
-    .banner { width: 100%; height: 200px; background: url('https://tcr-challenge.github.io/danhsachdangky/images/banner.jpg') center/cover no-repeat; }
-    .tabs { display: flex; justify-content: center; background: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .tab-btn { flex: 1; max-width: 250px; padding: 15px; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: bold; color: #7f8c8d; border-bottom: 3px solid transparent; text-align: center; }
-    .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tìm ảnh giải chạy</title>
 
-    /* Vùng nội dung */
-    .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; min-height: 60vh; }
-    .search-section { text-align: center; margin-bottom: 30px; }
-    .search-box input { width: 100%; max-width: 500px; padding: 12px 25px; border: 2px solid #ddd; border-radius: 30px; font-size: 16px; outline: none; transition: 0.3s; }
-    .search-box input:focus { border-color: var(--primary); }
+<style>
+body { font-family: Arial; margin: 0; background: #f5f5f5; }
+header { background: #111; color: white; padding: 15px; text-align: center; }
 
-    /* Lưới ảnh tối ưu */
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-    .img-card { background: white; padding: 4px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
-    .img-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 5px; display: block; background: #eee; }
+.search-box {
+  padding: 15px;
+  text-align: center;
+  background: white;
+  position: sticky;
+  top: 0;
+}
 
-    /* Bảng MTQ */
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
-    th { background: var(--primary); color: white; padding: 12px; text-align: left; }
-    td { padding: 12px; border-bottom: 1px solid #eee; }
+input {
+  width: 90%;
+  max-width: 400px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
 
-    @media (max-width: 600px) {
-      .gallery { grid-template-columns: repeat(2, 1fr); }
-      .banner { height: 120px; }
-    }
-  </style>
+.container { padding: 15px; }
+
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.grid {
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.grid img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  display:none;
+  background:rgba(0,0,0,0.9);
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+.modal img {
+  max-width:90%;
+  max-height:80%;
+}
+
+.close {
+  position:absolute;
+  top:20px;
+  right:20px;
+  color:white;
+  font-size:25px;
+  cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-<div class="banner"></div>
+<header><h3>📸 Tìm ảnh giải chạy</h3></header>
 
-<div class="tabs">
-  <div class="tab-btn active" onclick="switchTab('search')">TÌM ẢNH</div>
-  <div class="tab-btn" onclick="switchTab('mtq')">MẠNH THƯỜNG QUÂN</div>
+<div class="search-box">
+  <input type="text" id="search" placeholder="Nhập BIB, tên hoặc CLB...">
 </div>
 
-<div class="container">
-  <!-- TAB TÌM ẢNH -->
-  <div id="tab-search" class="tab-content">
-    <div class="search-section">
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Nhập số BIB hoặc tên..." oninput="filterPhotos()">
-      </div>
-      <p id="status" style="color: #888; font-size: 13px; margin-top: 10px;">Đang tải dữ liệu từ Google Drive...</p>
-    </div>
-    <div class="gallery" id="photoGallery"></div>
-  </div>
+<div class="container" id="result"></div>
 
-  <!-- TAB MTQ -->
-  <div id="tab-mtq" class="tab-content" style="display:none;">
-    <div id="mtqArea">Đang tải danh sách...</div>
-  </div>
+<div class="modal" id="modal">
+  <span class="close" onclick="closeModal()">✖</span>
+  <img id="modalImg">
 </div>
 
 <script>
-// Thay link chuẩn anh vừa lấy ở Bước 2 vào đây
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNXCMJXc7J_YRrMDpoks-25mxpFprw6-FX9unrGh5V0B2fo9Wxgg4DJyzkY8ZLAWSW/exec";
+const API = "https://script.google.com/macros/s/AKfycbxv202kLU4ZPyYZEdwhLcmuCtEkWlnUsrVXnVCVPaT9jWxxkrH7ojrC2kN4nse8tdpUBg/exec";
 
-async function init() {
-  const statusEl = document.getElementById('status');
-  try {
-    statusEl.innerText = "Đang kết nối dữ liệu...";
-    
-    // Thêm tham số để tránh cache trình duyệt
-    const resp = await fetch(`${SCRIPT_URL}?action=getAllPhotos&t=${new Date().getTime()}`);
-    
-    if (!resp.ok) throw new Error('Không thể kết nối tới Google Script');
-    
-    const data = await resp.json();
-    
-    if (data.error) throw new Error(data.error);
+let data = [];
+let cacheKey = "runner_photo_data_v1";
 
-    allPhotos = data;
-    renderGallery(allPhotos);
-    statusEl.innerText = `Kho ảnh sẵn sàng: ${allPhotos.length} tấm`;
-    
-    loadMTQ();
-  } catch (e) {
-    console.error(e);
-    statusEl.innerHTML = `<b style="color:red">Lỗi: ${e.message}</b><br>Anh hãy kiểm tra lại cấu hình "Anyone" khi Deploy nhé!`;
-  }
+// 🔥 Load cache trước
+const cache = localStorage.getItem(cacheKey);
+if (cache) {
+  data = JSON.parse(cache);
 }
 
-  // 2. Hiển thị lưới ảnh (Dùng preview để load nhanh)
-  function renderGallery(data) {
-    const gallery = document.getElementById('photoGallery');
-    gallery.innerHTML = data.map(img => `
-      <div class="img-card" onclick="window.open('${img.url}', '_blank')">
-        <img src="${img.url.replace('/view', '/preview')}" loading="lazy">
-      </div>
-    `).join('');
+// 🔥 Fetch API (cập nhật ngầm)
+fetch(API)
+.then(res => res.json())
+.then(json => {
+  data = json;
+  localStorage.setItem(cacheKey, JSON.stringify(json));
+});
+
+// 🔥 Debounce search
+let timeout;
+document.getElementById("search").addEventListener("input", function() {
+  clearTimeout(timeout);
+  const value = this.value;
+
+  timeout = setTimeout(() => {
+    search(value);
+  }, 300);
+});
+
+function search(keyword) {
+  keyword = keyword.toLowerCase();
+
+  if (!keyword) {
+    document.getElementById("result").innerHTML = "";
+    return;
   }
 
-  // 3. Bộ lọc tìm kiếm
-  function filterPhotos() {
-    const val = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = allPhotos.filter(p => 
-      (p.name && p.name.toLowerCase().includes(val)) || 
-      (p.bib && p.bib.includes(val))
-    );
-    renderGallery(filtered);
+  const filtered = data.filter(item =>
+    item.bib.toString().includes(keyword) ||
+    item.ten.toLowerCase().includes(keyword) ||
+    item.clb.toLowerCase().includes(keyword)
+  ).slice(0, 50); // 🔥 giới hạn 50 kết quả
+
+  render(filtered);
+}
+
+function render(list) {
+  const container = document.getElementById("result");
+  container.innerHTML = "";
+
+  list.forEach((item, index) => {
+
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <b>BIB ${item.bib}</b> - ${item.ten}<br>
+      <small>${item.clb} • ${item.images.length} ảnh</small>
+      <div class="grid" id="grid_${index}"></div>
+    `;
+
+    div.onclick = () => toggleImages(item, index);
+
+    container.appendChild(div);
+  });
+}
+
+// 🔥 chỉ load ảnh khi click
+function toggleImages(item, index) {
+  const grid = document.getElementById("grid_" + index);
+
+  if (grid.style.display === "grid") {
+    grid.style.display = "none";
+    grid.innerHTML = "";
+    return;
   }
 
-  // 4. Lấy dữ liệu Mạnh thường quân
-  async function loadMTQ() {
-    const resp = await fetch(SCRIPT_URL + "?action=getMTQ");
-    const data = await resp.json();
-    let html = '<table><tr>';
-    data.headers.forEach(h => html += `<th>${h}</th>`);
-    html += '</tr>';
-    data.rows.forEach(row => {
-      html += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
-    });
-    document.getElementById('mtqArea').innerHTML = html + '</table>';
-  }
+  grid.style.display = "grid";
 
-  // Chuyển Tab
-  function switchTab(id) {
-    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + id).style.display = 'block';
-    event.currentTarget.classList.add('active');
-  }
+  grid.innerHTML = item.images.slice(0, 100).map(img => `
+    <img src="${img}" onclick="openModal('${img}')">
+  `).join("");
+}
 
-  window.onload = init;
+// Modal
+function openModal(src) {
+  document.getElementById("modal").style.display = "flex";
+  document.getElementById("modalImg").src = src;
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
 </script>
+
 </body>
 </html>
