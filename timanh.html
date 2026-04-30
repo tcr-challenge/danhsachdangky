@@ -6,6 +6,7 @@
     <title>Hệ Thống Tìm Ảnh - TCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Barlow', sans-serif; overflow-x: hidden; }
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
@@ -16,21 +17,17 @@
         .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
 
         #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer; }
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 95%; max-width: 1000px; height: 70vh; cursor: default; }
+        
+        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; cursor: default; }
         #fullImg { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
         
         .nav-btn { position: absolute; background: rgba(0,0,0,0.3); color: white; border-radius: 12px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn:hover { background: #ef4444; border-color: transparent; transform: scale(1.05); }
-        .nav-prev { left: -70px; }
-        .nav-next { right: -70px; }
+        .nav-btn:hover { background: #TargetColor; border-color: transparent; transform: scale(1.05); }
+        .nav-prev { left: -80px; }
+        .nav-next { right: -80px; }
         @media (max-width: 1024px) { .nav-prev { left: 10px; } .nav-next { right: 10px; } }
 
-        /* Thông tin 1 dòng sát mép trên ảnh */
-        .img-info-overlay { position: absolute; top: 40px; left: 0; right: 0; padding: 10px; z-index: 1015; pointer-events: none; text-align: center; }
-        .info-line { display: inline-block; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
-
-        /* Thông báo sát chân mép ngoài */
-        .img-instruction-overlay { position: fixed; bottom: -80px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
+        .img-instruction-overlay { position: fixed; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
 
         .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; }
         .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); position: relative; overflow: hidden; }
@@ -38,6 +35,16 @@
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
         
         * { font-style: normal !important; }
+
+        /* Custom Footer Style */
+        .footer-info { text-align: center; }
+        .footer-grid { display: flex; align-items: center; justify-content: center; gap: 2rem; }
+        .footer-column { flex: 1; }
+        .footer-divider { width: 2px; background-color: #475569; align-self: stretch; }
+        @media (max-width: 768px) {
+            .footer-grid { flex-direction: column; }
+            .footer-divider { width: 50%; height: 2px; margin: 1rem 0; }
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
@@ -45,14 +52,14 @@
     <!-- Banner -->
     <div class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
         <div class="max-w-6xl mx-auto text-center relative z-10">
-            <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">Thượng Cát Runners Presents</p>
+            <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT NĂM BÍNH NGỌ</p>
             <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
                 BƯỚC CHÂN <span class="text-yellow-400">DI SẢN</span> 2026
             </h1>
             <div class="flex items-center justify-center gap-4 text-sm md:text-lg font-bold uppercase tracking-widest opacity-90">
-                <span>28 THÁNG 04, 2026</span>
+                <span>27 THÁNG 04, 2026</span>
                 <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                <span>HÀ NỘI, VIỆT NAM</span>
+                <span>THƯỢNG CÁT, HÀ NỘI, VIỆT NAM</span>
             </div>
         </div>
     </div>
@@ -60,14 +67,11 @@
     <div class="max-w-6xl mx-auto px-4 pb-20 relative z-20">
         <!-- Tìm kiếm -->
         <div class="max-w-3xl mx-auto mb-10">
-            <div class="glass-card p-2 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col md:flex-row gap-2 border border-white">
+            <div class="glass-card p-2 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex border border-white">
                 <input type="text" id="searchInput" 
-                    placeholder="Nhập số BIB, Tên hoặc CLB của bạn..." 
-                    class="flex-1 p-6 bg-transparent text-slate-800 font-bold outline-none text-xl placeholder:text-slate-400" 
+                    placeholder="Nhập số BIB, Tên hoặc CLB của bạn để tìm ảnh..." 
+                    class="flex-1 p-6 bg-transparent text-slate-800 font-none outline-none text-xl text-center placeholder:text-slate-400" 
                     oninput="debounceSearch()">
-                <button onclick="startSearch()" class="bg-red-600 hover:bg-red-700 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg active:scale-95">
-                    TÌM ẢNH
-                </button>
             </div>
             <div class="text-center mt-4">
                 <div class="inline-block px-5 py-1.5 bg-slate-800 rounded-full shadow-lg">
@@ -123,16 +127,27 @@
         </div>
 
         <!-- Footer -->
-        <div class="mt-24 pt-10 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div class="text-center md:text-left">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Chairman</p>
-                <p class="text-slate-800 font-black text-lg uppercase">Nguyễn Anh Tuấn (TCR)</p>
-            </div>
-            <div class="text-center md:text-right space-y-2">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Thông tin liên hệ</p>
-                <p class="text-sm font-bold text-slate-700 uppercase">Fanpage: <span class="text-red-600">Làng Bên Sông - TCR</span></p>
-                <p class="text-sm font-bold text-slate-700">Email: thuongcatrunners@gmail.com</p>
-                <p class="text-sm font-bold text-slate-700 uppercase">Thượng Cát - Bắc Từ Liêm - Hà Nội</p>
+        <div class="mt-16 pt-12 border-t-2 border-slate-200">
+            <div class="footer-info">
+                <h2 class="text-slate-400 text-xs font-black uppercase tracking-[0.4em] mb-8">THÔNG TIN LIÊN HỆ</h2>
+                <div class="footer-grid">
+                    <div class="footer-column space-y-2">
+                        <p class="text-slate-900 font-black text-sm uppercase tracking-wider mb-2">BAN TỔ CHỨC GIẢI CHẠY</p>
+                        <p class="text-slate-600 text-xs">Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
+                        <p class="text-slate-600 text-xs">Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank" class="text-red-600 font-bold hover:underline">@ThuongCatRunners - TCR</a></p>
+                        <p class="text-slate-600 text-xs">Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank" class="text-red-600 font-bold hover:underline">Thượng Cát Runners</a></p>
+                        <p class="text-slate-600 text-xs">Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank" class="text-red-600 font-bold hover:underline">vnshort.com/vy6J</a></p>
+                    </div>
+                    
+                    <div class="footer-divider"></div>
+                    
+                    <div class="footer-column space-y-2">
+                        <p class="text-slate-900 font-black text-sm uppercase tracking-wider mb-2">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</p>
+                        <p class="text-slate-600 text-xs">Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank" class="text-red-600 font-bold hover:underline">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank" class="text-red-600 font-bold hover:underline">Đình làng Thượng Cát</a></p>
+                        <p class="text-slate-600 text-xs">Bản đồ: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank" class="text-red-600 font-bold hover:underline italic">Xem trên Google Maps</a></p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2">Thượng Cát - Bắc Từ Liêm - Hà Nội</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -140,23 +155,11 @@
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
         <div class="main-img-container" onclick="event.stopPropagation()">
-            <!-- Thông tin 1 dòng sát mép trên -->
-            <div class="img-info-overlay">
-                <div class="info-line">
-                    <p class="text-sm font-bold text-white uppercase tracking-tight">
-                        Số BIB: <span id="overlayBib" class="text-yellow-400 mr-4">---</span> | 
-                        Vận động viên: <span id="overlayName" class="text-yellow-400 mr-4">---</span> | 
-                        Câu lạc bộ: <span id="overlayClub" class="text-yellow-400">---</span>
-                    </p>
-                </div>
-            </div>
-
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
             <img id="fullImg" src="" alt="TCR Runner Photo">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
         </div>
 
-        <!-- Thông báo sát mép ngoài chân trang -->
         <div class="img-instruction-overlay">
             <span class="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-red-600/90 px-6 py-2 rounded-full shadow-lg border border-red-500">
                 GIỮ TAY VÀO ẢNH ĐỂ LƯU BẢN HD
@@ -175,9 +178,7 @@
         let currentPage = 1;
         let currentIndex = 0;
         let searchTimeout;
-        let currentBibInfo = "";
-        let currentNameInfo = "";
-        let currentClubInfo = "";
+        let isSearching = false;
 
         window.onload = () => startSearch("");
 
@@ -187,7 +188,8 @@
         }
 
         async function startSearch() {
-            const query = document.getElementById('searchInput').value.trim();
+            const queryInput = document.getElementById('searchInput');
+            const query = queryInput.value.trim();
             const loading = document.getElementById('loading');
             const grid = document.getElementById('photoGrid');
             const resHeader = document.getElementById('searchResultHeader');
@@ -197,34 +199,36 @@
             grid.innerHTML = "";
             resHeader.classList.add('hidden');
             notFoundMsg.classList.add('hidden');
+            isSearching = query !== "";
 
             try {
                 const res = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
                 const result = await res.json();
-                allData = result.photos;
+                
+                let photos = result.photos || [];
+                
+                // Logic ưu tiên: Đưa ảnh từ thư mục "Anhtapthetcr" lên đầu (không phân biệt hoa thường)
+                if (!isSearching) {
+                    const targetFolder = "anhtapthetcr";
+                    const groupPhotos = photos.filter(p => p.folderName && p.folderName.toLowerCase().trim() === targetFolder);
+                    const otherPhotos = photos.filter(p => !p.folderName || p.folderName.toLowerCase().trim() !== targetFolder);
+                    allData = [...groupPhotos, ...otherPhotos];
+                } else {
+                    allData = photos;
+                }
                 
                 document.getElementById('totalStats').innerText = `HỆ THỐNG ĐANG LƯU TRỮ: ${result.total} ẢNH`;
                 
-                if(query !== "") {
+                if(isSearching) {
                     if (allData.length > 0 && result.infoName && result.infoName !== "---") {
                         resHeader.classList.remove('hidden');
                         document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
-                        
-                        currentBibInfo = result.infoBib || query;
-                        currentNameInfo = result.infoName;
-                        currentClubInfo = result.infoClub || "Tự do";
-
-                        document.getElementById('infoBib').innerText = currentBibInfo;
-                        document.getElementById('infoName').innerText = currentNameInfo;
-                        document.getElementById('infoClub').innerText = currentClubInfo;
-                        
-                        const folderUrl = `https://drive.google.com/drive/search?q=${currentBibInfo}`;
-                        document.getElementById('folderLink').href = folderUrl;
+                        document.getElementById('infoBib').innerText = result.infoBib || query;
+                        document.getElementById('infoName').innerText = result.infoName;
+                        document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
+                        document.getElementById('folderLink').href = `https://drive.google.com/drive/search?q=${result.infoBib || query}`;
                     } else {
                         notFoundMsg.classList.remove('hidden');
-                        currentNameInfo = "Khách";
-                        currentBibInfo = query;
-                        currentClubInfo = "---";
                     }
                 }
 
@@ -252,21 +256,11 @@
             currentIndex = index;
             const p = allData[currentIndex];
             const imgElement = document.getElementById('fullImg');
-            
-            document.getElementById('overlayName').innerText = currentNameInfo;
-            document.getElementById('overlayBib').innerText = currentBibInfo;
-            document.getElementById('overlayClub').innerText = currentClubInfo;
-
             imgElement.style.opacity = "0.5";
             imgElement.src = `https://lh3.googleusercontent.com/d/${p.id}=s1200`;
-            
             const highResImg = new Image();
             highResImg.src = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
-            highResImg.onload = () => {
-                imgElement.src = highResImg.src;
-                imgElement.style.opacity = "1";
-            };
-
+            highResImg.onload = () => { imgElement.src = highResImg.src; imgElement.style.opacity = "1"; };
             document.getElementById('lightbox').style.display = 'flex';
             document.body.style.overflow = 'hidden';
             renderGalleryThumbs();
@@ -286,7 +280,6 @@
         function nextImg(e) { e.stopPropagation(); if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1); }
         function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
-
         function updateUI() {
             const total = Math.ceil(allData.length / PAGE_SIZE);
             document.getElementById('pagination').classList.toggle('hidden', total <= 1);
@@ -294,7 +287,6 @@
             document.getElementById('btnPrev').disabled = (currentPage === 1);
             document.getElementById('btnNext').disabled = (currentPage === total);
         }
-
         function changePage(step) { currentPage += step; render(); window.scrollTo({top: 400, behavior: 'smooth'}); }
     </script>
 </body>
