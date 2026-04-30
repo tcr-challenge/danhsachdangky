@@ -35,6 +35,16 @@
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
         
         * { font-style: normal !important; }
+
+        /* Custom Footer Style */
+        .footer-info { text-align: center; }
+        .footer-grid { display: flex; align-items: center; justify-content: center; gap: 2rem; }
+        .footer-column { flex: 1; }
+        .footer-divider { width: 2px; background-color: #475569; align-self: stretch; }
+        @media (max-width: 768px) {
+            .footer-grid { flex-direction: column; }
+            .footer-divider { width: 50%; height: 2px; margin: 1rem 0; }
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
@@ -117,61 +127,26 @@
         </div>
 
         <!-- Footer -->
-        <div class="mt-16 pt-8 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Cột trái: Nhiép ảnh gia -->
-            <div class="text-center md:text-left">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Nhiếp ảnh gia</p>
-                <div class="grid grid-cols-1 gap-2">
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-2 group">
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
-                            <i class="fa-solid fa-camera text-[10px]"></i>
-                        </div>
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Phúc Trần</span>
-                    </a>
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-2 group">
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
-                            <i class="fa-solid fa-camera text-[10px]"></i>
-                        </div>
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Quang</span>
-                    </a>
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-2 group">
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
-                            <i class="fa-solid fa-camera text-[10px]"></i>
-                        </div>
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Nấm</span>
-                    </a>
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-2 group">
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
-                            <i class="fa-solid fa-camera text-[10px]"></i>
-                        </div>
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Liên</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Cột phải: Thông tin liên hệ -->
-            <div class="text-center md:text-right">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Thông tin liên hệ</p>
-                <div class="grid grid-cols-1 gap-2">
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-end gap-2 group">
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Fanpage Làng Bên Sông</span>
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                            <i class="fa-brands fa-facebook-f text-[10px]"></i>
-                        </div>
-                    </a>
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-end gap-2 group">
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Đình Làng Thượng Cát</span>
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                            <i class="fa-brands fa-facebook-f text-[10px]"></i>
-                        </div>
-                    </a>
-                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-end gap-2 group">
-                        <span class="text-slate-800 font-black text-xs uppercase group-hover:text-red-600">Nhóm Thượng Cát Runners</span>
-                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                            <i class="fa-solid fa-users text-[10px]"></i>
-                        </div>
-                    </a>
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Thượng Cát - Từ Liêm - Hà Nội</p>
+        <div class="mt-16 pt-12 border-t-2 border-slate-200">
+            <div class="footer-info">
+                <h2 class="text-slate-400 text-xs font-black uppercase tracking-[0.4em] mb-8">THÔNG TIN LIÊN HỆ</h2>
+                <div class="footer-grid">
+                    <div class="footer-column space-y-2">
+                        <p class="text-slate-900 font-black text-sm uppercase tracking-wider mb-2">BAN TỔ CHỨC GIẢI CHẠY</p>
+                        <p class="text-slate-600 text-xs">Ông <strong>Nguyễn Anh Tuấn:</strong> 0968 814 606 (Trưởng BTC - Chủ nhiệm TCR)</p>
+                        <p class="text-slate-600 text-xs">Facebook BTC: <a href="https://vnshort.com/WL5A" target="_blank" class="text-red-600 font-bold hover:underline">@ThuongCatRunners - TCR</a></p>
+                        <p class="text-slate-600 text-xs">Nhóm chạy bộ TCR: <a href="https://web.facebook.com/groups/thuongcatrunners " target="_blank" class="text-red-600 font-bold hover:underline">Thượng Cát Runners</a></p>
+                        <p class="text-slate-600 text-xs">Nhóm Zalo giải chạy: <a href="https://vnshort.com/vy6J" target="_blank" class="text-red-600 font-bold hover:underline">vnshort.com/vy6J</a></p>
+                    </div>
+                    
+                    <div class="footer-divider"></div>
+                    
+                    <div class="footer-column space-y-2">
+                        <p class="text-slate-900 font-black text-sm uppercase tracking-wider mb-2">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</p>
+                        <p class="text-slate-600 text-xs">Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank" class="text-red-600 font-bold hover:underline">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank" class="text-red-600 font-bold hover:underline">Đình làng Thượng Cát</a></p>
+                        <p class="text-slate-600 text-xs">Bản đồ: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank" class="text-red-600 font-bold hover:underline italic">Xem trên Google Maps</a></p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2">Thượng Cát - Bắc Từ Liêm - Hà Nội</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,7 +207,6 @@
                 
                 let photos = result.photos || [];
                 
-                // Logic ưu tiên: Đưa ảnh từ thư mục "Anhtapthetcr" lên đầu khi mới mở trang (query trống)
                 if (!isSearching) {
                     const groupPhotos = photos.filter(p => p.folderName === "Anhtapthetcr");
                     const otherPhotos = photos.filter(p => p.folderName !== "Anhtapthetcr");
