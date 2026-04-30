@@ -16,13 +16,27 @@
         .gallery-thumbs::-webkit-scrollbar { height: 4px; }
         .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
 
-        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer; }
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
         
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; cursor: default; }
-        #fullImg { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
+        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; }
+        
+        /* Cập nhật CSS cho ảnh để cho phép nhấn giữ (pointer-events: auto) */
+        #fullImg { 
+            max-width: 100%; 
+            max-height: 100%; 
+            object-fit: contain; 
+            border-radius: 8px; 
+            transition: opacity 0.3s ease; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); 
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: auto !important; 
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+            -webkit-touch-callout: default !important; /* Quan trọng cho iOS */
+        }
         
         .nav-btn { position: absolute; background: rgba(0,0,0,0.3); color: white; border-radius: 12px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn:hover { background: #TargetColor; border-color: transparent; transform: scale(1.05); }
+        .nav-btn:hover { background: #ef4444; border-color: transparent; transform: scale(1.05); }
         .nav-prev { left: -80px; }
         .nav-next { right: -80px; }
         @media (max-width: 1024px) { .nav-prev { left: 10px; } .nav-next { right: 10px; } }
@@ -36,11 +50,10 @@
         
         * { font-style: normal !important; }
 
-        /* Footer CSS cập nhật theo yêu cầu */
         .footer-info {
             width: 100%;
             max-width: 1000px;
-            margin: 0 auto 70px auto; /* Thêm margin auto để căn giữa */
+            margin: 0 auto 70px auto;
             padding: 30px;
             box-sizing: border-box;
             background: rgba(255, 255, 255, 0.85); 
@@ -50,7 +63,7 @@
 
         .footer-info h2 {
             font-size: 20px;
-            color: var(--secondary-color);
+            color: #1e293b;
             margin-bottom: 25px;
             text-transform: uppercase;
             text-align: center;
@@ -60,7 +73,7 @@
         .footer-grid { display: flex; align-items: stretch; gap: 30px; }
         .footer-column { flex: 1; font-size: 15px; line-height: 1.6; color: #444; text-align: left; }
         .footer-divider { width: 2px; background-color: #d0d0d0; }
-        .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+        .footer-info a { color: #ef4444; text-decoration: none; font-weight: 600; }
 
         @media (max-width: 768px) {
             .footer-grid { flex-direction: column; }
@@ -159,7 +172,6 @@
                         <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Mr. Ngọc Liên</a></p>
                         <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Ms. Huyền Nấm</a></p>
                         <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Mr. Phúc Trần</a></p>
-
                     </div>
                     
                     <div class="footer-divider"></div>
@@ -177,9 +189,10 @@
 
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
+        <!-- Dừng propagation cho container chính nhưng cho phép ảnh xử lý sự kiện mặc định -->
         <div class="main-img-container" onclick="event.stopPropagation()">
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
-            <img id="fullImg" src="" alt="TCR Runner Photo">
+            <img id="fullImg" src="" alt="TCR Runner Photo" oncontextmenu="return true;">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
         </div>
 
@@ -230,7 +243,6 @@
                 
                 let photos = result.photos || [];
                 
-                // Logic ưu tiên: Đưa ảnh từ thư mục "Anhtapthetcr" lên đầu (không phân biệt hoa thường)
                 if (!isSearching) {
                     const targetFolder = "Anhtapthetcr";
                     const groupPhotos = photos.filter(p => p.folderName && p.folderName.toLowerCase().trim() === targetFolder);
