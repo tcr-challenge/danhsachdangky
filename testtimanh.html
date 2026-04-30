@@ -16,20 +16,21 @@
         .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
 
         #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer; }
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 95%; max-width: 1000px; height: 70vh; cursor: default; }
+        
+        /* Container chứa ảnh: dùng fit-content để bám sát kích thước ảnh thực tế */
+        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; cursor: default; }
         #fullImg { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
         
         .nav-btn { position: absolute; background: rgba(0,0,0,0.3); color: white; border-radius: 12px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
         .nav-btn:hover { background: #ef4444; border-color: transparent; transform: scale(1.05); }
-        .nav-prev { left: -70px; }
-        .nav-next { right: -70px; }
+        .nav-prev { left: -80px; }
+        .nav-next { right: -80px; }
         @media (max-width: 1024px) { .nav-prev { left: 10px; } .nav-next { right: 10px; } }
 
-        /* Thông tin 1 dòng sát mép trên ảnh */
-        .img-info-overlay { position: absolute; top: -40px; left: 0; right: 0; padding: 10px; z-index: 1015; pointer-events: none; text-align: center; }
-        .info-line { display: inline-block; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
+        /* Overlay thông tin: Luôn nằm trên mép ảnh 10px */
+        .img-info-overlay { position: absolute; bottom: calc(100% + 10px); left: 0; right: 0; z-index: 1015; pointer-events: none; text-align: center; width: 100%; }
+        .info-line { display: inline-block; background: rgba(0,0,0,0.7); padding: 6px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap; }
 
-        /* Thông báo sát chân mép ngoài */
         .img-instruction-overlay { position: fixed; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
 
         .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; }
@@ -137,10 +138,10 @@
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
         <div class="main-img-container" onclick="event.stopPropagation()">
-            <!-- Thông tin 1 dòng sát mép trên -->
+            <!-- Thông tin nằm trong container và bám sát mép trên ảnh -->
             <div class="img-info-overlay">
                 <div id="infoLineBox" class="info-line">
-                    <p id="overlayContent" class="text-sm font-bold text-white uppercase tracking-tight">
+                    <p id="overlayContent" class="text-xs md:text-sm font-bold text-white uppercase tracking-tight">
                         Số BIB: <span id="overlayBib" class="text-yellow-400 mr-4">---</span> | 
                         Vận động viên: <span id="overlayName" class="text-yellow-400 mr-4">---</span> | 
                         Câu lạc bộ: <span id="overlayClub" class="text-yellow-400">---</span>
@@ -153,7 +154,6 @@
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
         </div>
 
-        <!-- Thông báo sát mép ngoài chân trang -->
         <div class="img-instruction-overlay">
             <span class="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-red-600/90 px-6 py-2 rounded-full shadow-lg border border-red-500">
                 GIỮ TAY VÀO ẢNH ĐỂ LƯU BẢN HD
@@ -224,7 +224,7 @@
                         currentNameInfo = ""; 
                         currentBibInfo = "";
                         currentClubInfo = "";
-                        isSearching = false; // Trả về mặc định nếu không thấy
+                        isSearching = false;
                     }
                 } else {
                     currentNameInfo = "";
@@ -258,12 +258,11 @@
             const imgElement = document.getElementById('fullImg');
             const overlayContent = document.getElementById('overlayContent');
             
-            // Cập nhật nội dung dòng thông tin
             if (isSearching && currentNameInfo !== "") {
                 overlayContent.innerHTML = `
-                    Số BIB: <span class="text-yellow-400 mr-4">${currentBibInfo}</span> | 
-                    Vận động viên: <span class="text-yellow-400 mr-4">${currentNameInfo}</span> | 
-                    Câu lạc bộ: <span class="text-yellow-400">${currentClubInfo}</span>
+                    Số BIB: <span class="text-yellow-400 mr-2 md:mr-4">${currentBibInfo}</span> | 
+                    VĐV: <span class="text-yellow-400 mr-2 md:mr-4">${currentNameInfo}</span> | 
+                    CLB: <span class="text-yellow-400">${currentClubInfo}</span>
                 `;
             } else {
                 overlayContent.innerHTML = `<span class="tracking-[0.2em] font-black">BƯỚC CHÂN DI SẢN 2026</span>`;
