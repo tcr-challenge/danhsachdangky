@@ -11,27 +11,26 @@
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Thumbnail Slider */
-        .thumb-active { border: 3px solid #ef4444; transform: scale(1.05); }
+        .thumb-active { border: 3px solid #ef4444; transform: scale(1.1); z-index: 10; }
         .gallery-thumbs::-webkit-scrollbar { height: 4px; }
         .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
 
-        /* Lightbox */
         #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 60vh; }
-        #fullImg { max-width: 90%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 60vh; margin-top: 20px; }
+        #fullImg { max-width: 95%; max-height: 100%; object-fit: contain; border-radius: 4px; transition: opacity 0.3s ease; }
         
-        .nav-btn { position: absolute; background: rgba(255,255,255,0.1); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; }
+        .nav-btn { position: absolute; background: rgba(255,255,255,0.05); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; }
         .nav-btn:hover { background: #ef4444; }
-        .nav-prev { left: 20px; }
-        .nav-next { right: 20px; }
+        .nav-prev { left: 10px; }
+        .nav-next { right: 10px; }
 
-        .btn-gradient { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        .gallery-wrapper { width: 100%; max-width: 1000px; overflow: hidden; display: flex; justify-content: center; margin-top: auto; padding-bottom: 20px; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800">
     <div class="max-w-6xl mx-auto px-4 py-10">
         <!-- Header -->
+        <div class="text-center mb-8 text-slate-500 font-bold uppercase text-xs">Chairman: Nguyễn Anh Tuấn - TCR</div>
         <div class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-black text-red-600 uppercase tracking-tighter italic">Hệ Thống Tìm Ảnh TCR</h1>
             <div class="inline-block mt-3 px-6 py-1 bg-red-100 rounded-full">
@@ -39,13 +38,12 @@
             </div>
         </div>
 
-        <!-- Thanh Tìm kiếm Auto -->
+        <!-- Tìm kiếm -->
         <div class="bg-white p-2 rounded-3xl shadow-2xl flex flex-col md:flex-row gap-2 mb-6 border border-slate-100">
             <input type="text" id="searchInput" placeholder="Nhập BIB, Họ Tên hoặc Câu Lạc Bộ..." class="flex-1 p-5 bg-transparent text-slate-700 font-bold outline-none text-xl" oninput="debounceSearch()">
-            <div class="hidden md:flex items-center px-6 text-slate-300 font-bold uppercase text-xs">Tự động tìm kiếm</div>
         </div>
 
-        <!-- Kết quả tìm kiếm (Thông tin VĐV) -->
+        <!-- Kết quả tìm kiếm -->
         <div id="searchResultHeader" class="hidden bg-red-600 text-white p-6 rounded-2xl shadow-lg mb-8 text-center md:text-left transition-all">
             <h2 id="foundCount" class="text-2xl font-black mb-2 italic uppercase">Tìm thấy 0 ảnh</h2>
             <div class="flex flex-col md:flex-row gap-4 md:gap-10 font-bold text-sm md:text-base border-t border-red-400 pt-4">
@@ -55,16 +53,12 @@
             </div>
         </div>
 
-        <!-- Trạng thái Loading -->
         <div id="loading" class="hidden text-center py-20">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16 mx-auto mb-6"></div>
-            <p class="font-bold text-slate-400 animate-pulse uppercase">Đang quét dữ liệu...</p>
         </div>
 
-        <!-- Lưới ảnh -->
         <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
 
-        <!-- Phân trang -->
         <div id="pagination" class="mt-12 flex justify-center items-center gap-6 hidden">
             <button onclick="changePage(-1)" id="btnPrev" class="p-4 bg-white rounded-2xl shadow-md hover:bg-red-50 disabled:opacity-30 transition-all font-bold">←</button>
             <span id="pageInfo" class="font-black bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-lg min-w-[100px] text-center italic">1 / 1</span>
@@ -72,28 +66,25 @@
         </div>
     </div>
 
-    <!-- Lightbox Gallery Chuyên Nghiệp -->
+    <!-- Lightbox Gallery -->
     <div id="lightbox">
-        <!-- Nút Đóng -->
         <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-4xl hover:text-red-500 z-[1020]">&times;</button>
         
-        <!-- Khu vực ảnh chính -->
         <div class="main-img-container">
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
-            <img id="fullImg" src="" alt="Full Quality">
+            <img id="fullImg" src="" alt="TCR Runner Photo">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
         </div>
 
-        <!-- Thông tin & Tải về -->
-        <div class="text-center mt-4 mb-6">
-            <a id="downloadBtn" href="" download class="bg-red-600 text-white px-8 py-3 rounded-xl font-black hover:bg-white hover:text-red-600 transition-all uppercase tracking-widest shadow-xl">TẢI ẢNH GỐC (HD)</a>
+        <div class="text-center mt-4 z-[1010]">
+            <p class="text-white text-sm font-bold uppercase tracking-widest bg-red-600/50 inline-block px-4 py-1 rounded-full mb-2">Giữ tay vào ảnh để lưu bản HD</p>
+            <div class="flex flex-col items-center gap-1">
+                <a id="downloadBtn" href="" download class="text-slate-400 text-[10px] uppercase underline">Hoặc bấm vào đây để tải trực tiếp</a>
+            </div>
         </div>
 
-        <!-- Thanh Thumbnail phía dưới -->
-        <div class="w-full max-w-5xl px-4">
-            <div id="galleryThumbs" class="gallery-thumbs flex gap-2 overflow-x-auto py-4 justify-start md:justify-center">
-                <!-- Thumbs động -->
-            </div>
+        <div class="gallery-wrapper">
+            <div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div>
         </div>
     </div>
 
@@ -107,12 +98,9 @@
 
         window.onload = () => startSearch("");
 
-        // Tự động tìm kiếm sau 500ms khi ngừng gõ
         function debounceSearch() {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                startSearch();
-            }, 500);
+            searchTimeout = setTimeout(() => startSearch(), 500);
         }
 
         async function startSearch() {
@@ -131,25 +119,19 @@
                 
                 document.getElementById('totalStats').innerText = `HỆ THỐNG ĐANG CÓ: ${result.total} ẢNH`;
                 
-                // Hiển thị thông tin nếu có tìm kiếm
                 if(query.trim() !== "") {
                     resHeader.classList.remove('hidden');
                     document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
-                    // Giả định backend trả về thông tin VĐV, nếu không có sẽ lấy theo query
                     document.getElementById('infoBib').innerText = query.match(/\d+/) || "--";
-                    document.getElementById('infoName').innerText = isNaN(query) ? query : "VĐV TCR";
-                    document.getElementById('infoClub').innerText = "Thượng Cát Runners";
+                    document.getElementById('infoName').innerText = isNaN(query) ? query : "Hội viên TCR";
+                    document.getElementById('infoClub').innerText = "Thượng Cát Runners (TCR)";
                 } else {
                     resHeader.classList.add('hidden');
                 }
 
                 currentPage = 1;
                 render();
-            } catch (e) {
-                console.error(e);
-            } finally {
-                loading.classList.add('hidden');
-            }
+            } catch (e) { console.error(e); } finally { loading.classList.add('hidden'); }
         }
 
         function render() {
@@ -159,28 +141,34 @@
 
             grid.innerHTML = currentItems.map((p, index) => {
                 const globalIndex = start + index;
-                const thumb = `https://lh3.googleusercontent.com/d/${p.id}=s400`;
                 return `
-                <div class="relative bg-white p-2 rounded-2xl shadow-md hover:shadow-2xl transition-all cursor-pointer border border-slate-100 group" onclick="openLightbox(${globalIndex})">
-                    <img src="${thumb}" class="w-full h-52 object-cover rounded-xl transition-transform group-hover:scale-105" loading="lazy">
-                    <div class="absolute inset-0 bg-red-600/10 opacity-0 group-hover:opacity-100 transition-all rounded-2xl"></div>
+                <div class="relative bg-white p-2 rounded-2xl shadow-md cursor-pointer border border-slate-100 group" onclick="openLightbox(${globalIndex})">
+                    <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-52 object-cover rounded-xl" loading="lazy">
                 </div>`;
             }).join('');
-
             updateUI();
         }
 
         function openLightbox(index) {
             currentIndex = index;
             const p = allData[currentIndex];
-            const fullUrl = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
+            const imgElement = document.getElementById('fullImg');
             
-            document.getElementById('fullImg').src = fullUrl;
-            document.getElementById('downloadBtn').href = fullUrl;
-            document.getElementById('lightbox').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Khóa cuộn trang
+            // 1. Hiện ảnh nén ngay lập tức
+            imgElement.style.opacity = "0.5";
+            imgElement.src = `https://lh3.googleusercontent.com/d/${p.id}=s1200`;
+            
+            // 2. Tải ngầm ảnh gốc và thay thế
+            const highResImg = new Image();
+            highResImg.src = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
+            highResImg.onload = () => {
+                imgElement.src = highResImg.src;
+                imgElement.style.opacity = "1";
+                document.getElementById('downloadBtn').href = highResImg.src;
+            };
 
-            // Render thanh thumbnail trong lightbox
+            document.getElementById('lightbox').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
             renderGalleryThumbs();
         }
 
@@ -188,29 +176,17 @@
             const container = document.getElementById('galleryThumbs');
             container.innerHTML = allData.map((p, idx) => `
                 <img src="https://lh3.googleusercontent.com/d/${p.id}=s100" 
-                     class="h-16 w-16 object-cover rounded-lg cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-50'}"
+                     class="h-16 w-16 object-cover rounded-lg cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-40'}"
                      onclick="openLightbox(${idx})">
             `).join('');
             
-            // Tự động cuộn đến ảnh đang xem
             const activeThumb = container.children[currentIndex];
             if(activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
 
-        function nextImg(e) {
-            e.stopPropagation();
-            if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1);
-        }
-
-        function prevImg(e) {
-            e.stopPropagation();
-            if (currentIndex > 0) openLightbox(currentIndex - 1);
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        function nextImg(e) { e.stopPropagation(); if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1); }
+        function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
         function updateUI() {
             const total = Math.ceil(allData.length / PAGE_SIZE);
@@ -220,11 +196,7 @@
             document.getElementById('btnNext').disabled = (currentPage === total);
         }
 
-        function changePage(step) {
-            currentPage += step;
-            render();
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
+        function changePage(step) { currentPage += step; render(); window.scrollTo({top: 0, behavior: 'smooth'}); }
     </script>
 </body>
 </html>
