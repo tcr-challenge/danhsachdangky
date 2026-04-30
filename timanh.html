@@ -43,7 +43,7 @@
             <input type="text" id="searchInput" placeholder="Nhập BIB, Họ Tên hoặc Câu Lạc Bộ..." class="flex-1 p-5 bg-transparent text-slate-700 font-bold outline-none text-xl" oninput="debounceSearch()">
         </div>
 
-        <!-- Kết quả tìm kiếm -->
+        <!-- Kết quả tìm kiếm (PHẦN NÀY ĐÃ ĐƯỢC SỬA) -->
         <div id="searchResultHeader" class="hidden bg-red-600 text-white p-6 rounded-2xl shadow-lg mb-8 text-center md:text-left transition-all">
             <h2 id="foundCount" class="text-2xl font-black mb-2 italic uppercase">Tìm thấy 0 ảnh</h2>
             <div class="flex flex-col md:flex-row gap-4 md:gap-10 font-bold text-sm md:text-base border-t border-red-400 pt-4">
@@ -69,20 +69,14 @@
     <!-- Lightbox Gallery -->
     <div id="lightbox">
         <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-4xl hover:text-red-500 z-[1020]">&times;</button>
-        
         <div class="main-img-container">
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
             <img id="fullImg" src="" alt="TCR Runner Photo">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
         </div>
-
         <div class="text-center mt-4 z-[1010]">
             <p class="text-white text-sm font-bold uppercase tracking-widest bg-red-600/50 inline-block px-4 py-1 rounded-full mb-2">Giữ tay vào ảnh để lưu bản HD</p>
-            <div class="flex flex-col items-center gap-1">
-                <a id="downloadBtn" href="" download class="text-slate-400 text-[10px] uppercase underline">Hoặc bấm vào đây để tải trực tiếp</a>
-            </div>
         </div>
-
         <div class="gallery-wrapper">
             <div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div>
         </div>
@@ -122,9 +116,11 @@
                 if(query.trim() !== "") {
                     resHeader.classList.remove('hidden');
                     document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
-                    document.getElementById('infoBib').innerText = query.match(/\d+/) || "--";
-                    document.getElementById('infoName').innerText = isNaN(query) ? query : "Hội viên TCR";
-                    document.getElementById('infoClub').innerText = "Thượng Cát Runners (TCR)";
+                    
+                    // LẤY DỮ LIỆU THẬT TỪ BACKEND TRẢ VỀ
+                    document.getElementById('infoBib').innerText = result.infoBib || query;
+                    document.getElementById('infoName').innerText = result.infoName || "Không tìm thấy tên";
+                    document.getElementById('infoClub').innerText = result.infoClub || "Không tìm thấy CLB";
                 } else {
                     resHeader.classList.add('hidden');
                 }
@@ -153,18 +149,14 @@
             currentIndex = index;
             const p = allData[currentIndex];
             const imgElement = document.getElementById('fullImg');
-            
-            // 1. Hiện ảnh nén ngay lập tức
             imgElement.style.opacity = "0.5";
             imgElement.src = `https://lh3.googleusercontent.com/d/${p.id}=s1200`;
             
-            // 2. Tải ngầm ảnh gốc và thay thế
             const highResImg = new Image();
             highResImg.src = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
             highResImg.onload = () => {
                 imgElement.src = highResImg.src;
                 imgElement.style.opacity = "1";
-                document.getElementById('downloadBtn').href = highResImg.src;
             };
 
             document.getElementById('lightbox').style.display = 'flex';
