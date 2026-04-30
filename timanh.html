@@ -3,191 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tìm Ảnh Runner - TCR</title>
+    <title>Runner Photos - TCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        /* Lightbox */
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
+        #lightbox img { max-width: 90%; max-height: 85vh; border-radius: 8px; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="max-w-6xl mx-auto px-4 py-8">
-        <!-- Tiêu đề -->
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-black text-red-600 uppercase tracking-tighter">Hệ Thống Tìm Ảnh Runner</h1>
-            <p class="text-gray-500 mt-2">Nhập BIB, Họ tên hoặc Câu lạc bộ để tìm ảnh của anh em</p>
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-black text-red-600 uppercase">Hệ Thống Tìm Ảnh TCR</h1>
+            <p id="stats" class="text-sm font-bold text-gray-500 mt-2">Đang thống kê số lượng ảnh...</p>
         </div>
 
-        <!-- Thanh tìm kiếm -->
-        <div class="bg-white p-4 rounded-2xl shadow-lg flex flex-col md:flex-row gap-3 mb-10">
-            <input type="text" id="searchInput" placeholder="Ví dụ: 1234, Nguyễn Văn A, TCR..." 
-                class="flex-1 p-4 border-2 border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-lg">
-            <button onclick="startSearch()" 
-                class="bg-red-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-red-700 active:scale-95 transition-all">
-                TÌM ẢNH
-            </button>
+        <!-- Tìm kiếm -->
+        <div class="bg-white p-4 rounded-2xl shadow-lg flex flex-col md:flex-row gap-3 mb-8">
+            <input type="text" id="searchInput" placeholder="Nhập BIB, Tên hoặc CLB..." class="flex-1 p-4 border-2 rounded-xl outline-none focus:border-red-500 text-lg">
+            <button onclick="startSearch()" class="bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-all">TÌM ẢNH</button>
         </div>
 
-        <!-- Trạng thái Loading -->
         <div id="loading" class="hidden text-center py-20">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16 mx-auto mb-4"></div>
-            <p class="text-gray-600 font-medium">Đang quét dữ liệu từ 2 Drive...</p>
+            <p class="text-gray-600">Đang đồng bộ dữ liệu Drive...</p>
         </div>
 
-        <!-- Lưới hiển thị ảnh -->
-        <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            <!-- Ảnh sẽ tự động hiện ở đây -->
+        <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+
+        <!-- Phân trang -->
+        <div id="pagination" class="mt-8 flex justify-center items-center gap-4 hidden">
+            <button onclick="changePage(-1)" id="btnPrev" class="p-3 bg-white rounded-full shadow disabled:opacity-30">←</button>
+            <span class="font-bold bg-white px-4 py-2 rounded-lg"><span id="currPage">1</span> / <span id="totalPage">1</span></span>
+            <button onclick="changePage(1)" id="btnNext" class="p-3 bg-white rounded-full shadow disabled:opacity-30">→</button>
         </div>
+    </div>
 
-        <!-- Cụm Phân Trang (Chỉ hiện khi > 15 ảnh) -->
-        <div id="pagination" class="mt-12 flex flex-wrap justify-center items-center gap-4 hidden">
-            <!-- Nút Về đầu -->
-            <button onclick="goToPage(1)" class="p-3 bg-white rounded-full shadow hover:bg-gray-50 disabled:opacity-30" id="btnFirst">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
-            </button>
-            
-            <!-- Nút Lùi 1 trang -->
-            <button onclick="changePage(-1)" class="p-3 bg-white rounded-full shadow hover:bg-gray-50 disabled:opacity-30" id="btnPrev">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-
-            <div class="flex items-center gap-2 bg-white px-5 py-2 rounded-full shadow font-medium">
-                <span class="text-gray-500">Trang</span>
-                <input type="number" id="pageInput" class="w-10 text-center border-b-2 border-red-500 outline-none text-red-600 font-bold" value="1">
-                <span id="totalPageTxt" class="text-gray-500">/ 1</span>
-            </div>
-
-            <!-- Nút Tiến 1 trang -->
-            <button onclick="changePage(1)" class="p-3 bg-white rounded-full shadow hover:bg-gray-50 disabled:opacity-30" id="btnNext">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
-
-            <!-- Nút Tới cuối -->
-            <button onclick="goToPage(999)" class="p-3 bg-white rounded-full shadow hover:bg-gray-50 disabled:opacity-30" id="btnLast">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-            </button>
+    <!-- Lightbox để xem ảnh gốc -->
+    <div id="lightbox" onclick="this.style.display='none'">
+        <div class="relative flex flex-col items-center">
+            <img id="fullImg" src="" alt="Full Quality">
+            <a id="downloadBtn" href="" download class="mt-4 bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-red-500 hover:text-white transition-all">TẢI ẢNH GỐC</a>
+            <p class="text-white text-xs mt-2 italic">Chạm bất kỳ đâu để đóng</p>
         </div>
     </div>
 
     <script>
-// --- CẤU HÌNH ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec"; // Thay bằng link /exec của anh
-const IMG_PER_PAGE = 15;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec"; // Dán link /exec của anh vào đây
+        const PAGE_SIZE = 15;
+        let allData = [];
+        let currentPage = 1;
 
-let allPhotos = [];
-let currentPage = 1;
+        window.onload = () => startSearch("");
 
-// Tự động chạy khi mở trang để load ảnh từ 'allbibphoto'
-window.onload = () => startSearch("");
+        async function startSearch() {
+            const query = document.getElementById('searchInput').value;
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('photoGrid');
+            const stats = document.getElementById('stats');
 
-async function startSearch() {
-    const query = document.getElementById('searchInput').value;
-    const loading = document.getElementById('loading');
-    const grid = document.getElementById('photoGrid');
-    const pagin = document.getElementById('pagination');
+            loading.classList.remove('hidden');
+            grid.innerHTML = "";
 
-    loading.classList.remove('hidden');
-    grid.innerHTML = "";
-    pagin.classList.add('hidden');
-
-    try {
-        // Gửi yêu cầu đến Apps Script
-        const response = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
-        
-        if (!response.ok) {
-            throw new Error('Kết nối mạng không ổn định');
+            try {
+                const res = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
+                const result = await res.json();
+                allData = result.photos;
+                
+                stats.innerText = `HỆ THỐNG ĐANG CÓ: ${result.total} ẢNH`;
+                currentPage = 1;
+                render();
+            } catch (e) {
+                alert("Lỗi kết nối Drive!");
+            } finally {
+                loading.classList.add('hidden');
+            }
         }
 
-        // Đọc dữ liệu JSON trả về
-        allPhotos = await response.json();
-        
-        currentPage = 1;
-        renderPhotos();
-        loading.classList.add('hidden');
-        
-    } catch (err) {
-        console.error('Lỗi chi tiết:', err);
-        loading.classList.add('hidden');
-        alert("Có lỗi kết nối với Drive! Anh hãy kiểm tra lại: \n1. Đã chọn 'Anyone' khi Deploy chưa? \n2. Đã sửa hàm doGet chuẩn chưa?");
-    }
-}
+        function render() {
+            const grid = document.getElementById('photoGrid');
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const currentItems = allData.slice(start, start + PAGE_SIZE);
 
-function renderPhotos() {
-    const grid = document.getElementById('photoGrid');
-    const start = (currentPage - 1) * IMG_PER_PAGE;
-    const end = start + IMG_PER_PAGE;
-    const currentItems = allPhotos.slice(start, end);
+            grid.innerHTML = currentItems.map(p => {
+                const thumb = `https://lh3.googleusercontent.com/d/${p.id}=s400`; // Thumbnail nhẹ
+                const full = `https://lh3.googleusercontent.com/d/${p.id}=s0`;    // Ảnh gốc
+                return `
+                <div class="bg-white p-2 rounded-lg shadow hover:shadow-xl transition-all cursor-pointer" onclick="openLightbox('${full}')">
+                    <img src="${thumb}" class="w-full h-48 object-cover rounded-md" loading="lazy">
+                    <p class="text-[10px] text-gray-400 mt-1 truncate text-center">${p.name}</p>
+                </div>`;
+            }).join('');
 
-    if (currentItems.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 font-medium">
-                            Không tìm thấy ảnh nào cho từ khóa này.
-                          </div>`;
-        return;
-    }
+            updateUI();
+        }
 
-    grid.innerHTML = currentItems.map(img => `
-        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
-            <div class="overflow-hidden rounded-lg">
-                <img src="${img.url}" 
-                     alt="${img.name}"
-                     class="w-full h-48 md:h-60 object-cover group-hover:scale-105 transition-transform duration-300" 
-                     onerror="this.src='https://placehold.co/400x600?text=Loi+Anh'"
-                     loading="lazy">
-            </div>
-            <p class="text-[10px] text-gray-400 mt-2 text-center truncate px-1">${img.name}</p>
-        </div>
-    `).join('');
+        function openLightbox(url) {
+            document.getElementById('fullImg').src = url;
+            document.getElementById('downloadBtn').href = url;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
 
-    updatePaginationUI();
-}
-
-// Các hàm phân trang (changePage, goToPage, updatePaginationUI) giữ nguyên như cũ...
-
-        function updatePaginationUI() {
-            const totalPages = Math.ceil(allPhotos.length / IMG_PER_PAGE);
-            const pagin = document.getElementById('pagination');
-
-            if (totalPages > 1) {
-                pagin.classList.remove('hidden');
-                document.getElementById('totalPageTxt').innerText = `/ ${totalPages}`;
-                document.getElementById('pageInput').value = currentPage;
-                
-                // Disable nút nếu ở đầu/cuối
-                document.getElementById('btnPrev').disabled = (currentPage === 1);
-                document.getElementById('btnFirst').disabled = (currentPage === 1);
-                document.getElementById('btnNext').disabled = (currentPage === totalPages);
-                document.getElementById('btnLast').disabled = (currentPage === totalPages);
-            } else {
-                pagin.classList.add('hidden');
-            }
+        function updateUI() {
+            const total = Math.ceil(allData.length / PAGE_SIZE);
+            document.getElementById('pagination').classList.toggle('hidden', total <= 1);
+            document.getElementById('currPage').innerText = currentPage;
+            document.getElementById('totalPage').innerText = total;
+            document.getElementById('btnPrev').disabled = (currentPage === 1);
+            document.getElementById('btnNext').disabled = (currentPage === total);
         }
 
         function changePage(step) {
             currentPage += step;
-            renderPhotos();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
-
-        function goToPage(page) {
-            const totalPages = Math.ceil(allPhotos.length / IMG_PER_PAGE);
-            if (page === 999) page = totalPages;
-            currentPage = Math.max(1, Math.min(page, totalPages));
-            renderPhotos();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Bắt sự kiện gõ số trang
-        document.getElementById('pageInput').addEventListener('change', (e) => {
-            const val = parseInt(e.target.value);
-            const totalPages = Math.ceil(allPhotos.length / IMG_PER_PAGE);
-            if (val >= 1 && val <= totalPages) {
-                currentPage = val;
-                renderPhotos();
-            } else {
-                e.target.value = currentPage;
-            }
-        });
     </script>
 </body>
 </html>
