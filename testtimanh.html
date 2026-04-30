@@ -6,6 +6,8 @@
     <title>Hệ Thống Tìm Ảnh - TCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Thêm thư viện icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Barlow', sans-serif; overflow-x: hidden; }
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
@@ -17,7 +19,6 @@
 
         #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer; }
         
-        /* Container chứa ảnh: dùng fit-content để bám sát kích thước ảnh thực tế */
         .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; cursor: default; }
         #fullImg { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
         
@@ -26,10 +27,6 @@
         .nav-prev { left: -80px; }
         .nav-next { right: -80px; }
         @media (max-width: 1024px) { .nav-prev { left: 10px; } .nav-next { right: 10px; } }
-
-        /* Overlay thông tin: Luôn nằm trên mép ảnh 10px */
-        .img-info-overlay { position: absolute; bottom: calc(100% + 10px); left: 0; right: 0; z-index: 1015; pointer-events: none; text-align: center; width: 100%; }
-        .info-line { display: inline-block; background: rgba(0,0,0,0.7); padding: 6px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap; }
 
         .img-instruction-overlay { position: fixed; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
 
@@ -121,16 +118,64 @@
         </div>
 
         <!-- Footer -->
-        <div class="mt-24 pt-10 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="mt-24 pt-10 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Cột trái: Nhiếp ảnh gia -->
             <div class="text-center md:text-left">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Chairman</p>
-                <p class="text-slate-800 font-black text-lg uppercase">Nguyễn Anh Tuấn (TCR)</p>
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Nhiếp ảnh gia</p>
+                <div class="space-y-3">
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-3 group">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-camera text-xs"></i>
+                        </div>
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Phúc Trần</span>
+                    </a>
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-3 group">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-camera text-xs"></i>
+                        </div>
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Quang</span>
+                    </a>
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-3 group">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-camera text-xs"></i>
+                        </div>
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Nấm</span>
+                    </a>
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-start gap-3 group">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-red-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-camera text-xs"></i>
+                        </div>
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Liên</span>
+                    </a>
+                </div>
             </div>
-            <div class="text-center md:text-right space-y-2">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Thông tin liên hệ</p>
-                <p class="text-sm font-bold text-slate-700 uppercase">Fanpage: <span class="text-red-600">Làng Bên Sông - TCR</span></p>
-                <p class="text-sm font-bold text-slate-700">Email: thuongcatrunners@gmail.com</p>
-                <p class="text-sm font-bold text-slate-700 uppercase">Thượng Cát - Bắc Từ Liêm - Hà Nội</p>
+
+            <!-- Cột phải: Thông tin liên hệ -->
+            <div class="text-center md:text-right">
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Thông tin liên hệ</p>
+                <div class="space-y-3">
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-end gap-3 group">
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Fanpage Làng Bên Sông</span>
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="fa-brands fa-facebook-f text-xs"></i>
+                        </div>
+                    </a>
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-end gap-3 group">
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Đình Làng Thượng Cát</span>
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="fa-brands fa-facebook-f text-xs"></i>
+                        </div>
+                    </a>
+                    <a href="#" target="_blank" class="flex items-center justify-center md:justify-end gap-3 group">
+                        <span class="text-slate-800 font-black text-sm uppercase group-hover:text-red-600 transition-colors">Nhóm Thượng Cát Runners</span>
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-users text-xs"></i>
+                        </div>
+                    </a>
+                    <div class="pt-2">
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest">Thượng Cát - Từ Liêm - Hà Nội</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -138,17 +183,6 @@
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
         <div class="main-img-container" onclick="event.stopPropagation()">
-            <!-- Thông tin nằm trong container và bám sát mép trên ảnh -->
-            <div class="img-info-overlay">
-                <div id="infoLineBox" class="info-line">
-                    <p id="overlayContent" class="text-xs md:text-sm font-bold text-white uppercase tracking-tight">
-                        Số BIB: <span id="overlayBib" class="text-yellow-400 mr-4">---</span> | 
-                        Vận động viên: <span id="overlayName" class="text-yellow-400 mr-4">---</span> | 
-                        Câu lạc bộ: <span id="overlayClub" class="text-yellow-400">---</span>
-                    </p>
-                </div>
-            </div>
-
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
             <img id="fullImg" src="" alt="TCR Runner Photo">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
@@ -172,9 +206,6 @@
         let currentPage = 1;
         let currentIndex = 0;
         let searchTimeout;
-        let currentBibInfo = "";
-        let currentNameInfo = "";
-        let currentClubInfo = "";
         let isSearching = false;
 
         window.onload = () => startSearch("");
@@ -208,28 +239,14 @@
                     if (allData.length > 0 && result.infoName && result.infoName !== "---") {
                         resHeader.classList.remove('hidden');
                         document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
-                        
-                        currentBibInfo = result.infoBib || query;
-                        currentNameInfo = result.infoName;
-                        currentClubInfo = result.infoClub || "Tự do";
-
-                        document.getElementById('infoBib').innerText = currentBibInfo;
-                        document.getElementById('infoName').innerText = currentNameInfo;
-                        document.getElementById('infoClub').innerText = currentClubInfo;
-                        
-                        const folderUrl = `https://drive.google.com/drive/search?q=${currentBibInfo}`;
-                        document.getElementById('folderLink').href = folderUrl;
+                        document.getElementById('infoBib').innerText = result.infoBib || query;
+                        document.getElementById('infoName').innerText = result.infoName;
+                        document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
+                        document.getElementById('folderLink').href = `https://drive.google.com/drive/search?q=${result.infoBib || query}`;
                     } else {
                         notFoundMsg.classList.remove('hidden');
-                        currentNameInfo = ""; 
-                        currentBibInfo = "";
-                        currentClubInfo = "";
                         isSearching = false;
                     }
-                } else {
-                    currentNameInfo = "";
-                    currentBibInfo = "";
-                    currentClubInfo = "";
                 }
 
                 currentPage = 1;
@@ -256,28 +273,11 @@
             currentIndex = index;
             const p = allData[currentIndex];
             const imgElement = document.getElementById('fullImg');
-            const overlayContent = document.getElementById('overlayContent');
-            
-            if (isSearching && currentNameInfo !== "") {
-                overlayContent.innerHTML = `
-                    Số BIB: <span class="text-yellow-400 mr-2 md:mr-4">${currentBibInfo}</span> | 
-                    VĐV: <span class="text-yellow-400 mr-2 md:mr-4">${currentNameInfo}</span> | 
-                    CLB: <span class="text-yellow-400">${currentClubInfo}</span>
-                `;
-            } else {
-                overlayContent.innerHTML = `<span class="tracking-[0.2em] font-black">BƯỚC CHÂN DI SẢN 2026</span>`;
-            }
-
             imgElement.style.opacity = "0.5";
             imgElement.src = `https://lh3.googleusercontent.com/d/${p.id}=s1200`;
-            
             const highResImg = new Image();
             highResImg.src = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
-            highResImg.onload = () => {
-                imgElement.src = highResImg.src;
-                imgElement.style.opacity = "1";
-            };
-
+            highResImg.onload = () => { imgElement.src = highResImg.src; imgElement.style.opacity = "1"; };
             document.getElementById('lightbox').style.display = 'flex';
             document.body.style.overflow = 'hidden';
             renderGalleryThumbs();
@@ -297,7 +297,6 @@
         function nextImg(e) { e.stopPropagation(); if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1); }
         function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
-
         function updateUI() {
             const total = Math.ceil(allData.length / PAGE_SIZE);
             document.getElementById('pagination').classList.toggle('hidden', total <= 1);
@@ -305,7 +304,6 @@
             document.getElementById('btnPrev').disabled = (currentPage === 1);
             document.getElementById('btnNext').disabled = (currentPage === total);
         }
-
         function changePage(step) { currentPage += step; render(); window.scrollTo({top: 400, behavior: 'smooth'}); }
     </script>
 </body>
