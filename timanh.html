@@ -71,64 +71,78 @@
     </div>
 
     <script>
-        // --- CẤU HÌNH ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec"; // Dán link Triển khai Web App vào đây
-        const IMG_PER_PAGE = 15;
+// --- CẤU HÌNH ---
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec"; // Thay bằng link /exec của anh
+const IMG_PER_PAGE = 15;
 
-        let allPhotos = [];
-        let currentPage = 1;
+let allPhotos = [];
+let currentPage = 1;
 
-        // Tự động chạy khi mở trang
-        window.onload = () => startSearch("");
+// Tự động chạy khi mở trang để load ảnh từ 'allbibphoto'
+window.onload = () => startSearch("");
 
-        function startSearch() {
-            const query = document.getElementById('searchInput').value;
-            const loading = document.getElementById('loading');
-            const grid = document.getElementById('photoGrid');
-            const pagin = document.getElementById('pagination');
+async function startSearch() {
+    const query = document.getElementById('searchInput').value;
+    const loading = document.getElementById('loading');
+    const grid = document.getElementById('photoGrid');
+    const pagin = document.getElementById('pagination');
 
-            loading.classList.remove('hidden');
-            grid.innerHTML = "";
-            pagin.classList.add('hidden');
+    loading.classList.remove('hidden');
+    grid.innerHTML = "";
+    pagin.classList.add('hidden');
 
-            // Gọi API từ Apps Script
-            fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`)
-                .then(res => res.json())
-                .then(data => {
-                    allPhotos = data;
-                    currentPage = 1;
-                    renderPhotos();
-                    loading.classList.add('hidden');
-                })
-                .catch(err => {
-                    alert("Có lỗi kết nối với Drive!");
-                    loading.classList.add('hidden');
-                });
+    try {
+        // Gửi yêu cầu đến Apps Script
+        const response = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
+        
+        if (!response.ok) {
+            throw new Error('Kết nối mạng không ổn định');
         }
 
-        function renderPhotos() {
-            const grid = document.getElementById('photoGrid');
-            const start = (currentPage - 1) * IMG_PER_PAGE;
-            const end = start + IMG_PER_PAGE;
-            const currentItems = allPhotos.slice(start, end);
+        // Đọc dữ liệu JSON trả về
+        allPhotos = await response.json();
+        
+        currentPage = 1;
+        renderPhotos();
+        loading.classList.add('hidden');
+        
+    } catch (err) {
+        console.error('Lỗi chi tiết:', err);
+        loading.classList.add('hidden');
+        alert("Có lỗi kết nối với Drive! Anh hãy kiểm tra lại: \n1. Đã chọn 'Anyone' khi Deploy chưa? \n2. Đã sửa hàm doGet chuẩn chưa?");
+    }
+}
 
-            if (currentItems.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">Không tìm thấy ảnh nào...</div>`;
-                document.getElementById('pagination').classList.add('hidden');
-                return;
-            }
+function renderPhotos() {
+    const grid = document.getElementById('photoGrid');
+    const start = (currentPage - 1) * IMG_PER_PAGE;
+    const end = start + IMG_PER_PAGE;
+    const currentItems = allPhotos.slice(start, end);
 
-            grid.innerHTML = currentItems.map(img => `
-                <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 hover:shadow-xl transition-all group">
-                    <div class="overflow-hidden rounded-lg">
-                        <img src="${img.url}" class="w-full h-48 md:h-60 object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
-                    </div>
-                    <p class="text-[10px] text-gray-400 mt-2 text-center truncate">${img.name}</p>
-                </div>
-            `).join('');
+    if (currentItems.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 font-medium">
+                            Không tìm thấy ảnh nào cho từ khóa này.
+                          </div>`;
+        return;
+    }
 
-            updatePaginationUI();
-        }
+    grid.innerHTML = currentItems.map(img => `
+        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
+            <div class="overflow-hidden rounded-lg">
+                <img src="${img.url}" 
+                     alt="${img.name}"
+                     class="w-full h-48 md:h-60 object-cover group-hover:scale-105 transition-transform duration-300" 
+                     onerror="this.src='https://placehold.co/400x600?text=Loi+Anh'"
+                     loading="lazy">
+            </div>
+            <p class="text-[10px] text-gray-400 mt-2 text-center truncate px-1">${img.name}</p>
+        </div>
+    `).join('');
+
+    updatePaginationUI();
+}
+
+// Các hàm phân trang (changePage, goToPage, updatePaginationUI) giữ nguyên như cũ...
 
         function updatePaginationUI() {
             const totalPages = Math.ceil(allPhotos.length / IMG_PER_PAGE);
