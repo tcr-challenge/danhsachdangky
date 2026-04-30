@@ -64,25 +64,33 @@
 </div>
 
 <script>
-  // DÁN LINK GOOGLE SCRIPT CỦA ANH VÀO ĐÂY
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw_1nMqNr7mEluAwFxBBCBeGgeFd8DoJAs6uyWXqRt2o42T6bA9PTy5a3SqKRZ8cG6g/exec";
-  
-  let allPhotos = [];
+// Thay link chuẩn anh vừa lấy ở Bước 2 vào đây
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNXCMJXc7J_YRrMDpoks-25mxpFprw6-FX9unrGh5V0B2fo9Wxgg4DJyzkY8ZLAWSW/exec";
 
-  // 1. Tự động lấy dữ liệu khi mở trang
-  async function init() {
-    try {
-      const resp = await fetch(SCRIPT_URL + "?action=getAllPhotos");
-      allPhotos = await resp.json();
-      renderGallery(allPhotos);
-      document.getElementById('status').innerText = `Kho ảnh sẵn sàng: ${allPhotos.length} tấm`;
-      
-      // Tải sẵn MTQ sau khi xong ảnh
-      loadMTQ();
-    } catch (e) {
-      document.getElementById('status').innerText = "Lỗi kết nối dữ liệu Google!";
-    }
+async function init() {
+  const statusEl = document.getElementById('status');
+  try {
+    statusEl.innerText = "Đang kết nối dữ liệu...";
+    
+    // Thêm tham số để tránh cache trình duyệt
+    const resp = await fetch(`${SCRIPT_URL}?action=getAllPhotos&t=${new Date().getTime()}`);
+    
+    if (!resp.ok) throw new Error('Không thể kết nối tới Google Script');
+    
+    const data = await resp.json();
+    
+    if (data.error) throw new Error(data.error);
+
+    allPhotos = data;
+    renderGallery(allPhotos);
+    statusEl.innerText = `Kho ảnh sẵn sàng: ${allPhotos.length} tấm`;
+    
+    loadMTQ();
+  } catch (e) {
+    console.error(e);
+    statusEl.innerHTML = `<b style="color:red">Lỗi: ${e.message}</b><br>Anh hãy kiểm tra lại cấu hình "Anyone" khi Deploy nhé!`;
   }
+}
 
   // 2. Hiển thị lưới ảnh (Dùng preview để load nhanh)
   function renderGallery(data) {
