@@ -208,11 +208,19 @@
             <div class="bg-red-600 p-4 text-center">
                 <h2 id="foundCount" class="text-white text-2xl font-black uppercase tracking-tight">Tìm thấy 0 ảnh</h2>
             </div>
-            <div id="infoTable" class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 p-8">
-                <div class="py-2 md:px-4 text-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Số BIB</p><p id="infoBib" class="text-2xl font-black text-red-600 tracking-tighter">--</p></div>
-                <div class="py-2 md:px-4 text-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Vận động viên</p><p id="infoName" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p></div>
-                <div class="py-2 md:px-4 text-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Câu lạc bộ</p><p id="infoClub" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p></div>
-                <div class="py-2 md:px-4 text-center flex flex-col items-center justify-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Thư mục Drive</p><a id="folderLink" href="#" target="_blank" class="text-sm font-black text-red-600 underline uppercase tracking-tighter">Mở xem ngay →</a></div>
+            <div id="infoTable" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 p-8">
+                <div class="py-2 md:px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Số BIB</p>
+                    <p id="infoBib" class="text-2xl font-black text-red-600 tracking-tighter">--</p>
+                </div>
+                <div class="py-2 md:px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Vận động viên</p>
+                    <p id="infoName" class="text-2xl font-black text-slate-800 tracking-tight uppercase whitespace-nowrap overflow-hidden text-ellipsis">--</p>
+                </div>
+                <div class="py-2 md:px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Câu lạc bộ</p>
+                    <p id="infoClub" class="text-2xl font-black text-slate-800 tracking-tight uppercase whitespace-nowrap overflow-hidden text-ellipsis">--</p>
+                </div>
             </div>
         </div>
 
@@ -257,7 +265,7 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
         const PAGE_SIZE = 16;
-        const PRIORITY_FOLDER = "Anhtapthetcr"; // Tên thư mục ưu tiên
+        const PRIORITY_FOLDER = "Anhtapthetcr"; 
         let allData = [];
         let currentPage = 1;
         let currentIndex = 0;
@@ -300,7 +308,6 @@
                 let photos = result.photos || [];
 
                 if (query === "") {
-                    // LOGIC ƯU TIÊN: Đưa ảnh từ thư mục Anhtapthetcr lên đầu
                     allData = photos.sort((a, b) => {
                         let aIsPriority = (a.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
                         let bIsPriority = (b.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
@@ -321,7 +328,6 @@
                         document.getElementById('infoBib').innerText = result.infoBib || query;
                         document.getElementById('infoName').innerText = result.infoName;
                         document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
-                        document.getElementById('folderLink').href = result.folderUrl || "#";
                     } else {
                         notFoundMsg.classList.remove('hidden');
                     }
@@ -339,7 +345,7 @@
                 const globalIndex = start + index;
                 const isPriority = (p.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
                 return `<div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border-2 ${isPriority ? 'border-yellow-400' : 'border-white'} hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
-                    ${isPriority ? '<span class="absolute top-4 right-4 z-10 bg-yellow-400 text-xs font-black px-3 py-1 rounded-full uppercase shadow-md">Ảnh tập thể</span>' : ''}
+                    ${isPriority ? '<span class="absolute top-4 right-4 z-10 bg-yellow-400 text-[10px] font-black px-3 py-1 rounded-full uppercase shadow-md">Ảnh tập thể</span>' : ''}
                     <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-64 md:h-72 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" loading="lazy">
                 </div>`;
             }).join('');
