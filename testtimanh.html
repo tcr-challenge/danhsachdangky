@@ -11,12 +11,15 @@
         :root {
             --primary-color: #ef4444;
             --secondary-color: #1e293b;
-            /* Font chuẩn Facebook/Hệ thống */
             --fb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        body { font-family: var(--fb-font); overflow-x: hidden; }
+        body { 
+            font-family: var(--fb-font); 
+            overflow-x: hidden;
+            -webkit-user-select: none; /* Ngăn chọn văn bản toàn trang */
+            user-select: none;
+        }
         
-        /* Chỉ giữ Barlow cho tiêu đề đặc biệt */
         .font-heritage { font-family: 'Barlow', sans-serif; }
 
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
@@ -26,61 +29,49 @@
         .gallery-thumbs::-webkit-scrollbar { height: 4px; }
         .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
 
-        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer; }
+        /* Lightbox Update */
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
         
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; cursor: default; }
-        #fullImg { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
+        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 95%; height: 70vh; }
         
-        .nav-btn { position: absolute; background: rgba(0,0,0,0.3); color: white; border-radius: 12px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn:hover { background: #ef4444; border-color: transparent; transform: scale(1.05); }
-        .nav-prev { left: -80px; }
-        .nav-next { right: -80px; }
-        @media (max-width: 1024px) { .nav-prev { left: 10px; } .nav-next { right: 10px; } }
-
-        .img-instruction-overlay { position: fixed; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
-
-        .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; }
-        
-        /* Banner logic */
-        .banner-bg { 
-            background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); 
-            background-size: cover;
-            background-position: center;
-            position: relative; 
-            overflow: hidden; 
+        #fullImg { 
+            max-width: 100%; 
+            max-height: 100%; 
+            object-fit: contain; 
+            border-radius: 8px; 
+            transition: opacity 0.3s ease; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); 
+            /* Cho phép nhấn giữ để hiện menu trên iPhone */
+            -webkit-touch-callout: default !important; 
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+            pointer-events: auto !important;
+            z-index: 1005;
         }
+        
+        .nav-btn { position: absolute; background: rgba(255,255,255,0.1); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:hover { background: #ef4444; border-color: transparent; }
+        .nav-prev { left: 10px; }
+        .nav-next { right: 10px; }
+
+        .img-instruction-overlay { position: absolute; top: -40px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
+
+        .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; z-index: 1010; }
+        
+        .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); background-size: cover; background-position: center; position: relative; overflow: hidden; }
         .banner-bg::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
         
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
         
         * { font-style: normal !important; }
 
-        .footer-info {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto 70px auto;
-            padding: 30px;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.85); 
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .footer-info h2 {
-            font-size: 20px;
-            color: var(--secondary-color);
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            text-align: center;
-            font-weight: 700;
-        }
-
+        .footer-info { width: 100%; max-width: 1000px; margin: 0 auto 70px auto; padding: 30px; background: rgba(255, 255, 255, 0.85); border-radius: 10px; border: 1px solid #e0e0e0; }
+        .footer-info h2 { font-size: 20px; color: var(--secondary-color); margin-bottom: 25px; text-transform: uppercase; text-align: center; font-weight: 700; }
         .footer-grid { display: flex; align-items: stretch; gap: 30px; }
-        .footer-column { flex: 1; font-size: 15px; line-height: 1.6; color: #444; text-align: left; }
+        .footer-column { flex: 1; font-size: 15px; line-height: 1.6; color: #444; }
         .footer-divider { width: 2px; background-color: #d0d0d0; }
-        .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+        .footer-info a { color: var(--primary-color); font-weight: 600; }
 
-        /* Pagination Style */
         .page-node { cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: bold; }
         .page-node:hover:not(.active) { background: #fee2e2; color: #ef4444; }
         .page-node.active { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
@@ -89,6 +80,7 @@
             .footer-grid { flex-direction: column; }
             .footer-divider { display: none; }
             .footer-column { text-align: center; }
+            .nav-btn { width: 40px; height: 40px; font-size: 20px; background: rgba(0,0,0,0.5); }
         }
     </style>
 </head>
@@ -160,10 +152,7 @@
 
         <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8"></div>
 
-        <!-- Pagination Cập Nhật -->
-        <div id="pagination" class="mt-16 flex flex-wrap justify-center items-center gap-2 hidden">
-            <!-- Nút trang sẽ được render bởi JS -->
-        </div>
+        <div id="pagination" class="mt-16 flex flex-wrap justify-center items-center gap-2 hidden"></div>
 
         <!-- Footer -->
         <div class="mt-20">
@@ -189,17 +178,17 @@
         </div>
     </div>
 
-    <!-- Lightbox -->
+    <!-- Lightbox Updated for Easy Download -->
     <div id="lightbox" onclick="closeLightbox()">
         <div class="main-img-container" onclick="event.stopPropagation()">
+            <div class="img-instruction-overlay">
+                <span class="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-red-600/90 px-6 py-2 rounded-full shadow-lg">
+                    NHẤN GIỮ VÀO ẢNH ĐỂ LƯU
+                </span>
+            </div>
             <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
-            <img id="fullImg" src="" alt="TCR Runner Photo">
+            <img id="fullImg" src="" alt="TCR Photo" onclick="event.stopPropagation()">
             <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
-        </div>
-        <div class="img-instruction-overlay">
-            <span class="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-red-600/90 px-6 py-2 rounded-full shadow-lg border border-red-500">
-                GIỮ TAY VÀO ẢNH ĐỂ LƯU BẢN HD
-            </span>
         </div>
         <div class="gallery-wrapper" onclick="event.stopPropagation()">
             <div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div>
@@ -207,9 +196,7 @@
     </div>
 
     <script>
-        // CẤU HÌNH BANNER ẢNH TẠI ĐÂY
-        const BANNER_IMAGE_URL = ""; // Dán link ảnh banner vào đây (ví dụ: "https://.../anh.jpg")
-        
+        const BANNER_IMAGE_URL = ""; 
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
         const PAGE_SIZE = 16;
         let allData = [];
@@ -219,10 +206,7 @@
         let isSearching = false;
 
         window.onload = () => {
-            // Xử lý banner
-            if (BANNER_IMAGE_URL && BANNER_IMAGE_URL.trim() !== "") {
-                document.getElementById('mainBanner').style.backgroundImage = `url('${BANNER_IMAGE_URL}')`;
-            }
+            if (BANNER_IMAGE_URL) document.getElementById('mainBanner').style.backgroundImage = `url('${BANNER_IMAGE_URL}')`;
             startSearch("");
         };
 
@@ -248,18 +232,12 @@
             try {
                 const res = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
                 const result = await res.json();
-                
                 let photos = result.photos || [];
 
                 if (!isSearching) {
                     const targetName = "anhtapthe";
-                    const priorityPhotos = [];
-                    const otherPhotos = [];
-                    photos.forEach(p => {
-                        const folder = (p.folderName || "").toLowerCase();
-                        if (folder.includes(targetName)) priorityPhotos.push(p);
-                        else otherPhotos.push(p);
-                    });
+                    const priorityPhotos = photos.filter(p => (p.folderName || "").toLowerCase().includes(targetName));
+                    const otherPhotos = photos.filter(p => !(p.folderName || "").toLowerCase().includes(targetName));
                     allData = [...priorityPhotos, ...otherPhotos];
                 } else {
                     allData = photos;
@@ -279,7 +257,6 @@
                         notFoundMsg.classList.remove('hidden');
                     }
                 }
-
                 currentPage = 1;
                 render();
             } catch (e) { console.error(e); } finally { loading.classList.add('hidden'); }
@@ -289,59 +266,42 @@
             const grid = document.getElementById('photoGrid');
             const start = (currentPage - 1) * PAGE_SIZE;
             const currentItems = allData.slice(start, start + PAGE_SIZE);
-
             grid.innerHTML = currentItems.map((p, index) => {
                 const globalIndex = start + index;
-                return `
-                <div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border border-white hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
+                return `<div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border border-white hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
                     <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-64 md:h-72 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" loading="lazy">
                 </div>`;
             }).join('');
             updatePaginationUI();
         }
 
-        // Logic phân trang mới dạng < 1 2 3 ... 10 >
         function updatePaginationUI() {
             const pagination = document.getElementById('pagination');
             const totalPages = Math.ceil(allData.length / PAGE_SIZE);
             if (totalPages <= 1) { pagination.classList.add('hidden'); return; }
-            
             pagination.classList.remove('hidden');
-            let html = '';
-
-            // Nút Quay lại
-            html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
-
+            let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, startPage + 4);
             if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-
             if (startPage > 1) {
                 html += `<button onclick="changePage(1)" class="w-10 h-10 page-node bg-white border border-slate-200">1</button>`;
                 if (startPage > 2) html += `<span class="px-2">...</span>`;
             }
-
             for (let i = startPage; i <= endPage; i++) {
                 html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
             }
-
             if (endPage < totalPages) {
                 if (endPage < totalPages - 1) html += `<span class="px-2">...</span>`;
                 html += `<button onclick="changePage(${totalPages})" class="w-10 h-10 page-node bg-white border border-slate-200">${totalPages}</button>`;
             }
-
-            // Nút Tiếp
             html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> > </button>`;
-
             pagination.innerHTML = html;
         }
 
         function changePage(page) {
-            const totalPages = Math.ceil(allData.length / PAGE_SIZE);
-            if (page < 1 || page > totalPages) return;
-            currentPage = page;
-            render();
-            window.scrollTo({top: 400, behavior: 'smooth'});
+            if (page < 1 || page > Math.ceil(allData.length / PAGE_SIZE)) return;
+            currentPage = page; render(); window.scrollTo({top: 400, behavior: 'smooth'});
         }
 
         function openLightbox(index) {
@@ -349,6 +309,7 @@
             const p = allData[currentIndex];
             const imgElement = document.getElementById('fullImg');
             imgElement.style.opacity = "0.5";
+            // Dùng ảnh s1200 để xem nhanh, rồi load s0 sau
             imgElement.src = `https://lh3.googleusercontent.com/d/${p.id}=s1200`;
             const highResImg = new Image();
             highResImg.src = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
