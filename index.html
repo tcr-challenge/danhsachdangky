@@ -3,508 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách Đăng Ký - Giải Chạy Đình Làng Thượng Cát 2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Hệ Thống Tìm Ảnh - TCR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #d32f2f; 
-            --primary-hover: #b71c1c;
-            --secondary-color: #1a237e; 
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --elite-color: #b8860b;
-            --bg-elite: #fff9e6;
-            --bg-4km: #fdf2f2;
-            --bg-2km: #f0f2ff;
+            --primary-color: #ef4444;
+            --secondary-color: #1e293b;
+            --fb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        body { 
+            font-family: var(--fb-font); 
             overflow-x: hidden;
-        }
-
-        .cover-photo {
-            width: 100%;
-            max-width: 1200px;
-            height: auto;
-            min-height: 200px;
-            background: #ddd;
-            display: block;
-            border-bottom: 5px solid var(--primary-color);
-            object-fit: cover;
-        }
-
-        .tabs-container {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            background: #eee;
-            gap: 5px;
-            padding: 10px 10px 0 10px;
-            box-sizing: border-box;
-        }
-
-        .tab-link {
-            flex: 1;
-            padding: 15px 10px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            color: #555;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            border-radius: 12px 12px 0 0;
-            background: #e0e0e0;
-            border: none;
-            position: relative;
-        }
-
-        .tab-link:hover {
-            background: #d6d6d6;
-            color: var(--secondary-color);
-        }
-
-        .tab-link.active {
-            color: #fff;
-            background: var(--primary-color);
-            box-shadow: 0 -4px 12px rgba(211, 47, 47, 0.2);
-            transform: translateY(-2px);
-            z-index: 2;
-        }
-
-        .tab-content {
-            display: none;
-            width: 100%;
-            max-width: 1200px;
-            background: #fff;
-            padding: 30px;
-            box-sizing: border-box;
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 26px;
-            color: var(--secondary-color);
-            text-transform: uppercase;
-            line-height: 1.3;
-            font-weight: 800;
-        }
-
-        .header .sub-title {
-            margin-top: 15px;
-            font-size: 16px;
-            color: #555;
-            line-height: 1.5;
-            font-weight: 500;
+            -webkit-user-select: none;
+            user-select: none;
         }
         
-        .search-container {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            border: 1px solid #eee;
-        }
+        .font-heritage { font-family: 'Barlow', sans-serif; }
 
-        .search-input {
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            width: 300px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .search-btn {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .export-btn {
-            background: #2e7d32;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 16px;
-            margin-left: 10px;
-        }
-        .export-btn:hover { background: #1b5e20; }
-
-        .status-bar {
-            display: block;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
-
-        .summary-box {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin-bottom: 10px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            font-weight: 700;
-            color: #444;
-            flex-wrap: wrap;
-            font-size: 24px; 
-        }
-
-        .summary-box b {
-            font-size: 28px;
-            vertical-align: middle;
-        }
-
-        .count-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-wrapper { 
-            overflow-x: auto; 
-            margin-bottom: 40px; 
-            width: 100%;
-        }
-
-        .group-header {
-            padding: 18px;
-            font-weight: 800;
-            text-align: center;
-            margin: 25px 0 0 0;
-            text-transform: uppercase;
-            border-radius: 12px 12px 0 0;
-            font-size: 24px;
-            border: 1px solid transparent;
-            box-sizing: border-box;
-            letter-spacing: 1px;
-            width: 100%;
-        }
-
-        .header-elite { background-color: #ffd700; color: #000; border: 1px solid #b8860b; border-bottom: none; }
-        .header-4km { background-color: #ff5252; color: #fff; border: 1px solid #d32f2f; border-bottom: none; }
-        .header-2km { background-color: #3949ab; color: #fff; border: 1px solid #1a237e; border-bottom: none; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 900px;
-            border: 1px solid #ddd;
-            margin-top: 0 !important;
-            table-layout: fixed;
-        }
-
-        th, td {
-            padding: 14px 5px;
-            border-bottom: 1px solid #ddd;
-            border-right: 1px solid #eee;
-            font-size: 15px;
-            line-height: 1.4;
-            text-align: center;
-            vertical-align: middle;
-            color: #333;
-            word-wrap: break-word;
-        }
-
-        th { background-color: #444; color: white; font-weight: 700; }
-
-        tr { page-break-inside: avoid !important; }
-
-        .bib-tag { 
-            color: #fff; 
-            padding: 5px 8px; 
-            border-radius: 6px; 
-            font-weight: 800; 
-            font-size: 14px;
+        /* Google Style Loading Spinner */
+        .google-loader {
             display: inline-block;
-            min-width: 50px;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #4285F4; /* Blue */
+            animation: google-spin 1s linear infinite;
+            position: relative;
         }
-        .bib-elite { background-color: var(--elite-color); }
-        .bib-4km { background-color: var(--primary-color); }
-        .bib-2km { background-color: var(--secondary-color); }
-
-        /* Style cho hàng được tô đậm */
-        .row-bold td {
-            font-weight: 800 !important;
-            background-color: #f0f0f0;
+        @keyframes google-spin {
+            0% { transform: rotate(0deg); border-top-color: #4285F4; }
+            25% { border-top-color: #EA4335; } /* Red */
+            50% { border-top-color: #FBBC05; } /* Yellow */
+            75% { border-top-color: #34A853; } /* Green */
+            100% { transform: rotate(360deg); border-top-color: #4285F4; }
         }
 
-        .footer-info {
-            width: 100%;
-            max-width: 1000px;
-            margin-bottom: 60px;
-            padding: 25px;
-            box-sizing: border-box;
+        .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .thumb-active { border: 3px solid #ef4444; transform: scale(1.1); z-index: 10; filter: saturate(1.2); }
+        .gallery-thumbs::-webkit-scrollbar { height: 4px; }
+        .gallery-thumbs::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
+
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        
+        .main-img-container { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 95%; height: 75vh; }
+        
+        .img-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; max-height: 100%; }
+
+        #fullImg { 
+            max-width: 100%; 
+            max-height: 65vh; 
+            object-fit: contain; 
+            border-radius: 8px; 
+            transition: opacity 0.3s ease; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); 
+            -webkit-touch-callout: default !important; 
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+            pointer-events: auto !important;
+            z-index: 1005;
+        }
+        
+        .download-btn {
+            margin-top: 10px;
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #ef4444;
+            padding: 10px 20px;
+            border-radius: 25px;
+            z-index: 1015;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .download-btn:hover { background: #dc2626; transform: scale(1.05); }
+        .download-btn:active { transform: scale(0.95); }
+
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:hover { background: #ef4444; border-color: transparent; }
+        .nav-prev { left: -60px; }
+        .nav-next { right: -60px; }
+
+        .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; z-index: 1010; }
+        
+        .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); background-size: cover; background-position: center; position: relative; overflow: hidden; }
+        .banner-bg::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
+        
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        
+        * { font-style: normal !important; }
+
+        .footer-info { width: 100%; max-width: 1000px; margin: 0 auto 70px auto; padding: 30px; background: rgba(255, 255, 255, 0.85); border-radius: 10px; border: 1px solid #e0e0e0; }
+        .footer-info h2 { font-size: 18px; color: var(--secondary-color); margin-bottom: 25px; text-transform: uppercase; text-align: center; font-weight: 800; letter-spacing: 1px; }
+        .footer-grid { display: flex; align-items: stretch; gap: 30px; }
+        .footer-column { flex: 1; font-size: 15px; line-height: 1.8; color: #444; }
+        .footer-divider { width: 2px; background-color: #d0d0d0; }
+        .footer-info a { color: var(--primary-color); font-weight: 600; text-decoration: none; }
+
+        .page-node { cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: bold; }
+        .page-node:hover:not(.active) { background: #fee2e2; color: #ef4444; }
+        .page-node.active { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+        @media (max-width: 1024px) {
+            .nav-btn { top: auto; bottom: -80px; transform: none; }
+            .nav-prev { left: 20%; }
+            .nav-next { right: 20%; }
+            .main-img-container { height: 60vh; }
+            #fullImg { max-height: 50vh; }
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid { flex-direction: column; }
+            .footer-divider { display: none; }
+            .footer-column { text-align: center; }
+            .nav-btn { width: 40px; height: 40px; font-size: 20px; background: rgba(0,0,0,0.5); }
         }
     </style>
 </head>
-<body>
+<body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
 
-<img src="images/banner.jpg" alt="Giải chạy Đình Làng Thượng Cát" class="cover-photo">
-
-<div class="tabs-container">
-    <div class="tab-link active" onclick="openTab(event, 'tab-runners')">Danh sách VĐV</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-rules')">Thể lệ giải</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-map')">Sơ đồ đường chạy</div>
-    <div class="tab-link" onclick="openTab(event, 'tab-guide')">Hướng dẫn VĐV</div>
-</div>
-
-<div id="tab-runners" class="tab-content active">
-    <div class="header">
-        <h1>DANH SÁCH ĐĂNG KÝ GIẢI CHẠY<br>CHÀO MỪNG LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026 - LẦN THỨ I</h1>
-        <div class="sub-title">Powered by THUONG CAT RUNNERS - TCR</div>
-    </div>
-
-    <div class="search-container">
-        <input type="text" id="search-input" class="search-input" placeholder="Nhập Họ tên, Số điện thoại hoặc BIB...">
-        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
-        <button class="export-btn" onclick="exportSeparatePDFs()">Xuất file PDF (Theo nhóm)</button>
-    </div>
-
-    <div class="status-bar" id="status-bar">
-        <div id="summary" class="summary-box"></div>
-        <div class="count-info">
-            <div id="count" style="font-weight: bold; color: var(--secondary-color); font-size: 18px;">Đang kết nối dữ liệu...</div>
-            <div id="update-time" style="color: #666; font-style: italic;"></div>
+    <!-- Banner -->
+    <div id="mainBanner" class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT</p>
+            <h1 class="font-heritage text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
+                BƯỚC CHÂN <span class="text-yellow-400">DI SẢN</span> 2026
+            </h1>
+            <div class="flex items-center justify-center gap-4 text-sm md:text-lg font-bold uppercase tracking-widest opacity-90">
+                <span>27 THÁNG 04, 2026</span>
+                <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                <span>THƯỢNG CÁT - TỪ LIÊM - HÀ NỘI</span>
+            </div>
         </div>
     </div>
-    
-    <div id="tables-container">
-        <div style="text-align:center; padding:40px;">Đang tải dữ liệu...</div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-20 relative z-20">
+        <!-- Tìm kiếm -->
+        <div class="max-w-3xl mx-auto mb-10">
+            <div class="glass-card p-2 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex border border-white">
+                <input type="text" id="searchInput" 
+                    placeholder="Nhập số BIB, Tên hoặc CLB của bạn để tìm ảnh..." 
+                    class="flex-1 p-6 bg-transparent text-slate-800 font-bold outline-none text-xl text-center placeholder:text-slate-400" 
+                    oninput="debounceSearch()">
+            </div>
+            <div class="text-center mt-4">
+                <div class="inline-block px-5 py-2 bg-white rounded-full shadow-lg border border-slate-100">
+                    <div id="loadingStatus" class="flex items-center gap-3">
+                        <div class="google-loader"></div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Đang đồng bộ dữ liệu...</p>
+                    </div>
+                    <p id="totalStats" class="hidden text-[10px] font-bold text-slate-800 uppercase tracking-[0.2em]"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="notFoundMsg" class="hidden text-center p-8 glass-card rounded-[2rem] mb-12 border-2 border-dashed border-slate-300">
+            <p class="text-2xl font-black text-slate-400 uppercase tracking-tight">Không tìm thấy vận động viên mang số BIB này</p>
+            <p class="text-slate-400 text-sm mt-2">Vui lòng kiểm tra lại mã số hoặc liên hệ BTC để được hỗ trợ.</p>
+        </div>
+
+        <div id="searchResultHeader" class="hidden glass-card overflow-hidden rounded-[2rem] shadow-xl mb-12 border border-slate-200 transition-all">
+            <div class="bg-red-600 p-4 text-center">
+                <h2 id="foundCount" class="text-white text-2xl font-black uppercase tracking-tight">Tìm thấy 0 ảnh</h2>
+            </div>
+            <div id="infoTable" class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 p-8">
+                <div class="py-2 md:px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Số BIB</p>
+                    <p id="infoBib" class="text-2xl font-black text-red-600 tracking-tighter">--</p>
+                </div>
+                <div class="py-2 md:px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Vận động viên</p>
+                    <p id="infoName" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p>
+                </div>
+                <div class="py-2 md:px-4 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Câu lạc bộ</p>
+                    <p id="infoClub" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p>
+                </div>
+                <div class="py-2 md:px-4 text-center flex flex-col items-center justify-center">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tải toàn bộ ảnh</p>
+                    <a id="folderLink" href="#" target="_blank" class="text-sm font-black text-red-600 underline uppercase tracking-tighter hover:text-slate-800">Mở thư mục Drive →</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-20">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16 mx-auto mb-6"></div>
+        </div>
+
+        <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8"></div>
+
+        <div id="pagination" class="mt-16 flex flex-wrap justify-center items-center gap-2 hidden"></div>
+
+        <!-- Footer -->
+        <div class="mt-20">
+            <div class="footer-info">
+                <h2>THÔNG TIN LIÊN HỆ</h2>
+                <div class="footer-grid">
+                    <div class="footer-column">
+                        <p style="font-weight: 800; color: #ef4444; margin-bottom: 12px; border-bottom: 2px solid #ef4444; display: inline-block;">LỜI CẢM ƠN TỪ HỆ MẶT TRỜI TỚI CÁC NHIẾP ẢNH GIA</p>
+                        <p><i class="fa-solid fa-camera-retro" style="color: #64748b; margin-right: 8px;"></i> NAG: <strong>Mr. Quang Vũ</strong></p>
+                        <p><i class="fa-solid fa-camera-retro" style="color: #64748b; margin-right: 8px;"></i> NAG: <strong>Mr. Liên Nguyễn</strong></p>
+                        <p><i class="fa-solid fa-camera-retro" style="color: #64748b; margin-right: 8px;"></i> NAG: <strong>Ms. Huyền Nấm</strong></p>
+                        <p><i class="fa-solid fa-camera-retro" style="color: #64748b; margin-right: 8px;"></i> NAG: <strong>Phúc Trần</strong></p>
+                    </div>
+                    <div class="footer-divider"></div>
+                    <div class="footer-column">
+                        <p style="font-weight: 800; color: #1e293b; margin-bottom: 12px; border-bottom: 2px solid #1e293b; display: inline-block;">THƯỢNG CÁT RUNNERS - TCR</p>
+                        <p><i class="fa-brands fa-facebook" style="color: #1877f2; margin-right: 8px;"></i> Fanpage: <a href="https://vnshort.com/WL5A" target="_blank">Thượng Cát Runners</a></p>
+                        <p><i class="fa-brands fa-facebook" style="color: #1877f2; margin-right: 8px;"></i> Group: <a href="https://web.facebook.com/groups/thuongcatrunners" target="_blank">Thượng Cát Runners</a></p>
+                        <p><i class="fa-brands fa-facebook" style="color: #1877f2; margin-right: 8px;"></i> Facebook: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng Bên Sông</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="pdf-export-temp" style="position: absolute; left: -9999px; width: 1000px; background: #fff; padding: 20px;"></div>
+    <!-- Lightbox -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <div class="main-img-container" onclick="event.stopPropagation()">
+            <div class="img-wrapper">
+                <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
+                <img id="fullImg" src="" alt="TCR Photo" onclick="event.stopPropagation()">
+                <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
+                <button id="downloadBtn" class="download-btn" onclick="downloadCurrentImage(event)">
+                    <i class="fa-solid fa-download"></i>
+                    <span id="btnText">Tải ảnh chất lượng cao</span>
+                </button>
+            </div>
+        </div>
+        <div class="gallery-wrapper" onclick="event.stopPropagation()">
+            <div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div>
+        </div>
+    </div>
 
-<script>
-    let allRunnersData = [];
-    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0T_icnHRGLNQ019mNGQWpYW561451GJz2zBWkAbEjp87bz8A_H7bf-CAosCsRaMSHD8-Hp5M7Y0Cu/pub?gid=1471720149&single=true&output=tsv';
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
+        const PAGE_SIZE = 16;
+        let allData = [];
+        let currentPage = 1;
+        let currentIndex = 0;
+        let searchTimeout;
+        let isSearching = false;
 
-    async function fetchData() {
-        try {
-            const response = await fetch(tsvUrl);
-            const text = await response.text();
-            const rows = text.split('\n').map(row => row.split('\t'));
-            if (rows.length > 1) { allRunnersData = rows; renderTable(rows); }
-        } catch (e) { console.error(e); }
-    }
+        window.onload = () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            document.getElementById('btnText').innerText = isMobile ? "ẤN GIỮ 3 GIÂY ĐỂ TẢI ẢNH HD" : "TẢI ẢNH CHẤT LƯỢNG CAO";
+            startSearch("");
+        };
 
-    // Hàm sắp xếp dữ liệu theo CLB và Tuổi (Nhỏ -> Lớn)
-    function sortRunners(runners, idxs) {
-        return runners.sort((a, b) => {
-            let clubA = (a[idxs.idxClub] || 'Cá nhân').trim().toLowerCase();
-            let clubB = (b[idxs.idxClub] || 'Cá nhân').trim().toLowerCase();
-            
-            // Sắp xếp theo CLB trước
-            if (clubA < clubB) return -1;
-            if (clubA > clubB) return 1;
-            
-            // Nếu cùng CLB, sắp xếp theo Năm sinh (Năm lớn hơn = Tuổi nhỏ hơn -> Đưa lên trước)
-            let yearA = parseInt((a[idxs.idxBirth] || '').match(/\d{4}/)?.[0] || 0);
-            let yearB = parseInt((b[idxs.idxBirth] || '').match(/\d{4}/)?.[0] || 0);
-            return yearB - yearA; 
-        });
-    }
-
-    function createTableHtml(title, runners, type, idxs, isForPdf = false) {
-        if (runners.length === 0) return "";
-        let headerClass = type === 1 ? "header-elite" : (type === 2 ? "header-4km" : "header-2km");
-        
-        let sortedRunners = sortRunners([...runners], idxs);
-
-        let html = `<div>`;
-        if(isForPdf) {
-            html += `<div style="text-align:center; margin-bottom:20px; font-family:'Inter', sans-serif;">
-                        <h2 style="text-transform:uppercase; color:#1a237e; margin-bottom:5px;">DANH SÁCH VẬN ĐỘNG VIÊN ĐĂNG KÝ</h2>
-                        <h1 style="text-transform:uppercase; color:#d32f2f; margin:0;">CỰ LY: ${title.toUpperCase()}</h1>
-                        <p style="font-size:14px; color:#555;">Giải chạy Lễ hội Truyền thống Đình làng Thượng Cát 2026</p>
-                     </div>`;
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => startSearch(), 500);
         }
-        
-        html += `<div class="group-header ${headerClass}" style="background-color:${type===1?'#ffd700':(type===2?'#ff5252':'#3949ab')}; color:${type===1?'#000':'#fff'}; padding:15px; font-weight:800; text-align:center; text-transform:uppercase;">${title} (${runners.length} VĐV)</div>`;
-        html += `<table style="width:100%; border-collapse:collapse; border:1px solid #ddd; font-family:'Inter', sans-serif;">
-                    <thead><tr>
-                        <th style="width:40px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">STT</th>
-                        <th style="width:80px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">BIB</th>
-                        <th style="width:250px; background:#444; color:#fff; border:1px solid #ddd; padding:10px; text-align:left;">Họ và Tên</th>
-                        <th style="width:70px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">Năm sinh</th>
-                        <th style="width:80px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">Giới tính</th>
-                        <th style="width:120px; background:#444; color:#fff; border:1px solid #ddd; padding:10px;">Số điện thoại</th>
-                        <th style="background:#444; color:#fff; border:1px solid #ddd; padding:10px; text-align:left;">CLB/Địa phương</th>
-                    </tr></thead><tbody>`;
 
-        let currentClub = "";
-        let isBoldGroup = false;
+        async function startSearch() {
+            const queryInput = document.getElementById('searchInput');
+            const query = queryInput.value.trim();
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('photoGrid');
+            const resHeader = document.getElementById('searchResultHeader');
+            const notFoundMsg = document.getElementById('notFoundMsg');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const totalStats = document.getElementById('totalStats');
 
-        sortedRunners.forEach((row, i) => {
-            let name = (row[idxs.idxName] || '').trim().replace(/^"|"$/g, '');
-            let clubRaw = (row[idxs.idxClub] || '').trim().replace(/^"|"$/g, '') || 'Cá nhân';
-            let bibRaw = (row[idxs.idxBib] || '---').trim();
-            let phoneVal = (row[idxs.idxPhone] || '').replace(/[^0-9]/g, '');
+            loading.classList.remove('hidden');
+            grid.innerHTML = "";
+            resHeader.classList.add('hidden');
+            notFoundMsg.classList.add('hidden');
+            isSearching = query !== "";
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
+                const result = await res.json();
+                let photos = result.photos || [];
+
+                if (!isSearching) {
+                    const targetName = "anhtapthe";
+                    const priorityPhotos = photos.filter(p => (p.folderName || "").toLowerCase().includes(targetName));
+                    const otherPhotos = photos.filter(p => !(p.folderName || "").toLowerCase().includes(targetName));
+                    allData = [...priorityPhotos, ...otherPhotos];
+                } else {
+                    allData = photos;
+                }
+                
+                // Cập nhật trạng thái loading
+                loadingStatus.classList.add('hidden');
+                totalStats.classList.remove('hidden');
+                totalStats.innerText = `HỆ THỐNG ĐANG LƯU TRỮ: ${result.total} ẢNH`;
+                
+                if(isSearching) {
+                    if (allData.length > 0 && result.infoName && result.infoName !== "---") {
+                        resHeader.classList.remove('hidden');
+                        document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
+                        document.getElementById('infoBib').innerText = result.infoBib || query;
+                        document.getElementById('infoName').innerText = result.infoName;
+                        document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
+                        document.getElementById('folderLink').href = `https://drive.google.com/drive/search?q=${result.infoBib || query}`;
+                    } else {
+                        notFoundMsg.classList.remove('hidden');
+                    }
+                }
+                currentPage = 1;
+                render();
+            } catch (e) { console.error(e); } finally { loading.classList.add('hidden'); }
+        }
+
+        function render() {
+            const grid = document.getElementById('photoGrid');
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const currentItems = allData.slice(start, start + PAGE_SIZE);
+            grid.innerHTML = currentItems.map((p, index) => {
+                const globalIndex = start + index;
+                return `<div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border border-white hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
+                    <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-64 md:h-72 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                </div>`;
+            }).join('');
+            updatePaginationUI();
+        }
+
+        function updatePaginationUI() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+            if (totalPages <= 1) { pagination.classList.add('hidden'); return; }
+            pagination.classList.remove('hidden');
             
-            // Xử lý đổi trạng thái tô đậm khi đổi CLB
-            if (clubRaw.toLowerCase() !== currentClub.toLowerCase()) {
-                currentClub = clubRaw;
-                isBoldGroup = !isBoldGroup;
+            let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
+            
+            if (totalPages <= 4) {
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
+                }
+            } else {
+                for (let i = 1; i <= 3; i++) {
+                    html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
+                }
+                if (currentPage > 3 && currentPage < totalPages) {
+                    if (currentPage > 4) html += `<span class="px-1 text-slate-400">...</span>`;
+                    html += `<button onclick="changePage(${currentPage})" class="w-10 h-10 page-node border border-slate-200 active">${currentPage}</button>`;
+                }
+                html += `<span class="px-1 text-slate-400">...</span>`;
+                html += `<button onclick="changePage(${totalPages})" class="w-10 h-10 page-node border border-slate-200 ${currentPage === totalPages ? 'active' : 'bg-white'}">${totalPages}</button>`;
             }
 
-            let phoneDisplay = isForPdf ? phoneVal : (phoneVal.length >= 4 ? `xxx.xxx.${phoneVal.slice(-4)}` : '---');
-            let rowClass = isBoldGroup ? 'class="row-bold"' : '';
-
-            html += `<tr ${rowClass} style="page-break-inside:avoid;">
-                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${i + 1}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:8px; font-weight:bold;">${bibRaw}</td>
-                <td style="text-align:left; border:1px solid #ddd; padding:8px;">${name}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${(row[idxs.idxBirth]||'').match(/\d{4}/)?.[0] || '---'}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${row[idxs.idxGender]||'---'}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:8px;">${phoneDisplay}</td>
-                <td style="text-align:left; border:1px solid #ddd; padding:8px;">${clubRaw}</td>
-            </tr>`;
-        });
-        return html + `</tbody></table></div>`;
-    }
-
-    async function exportSeparatePDFs() {
-        const header = allRunnersData[0].map(h => h.toLowerCase().trim());
-        const bodyData = allRunnersData.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
-        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
-        const idxs = {
-            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
-            idxPhone: getIdx(['thoại', 'phone']), idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
-            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
-        };
-
-        const currentYear = new Date().getFullYear();
-        const categories = [
-            { id: 'Elite', filter: r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"), type: 1 },
-            { id: '4KM', filter: r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"), type: 2 },
-            { id: '2KM_Duoi_12', filter: r => {
-                const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-                return (r[idxs.idxDistance]||"").includes("2") && year && (currentYear - year < 12);
-            }, type: 3 },
-            { id: '2KM_12_55', filter: r => {
-                const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-                const age = currentYear - year;
-                return (r[idxs.idxDistance]||"").includes("2") && year && (age >= 12 && age <= 55);
-            }, type: 3 }
-        ];
-
-        const tempBox = document.getElementById('pdf-export-temp');
-
-        for (const cat of categories) {
-            const groupData = bodyData.filter(cat.filter);
-            if (groupData.length === 0) continue;
-            let displayTitle = cat.id.replace('_Duoi_', ' Dưới ').replace('_12_55', ' (12-55 tuổi)').replace('_', ' ');
-            tempBox.innerHTML = createTableHtml(displayTitle, groupData, cat.type, idxs, true);
-            const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `Danh-sach-${cat.id}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-                pagebreak: { mode: 'avoid-all' }
-            };
-            await html2pdf().set(opt).from(tempBox).save();
-            tempBox.innerHTML = "";
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> > </button>`;
+            pagination.innerHTML = html;
         }
-    }
 
-    function renderTable(rows) {
-        if (!rows || rows.length === 0) return;
-        const header = rows[0].map(h => h.toLowerCase().trim());
-        const bodyData = rows.slice(1).filter(r => r[header.findIndex(h => h.includes('tên'))]);
-        const getIdx = (keywords) => header.findIndex(h => keywords.some(k => h.includes(k)));
-        const idxs = {
-            idxName: getIdx(['tên']), idxGender: getIdx(['giới']), idxBirth: getIdx(['sinh']),
-            idxPhone: getIdx(['thoại', 'phone']), idxClub: getIdx(['club', 'địa phương', 'đơn vị']), 
-            idxDistance: getIdx(['cự ly']), idxBib: getIdx(['bib'])
-        };
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(allData.length / PAGE_SIZE)) return;
+            currentPage = page; render(); window.scrollTo({top: 400, behavior: 'smooth'});
+        }
 
-        const currentYear = new Date().getFullYear();
-        const elite = bodyData.filter(r => (r[idxs.idxDistance]||"").toLowerCase().includes("elite"));
-        const km4 = bodyData.filter(r => !(r[idxs.idxDistance]||"").toLowerCase().includes("elite") && (r[idxs.idxDistance]||"").includes("4"));
-        
-        const km2Child = bodyData.filter(r => {
-            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-            return (r[idxs.idxDistance]||"").includes("2") && year && (currentYear - year < 12);
-        });
-        const km2Adult = bodyData.filter(r => {
-            const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-            const age = currentYear - year;
-            return (r[idxs.idxDistance]||"").includes("2") && year && (age >= 12 && age <= 55);
-        });
-        const km2Other = bodyData.filter(r => {
-             const year = parseInt((r[idxs.idxBirth]||"").match(/\d{4}/)?.[0]);
-             const age = currentYear - year;
-             return (r[idxs.idxDistance]||"").includes("2") && (!year || age > 55);
-        });
+        function openLightbox(index) {
+            currentIndex = index;
+            const p = allData[currentIndex];
+            const imgElement = document.getElementById('fullImg');
+            imgElement.style.opacity = "0.5";
+            imgElement.src = `https://lh3.googleusercontent.com/d/${p.id}=s1200`;
+            const highResImg = new Image();
+            highResImg.src = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
+            highResImg.onload = () => { imgElement.src = highResImg.src; imgElement.style.opacity = "1"; };
+            document.getElementById('lightbox').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            renderGalleryThumbs();
+        }
 
-        document.getElementById('tables-container').innerHTML = 
-            createTableHtml("Nhóm Elite - 4KM", elite, 1, idxs) + 
-            createTableHtml("Nhóm 4KM", km4, 2, idxs) + 
-            createTableHtml("Nhóm 2KM - Dưới 12 tuổi", km2Child, 3, idxs) +
-            createTableHtml("Nhóm 2KM - Từ 12 đến 55 tuổi", km2Adult, 3, idxs) +
-            (km2Other.length > 0 ? createTableHtml("Nhóm 2KM - Khác", km2Other, 3, idxs) : "");
+        async function downloadCurrentImage(e) {
+            e.stopPropagation();
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) return; 
 
-        document.getElementById('summary').innerHTML = `<span>Elite: <b style="color:var(--elite-color)">${elite.length}</b></span> | <span>4KM: <b style="color:var(--primary-color)">${km4.length}</b></span> | <span>2KM (<12): <b style="color:var(--secondary-color)">${km2Child.length}</b></span> | <span>2KM (12-55): <b style="color:var(--secondary-color)">${km2Adult.length}</b></span>`;
-        document.getElementById('count').innerText = `Tổng số: ${bodyData.length} vận động viên đã đăng ký`;
-        document.getElementById('update-time').innerText = `Cập nhật: ${new Date().toLocaleTimeString()}`;
-    }
+            const p = allData[currentIndex];
+            const downloadUrl = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
+            
+            try {
+                const response = await fetch(downloadUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `TCR_Photo_${p.id}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                window.open(downloadUrl, '_self');
+            }
+        }
 
-    function openTab(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) tabcontent[i].classList.remove("active");
-        tablinks = document.getElementsByClassName("tab-link");
-        for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
-    }
+        function renderGalleryThumbs() {
+            const container = document.getElementById('galleryThumbs');
+            container.innerHTML = allData.map((p, idx) => `
+                <img src="https://lh3.googleusercontent.com/d/${p.id}=s100" 
+                     class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-30'}"
+                     onclick="openLightbox(${idx})">
+            `).join('');
+            const activeThumb = container.children[currentIndex];
+            if(activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
 
-    fetchData();
-    setInterval(fetchData, 60000);
-</script>
+        function nextImg(e) { e.stopPropagation(); if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1); }
+        function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
+    </script>
 </body>
 </html>
