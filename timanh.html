@@ -5,10 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Tìm Ảnh - TCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Barlow', sans-serif; overflow-x: hidden; }
+        :root {
+            --primary-color: #ef4444;
+            --secondary-color: #1e293b;
+            --fb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body { 
+            font-family: var(--fb-font); 
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .font-heritage { font-family: 'Barlow', sans-serif; }
+
+        .google-loader {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #4285F4;
+            animation: google-spin 1s linear infinite;
+        }
+        @keyframes google-spin {
+            0% { transform: rotate(0deg); border-top-color: #4285F4; }
+            25% { border-top-color: #EA4335; }
+            50% { border-top-color: #FBBC05; }
+            75% { border-top-color: #34A853; }
+            100% { transform: rotate(360deg); border-top-color: #4285F4; }
+        }
+
+        /* Music Player Style */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2000;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .music-btn { width: 35px; height: 35px; border-radius: 50%; background: #ef4444; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .music-btn:hover { transform: scale(1.1); }
+        .music-info { max-width: 150px; }
+        .music-name { font-size: 10px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.5px; }
+        .music-download { font-size: 14px; color: #fbbf24; cursor: pointer; transition: 0.2s; }
+        .playing-art { animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -18,62 +74,70 @@
 
         #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
         
-        .main-img-container { position: relative; display: flex; align-items: center; justify-content: center; width: fit-content; max-width: 95%; height: 70vh; }
-        
-        /* Cập nhật CSS cho ảnh để cho phép nhấn giữ (pointer-events: auto) */
+        .main-img-container { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 95%; height: 75vh; }
+        .img-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; max-height: 100%; }
+
         #fullImg { 
             max-width: 100%; 
-            max-height: 100%; 
+            max-height: 65vh; 
             object-fit: contain; 
             border-radius: 8px; 
             transition: opacity 0.3s ease; 
             box-shadow: 0 0 40px rgba(0,0,0,0.8); 
-            border: 1px solid rgba(255,255,255,0.1);
-            pointer-events: auto !important; 
-            -webkit-user-select: auto !important;
             user-select: auto !important;
-            -webkit-touch-callout: default !important; /* Quan trọng cho iOS */
+            -webkit-user-select: auto !important;
+            z-index: 1005;
         }
         
-        .nav-btn { position: absolute; background: rgba(0,0,0,0.3); color: white; border-radius: 12px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: 0.3s; z-index: 1010; user-select: none; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn:hover { background: #ef4444; border-color: transparent; transform: scale(1.05); }
-        .nav-prev { left: -80px; }
-        .nav-next { right: -80px; }
-        @media (max-width: 1024px) { .nav-prev { left: 10px; } .nav-next { right: 10px; } }
+        .download-btn {
+            margin-top: 10px;
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #ef4444;
+            padding: 10px 20px;
+            border-radius: 25px;
+            z-index: 1015;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-        .img-instruction-overlay { position: fixed; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:hover { background: #ef4444; }
+        .nav-prev { left: -60px; }
+        .nav-next { right: -60px; }
 
-        .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; }
-        .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); position: relative; overflow: hidden; }
+        .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; z-index: 1010; }
+        
+        .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); background-size: cover; background-position: center; position: relative; overflow: hidden; }
         .banner-bg::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
+        
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
         
-        * { font-style: normal !important; }
-
-        .footer-info {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto 70px auto;
-            padding: 30px;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.85); 
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .footer-info h2 {
-            font-size: 20px;
-            color: #1e293b;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            text-align: center;
-            font-weight: 700;
-        }
-
+        .footer-info { width: 100%; max-width: 1000px; margin: 0 auto 70px auto; padding: 30px; background: rgba(255, 255, 255, 0.85); border-radius: 10px; border: 1px solid #e0e0e0; }
+        .footer-info h2 { font-size: 18px; color: var(--secondary-color); margin-bottom: 25px; text-transform: uppercase; text-align: center; font-weight: 800; letter-spacing: 1px; }
         .footer-grid { display: flex; align-items: stretch; gap: 30px; }
-        .footer-column { flex: 1; font-size: 15px; line-height: 1.6; color: #444; text-align: left; }
+        .footer-column { flex: 1; font-size: 15px; line-height: 1.8; color: #444; }
         .footer-divider { width: 2px; background-color: #d0d0d0; }
-        .footer-info a { color: #ef4444; text-decoration: none; font-weight: 600; }
+        .footer-info a { color: var(--primary-color); font-weight: 600; text-decoration: none; }
+
+        .page-node { cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: bold; }
+        .page-node.active { background: #ef4444; color: white; }
+
+        @media (max-width: 1024px) {
+            .nav-btn { top: auto; bottom: -80px; transform: none; }
+            .nav-prev { left: 20%; }
+            .nav-next { right: 20%; }
+            .main-img-container { height: 60vh; }
+            #fullImg { max-height: 50vh; }
+            .music-player { bottom: 10px; left: 10px; }
+        }
 
         @media (max-width: 768px) {
             .footer-grid { flex-direction: column; }
@@ -84,103 +148,90 @@
 </head>
 <body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
 
+    <!-- Music Player -->
+    <div class="music-player">
+        <audio id="tcrAudio" loop>
+            <source src="LINK_FILE_NHẠC_CỦA_ANH_Ở_ĐÂY" type="audio/mpeg">
+        </audio>
+        <div class="music-btn" onclick="toggleMusic()">
+            <i id="musicIcon" class="fa-solid fa-play"></i>
+        </div>
+        <div class="music-info">
+            <p class="text-[8px] opacity-60 uppercase font-bold">Bản sắc TCR</p>
+            <p class="music-name">BẢN NHẠC GỐC TCR</p>
+        </div>
+        <a href="LINK_FILE_NHẠC_CỦA_ANH_Ở_ĐÂY" download="TCR_Original_Music" class="music-download" title="Tải nhạc">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+        </a>
+    </div>
+
     <!-- Banner -->
-    <div class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
+    <div id="mainBanner" class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
         <div class="max-w-6xl mx-auto text-center relative z-10">
             <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT</p>
-            <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
+            <h1 class="font-heritage text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
                 BƯỚC CHÂN <span class="text-yellow-400">DI SẢN</span> 2026
             </h1>
             <div class="flex items-center justify-center gap-4 text-sm md:text-lg font-bold uppercase tracking-widest opacity-90">
                 <span>27 THÁNG 04, 2026</span>
                 <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                <span>THƯỢNG CÁT, HÀ NỘI, VIỆT NAM</span>
+                <span>HÀ NỘI, VIỆT NAM</span>
             </div>
         </div>
     </div>
 
     <div class="max-w-6xl mx-auto px-4 pb-20 relative z-20">
-        <!-- Tìm kiếm -->
+        <!-- Search Area -->
         <div class="max-w-3xl mx-auto mb-10">
             <div class="glass-card p-2 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex border border-white">
                 <input type="text" id="searchInput" 
                     placeholder="Nhập số BIB, Tên hoặc CLB của bạn để tìm ảnh..." 
-                    class="flex-1 p-6 bg-transparent text-slate-800 font-none outline-none text-xl text-center placeholder:text-slate-400" 
+                    class="flex-1 p-6 bg-transparent text-slate-800 font-bold outline-none text-xl text-center placeholder:text-slate-400" 
                     oninput="debounceSearch()">
             </div>
             <div class="text-center mt-4">
-                <div class="inline-block px-5 py-1.5 bg-slate-800 rounded-full shadow-lg">
-                    <p id="totalStats" class="text-[10px] font-none text-white uppercase tracking-[0.2em]">Đang tải dữ liệu từ Drive...</p>
+                <div class="inline-block px-5 py-2 bg-white rounded-full shadow-lg border border-slate-100">
+                    <div id="loadingStatus" class="flex items-center gap-3">
+                        <div class="google-loader"></div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Đang đồng bộ dữ liệu...</p>
+                    </div>
+                    <p id="totalStats" class="hidden text-[10px] font-bold text-slate-800 uppercase tracking-[0.2em]"></p>
                 </div>
             </div>
         </div>
 
-        <!-- Thông báo không tìm thấy -->
         <div id="notFoundMsg" class="hidden text-center p-8 glass-card rounded-[2rem] mb-12 border-2 border-dashed border-slate-300">
             <p class="text-2xl font-black text-slate-400 uppercase tracking-tight">Không tìm thấy vận động viên mang số BIB này</p>
-            <p class="text-slate-400 text-sm mt-2">Vui lòng kiểm tra lại mã số hoặc liên hệ BTC để được hỗ trợ.</p>
         </div>
 
-        <!-- Kết quả tìm kiếm -->
         <div id="searchResultHeader" class="hidden glass-card overflow-hidden rounded-[2rem] shadow-xl mb-12 border border-slate-200 transition-all">
             <div class="bg-red-600 p-4 text-center">
                 <h2 id="foundCount" class="text-white text-2xl font-black uppercase tracking-tight">Tìm thấy 0 ảnh</h2>
             </div>
-            <div id="infoTable" class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 p-8">
-                <div class="py-2 md:px-4 text-center">
-                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Số BIB</p>
-                    <p id="infoBib" class="text-2xl font-black text-red-600 tracking-tighter">--</p>
-                </div>
-                <div class="py-2 md:px-4 text-center">
-                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Vận động viên</p>
-                    <p id="infoName" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p>
-                </div>
-                <div class="py-2 md:px-4 text-center">
-                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Câu lạc bộ</p>
-                    <p id="infoClub" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p>
-                </div>
-                <div class="py-2 md:px-4 text-center flex flex-col items-center justify-center">
-                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tải toàn bộ ảnh</p>
-                    <a id="folderLink" href="#" target="_blank" class="text-sm font-black text-red-600 underline uppercase tracking-tighter hover:text-slate-800">Mở thư mục Drive →</a>
-                </div>
+            <div id="infoTable" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 p-8">
+                <div class="py-2 md:px-4 text-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Số BIB</p><p id="infoBib" class="text-2xl font-black text-red-600 tracking-tighter">--</p></div>
+                <div class="py-2 md:px-4 text-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Vận động viên</p><p id="infoName" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p></div>
+                <div class="py-2 md:px-4 text-center"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Câu lạc bộ</p><p id="infoClub" class="text-2xl font-black text-slate-800 tracking-tight uppercase">--</p></div>
             </div>
         </div>
 
-        <div id="loading" class="hidden text-center py-20">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16 mx-auto mb-6"></div>
-        </div>
-
+        <div id="loading" class="hidden text-center py-20"><div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16 mx-auto mb-6"></div></div>
         <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8"></div>
-
-        <!-- Pagination -->
-        <div id="pagination" class="mt-16 flex justify-center items-center gap-4 hidden">
-            <button onclick="changePage(-1)" id="btnPrev" class="w-14 h-14 bg-white rounded-2xl shadow-xl hover:bg-red-600 hover:text-white disabled:opacity-20 transition-all flex items-center justify-center text-xl font-bold border border-slate-100">←</button>
-            <div class="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black tracking-widest">
-                TRANG <span id="pageInfo" class="text-yellow-400 ml-2">1 / 1</span>
-            </div>
-            <button onclick="changePage(1)" id="btnNext" class="w-14 h-14 bg-white rounded-2xl shadow-xl hover:bg-red-600 hover:text-white disabled:opacity-20 transition-all flex items-center justify-center text-xl font-bold border border-slate-100">→</button>
-        </div>
+        <div id="pagination" class="mt-16 flex flex-wrap justify-center items-center gap-2 hidden"></div>
 
         <!-- Footer -->
-        <div class="mt-16 pt-12 border-t-2 border-slate-200">
+        <div class="mt-20">
             <div class="footer-info">
-                <h2 class="text-slate-400 text-xs font-black uppercase tracking-[0.4em] mb-8">THÔNG TIN LIÊN HỆ</h2>
+                <h2>THÔNG TIN LIÊN HỆ</h2>
                 <div class="footer-grid">
-                    <div class="footer-column space-y-2">
-                        <p class="text-slate-900 font-black text-sm uppercase tracking-wider mb-2">LỜI CẢM ƠN TRÂN THÀNH GỬI TỚI CÁC NHIẾP ẢNH GIA</p>
-                        <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Mr. Quang Vũ </a></p>
-                        <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Mr. Ngọc Liên</a></p>
-                        <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Ms. Huyền Nấm</a></p>
-                        <p class="text-slate-600 text-xs">NAG: <a href="#" target="_blank" class="text-red-600 font-bold hover:underline">Mr. Phúc Trần</a></p>
+                    <div class="footer-column">
+                        <p style="font-weight: 800; color: #ef4444; margin-bottom: 12px; border-bottom: 2px solid #ef4444; display: inline-block;">NHIẾP ẢNH GIA ĐỒNH HÀNH</p>
+                        <p>Mr. Quang Vũ, Mr. Liên Nguyễn, Ms. Huyền Nấm, Phúc Trần</p>
                     </div>
-                    
                     <div class="footer-divider"></div>
-                    
-                    <div class="footer-column space-y-2">
-                        <p class="text-slate-900 font-black text-sm uppercase tracking-wider mb-2">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</p>
-                        <p class="text-slate-600 text-xs">Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank" class="text-red-600 font-bold hover:underline">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank" class="text-red-600 font-bold hover:underline">Đình làng Thượng Cát</a></p>
-                        <p class="text-slate-600 text-xs">Bản đồ: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank" class="text-red-600 font-bold hover:underline italic">Xem trên Google Maps</a></p>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2">Thượng Cát - Bắc Từ Liêm - Hà Nội</p>
+                    <div class="footer-column">
+                        <p style="font-weight: 800; color: #1e293b; margin-bottom: 12px; border-bottom: 2px solid #1e293b; display: inline-block;">THƯỢNG CÁT RUNNERS - TCR</p>
+                        <p><a href="https://web.facebook.com/groups/thuongcatrunners" target="_blank">Group Thượng Cát Runners</a></p>
                     </div>
                 </div>
             </div>
@@ -189,34 +240,41 @@
 
     <!-- Lightbox -->
     <div id="lightbox" onclick="closeLightbox()">
-        <!-- Dừng propagation cho container chính nhưng cho phép ảnh xử lý sự kiện mặc định -->
         <div class="main-img-container" onclick="event.stopPropagation()">
-            <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
-            <img id="fullImg" src="" alt="TCR Runner Photo" oncontextmenu="return true;">
-            <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
+            <div class="img-wrapper">
+                <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
+                <img id="fullImg" src="" alt="TCR Photo">
+                <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
+                <button id="downloadBtn" class="download-btn" onclick="downloadCurrentImage(event)">
+                    <i class="fa-solid fa-download"></i> <span id="btnText">Tải ảnh chất lượng cao</span>
+                </button>
+            </div>
         </div>
-
-        <div class="img-instruction-overlay">
-            <span class="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-red-600/90 px-6 py-2 rounded-full shadow-lg border border-red-500">
-                GIỮ TAY VÀO ẢNH ĐỂ LƯU BẢN HD
-            </span>
-        </div>
-
-        <div class="gallery-wrapper" onclick="event.stopPropagation()">
-            <div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div>
-        </div>
+        <div class="gallery-wrapper" onclick="event.stopPropagation()"><div id="galleryThumbs" class="gallery-thumbs flex gap-3 overflow-x-auto py-4 px-10"></div></div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
         const PAGE_SIZE = 16;
+        const PRIORITY_FOLDER = "Anhtapthetcr"; // Tên thư mục ưu tiên
         let allData = [];
         let currentPage = 1;
         let currentIndex = 0;
         let searchTimeout;
-        let isSearching = false;
 
-        window.onload = () => startSearch("");
+        function toggleMusic() {
+            const audio = document.getElementById('tcrAudio');
+            const icon = document.getElementById('musicIcon');
+            const btn = document.querySelector('.music-btn');
+            if (audio.paused) { audio.play(); icon.className = "fa-solid fa-pause"; btn.classList.add('playing-art'); } 
+            else { audio.pause(); icon.className = "fa-solid fa-play"; btn.classList.remove('playing-art'); }
+        }
+
+        window.onload = () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            document.getElementById('btnText').innerText = isMobile ? "ẤN GIỮ 3 GIÂY ĐỂ TẢI ẢNH HD" : "TẢI ẢNH CHẤT LƯỢNG CAO";
+            startSearch("");
+        };
 
         function debounceSearch() {
             clearTimeout(searchTimeout);
@@ -224,8 +282,7 @@
         }
 
         async function startSearch() {
-            const queryInput = document.getElementById('searchInput');
-            const query = queryInput.value.trim();
+            const query = document.getElementById('searchInput').value.trim();
             const loading = document.getElementById('loading');
             const grid = document.getElementById('photoGrid');
             const resHeader = document.getElementById('searchResultHeader');
@@ -235,38 +292,37 @@
             grid.innerHTML = "";
             resHeader.classList.add('hidden');
             notFoundMsg.classList.add('hidden');
-            isSearching = query !== "";
 
             try {
                 const res = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
                 const result = await res.json();
-                
                 let photos = result.photos || [];
-                
-                if (!isSearching) {
-                    const targetFolder = "Anhtapthetcr";
-                    const groupPhotos = photos.filter(p => p.folderName && p.folderName.toLowerCase().trim() === targetFolder);
-                    const otherPhotos = photos.filter(p => !p.folderName || p.folderName.toLowerCase().trim() !== targetFolder);
-                    allData = [...groupPhotos, ...otherPhotos];
+
+                if (query === "") {
+                    allData = photos.sort((a, b) => {
+                        let aIsPriority = (a.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
+                        let bIsPriority = (b.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
+                        return bIsPriority - aIsPriority;
+                    });
                 } else {
                     allData = photos;
                 }
                 
+                document.getElementById('loadingStatus').classList.add('hidden');
+                document.getElementById('totalStats').classList.remove('hidden');
                 document.getElementById('totalStats').innerText = `HỆ THỐNG ĐANG LƯU TRỮ: ${result.total} ẢNH`;
                 
-                if(isSearching) {
+                if(query !== "") {
                     if (allData.length > 0 && result.infoName && result.infoName !== "---") {
                         resHeader.classList.remove('hidden');
                         document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh`;
                         document.getElementById('infoBib').innerText = result.infoBib || query;
                         document.getElementById('infoName').innerText = result.infoName;
                         document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
-                        document.getElementById('folderLink').href = `https://drive.google.com/drive/search?q=${result.infoBib || query}`;
                     } else {
                         notFoundMsg.classList.remove('hidden');
                     }
                 }
-
                 currentPage = 1;
                 render();
             } catch (e) { console.error(e); } finally { loading.classList.add('hidden'); }
@@ -276,16 +332,35 @@
             const grid = document.getElementById('photoGrid');
             const start = (currentPage - 1) * PAGE_SIZE;
             const currentItems = allData.slice(start, start + PAGE_SIZE);
-
             grid.innerHTML = currentItems.map((p, index) => {
                 const globalIndex = start + index;
-                return `
-                <div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border border-white hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
+                const isPriority = (p.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
+                return `<div class="relative bg-white p-2 rounded-3xl shadow-lg cursor-pointer border-2 ${isPriority ? 'border-yellow-400' : 'border-white'} hover:border-red-500 transition-all group overflow-hidden" onclick="openLightbox(${globalIndex})">
+                    ${isPriority ? '<span class="absolute top-4 right-4 z-10 bg-yellow-400 text-xs font-black px-3 py-1 rounded-full uppercase shadow-md">Ảnh tập thể</span>' : ''}
                     <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-64 md:h-72 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" loading="lazy">
                 </div>`;
             }).join('');
-            updateUI();
+            updatePaginationUI();
         }
+
+        function updatePaginationUI() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+            if (totalPages <= 1) { pagination.classList.add('hidden'); return; }
+            pagination.classList.remove('hidden');
+            let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span class="px-1 text-slate-400">...</span>`;
+                }
+            }
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> > </button>`;
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) { if (page < 1 || page > Math.ceil(allData.length / PAGE_SIZE)) return; currentPage = page; render(); window.scrollTo({top: 400, behavior: 'smooth'}); }
 
         function openLightbox(index) {
             currentIndex = index;
@@ -303,26 +378,21 @@
 
         function renderGalleryThumbs() {
             const container = document.getElementById('galleryThumbs');
-            container.innerHTML = allData.map((p, idx) => `
-                <img src="https://lh3.googleusercontent.com/d/${p.id}=s100" 
-                     class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-30'}"
-                     onclick="openLightbox(${idx})">
-            `).join('');
+            container.innerHTML = allData.map((p, idx) => `<img src="https://lh3.googleusercontent.com/d/${p.id}=s100" class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-30'}" onclick="openLightbox(${idx})">`).join('');
             const activeThumb = container.children[currentIndex];
             if(activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        async function downloadCurrentImage(e) {
+            e.stopPropagation();
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) return; 
+            const p = allData[currentIndex];
+            window.open(`https://lh3.googleusercontent.com/d/${p.id}=s0`, '_blank');
         }
 
         function nextImg(e) { e.stopPropagation(); if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1); }
         function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
-        function updateUI() {
-            const total = Math.ceil(allData.length / PAGE_SIZE);
-            document.getElementById('pagination').classList.toggle('hidden', total <= 1);
-            document.getElementById('pageInfo').innerText = `${currentPage} / ${total}`;
-            document.getElementById('btnPrev').disabled = (currentPage === 1);
-            document.getElementById('btnNext').disabled = (currentPage === total);
-        }
-        function changePage(step) { currentPage += step; render(); window.scrollTo({top: 400, behavior: 'smooth'}); }
     </script>
 </body>
 </html>
