@@ -22,6 +22,25 @@
         
         .font-heritage { font-family: 'Barlow', sans-serif; }
 
+        /* Google Style Loading Spinner */
+        .google-loader {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #4285F4; /* Blue */
+            animation: google-spin 1s linear infinite;
+            position: relative;
+        }
+        @keyframes google-spin {
+            0% { transform: rotate(0deg); border-top-color: #4285F4; }
+            25% { border-top-color: #EA4335; } /* Red */
+            50% { border-top-color: #FBBC05; } /* Yellow */
+            75% { border-top-color: #34A853; } /* Green */
+            100% { transform: rotate(360deg); border-top-color: #4285F4; }
+        }
+
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -49,7 +68,6 @@
             z-index: 1005;
         }
         
-        /* Nút tải ảnh bám chân ảnh */
         .download-btn {
             margin-top: 10px;
             color: white;
@@ -140,8 +158,12 @@
                     oninput="debounceSearch()">
             </div>
             <div class="text-center mt-4">
-                <div class="inline-block px-5 py-1.5 bg-slate-800 rounded-full shadow-lg">
-                    <p id="totalStats" class="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Đang tải dữ liệu từ Drive...</p>
+                <div class="inline-block px-5 py-2 bg-white rounded-full shadow-lg border border-slate-100">
+                    <div id="loadingStatus" class="flex items-center gap-3">
+                        <div class="google-loader"></div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Đang đồng bộ dữ liệu...</p>
+                    </div>
+                    <p id="totalStats" class="hidden text-[10px] font-bold text-slate-800 uppercase tracking-[0.2em]"></p>
                 </div>
             </div>
         </div>
@@ -214,7 +236,6 @@
                 <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
                 <img id="fullImg" src="" alt="TCR Photo" onclick="event.stopPropagation()">
                 <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
-                <!-- Nút tải ảnh bám sát chân ảnh -->
                 <button id="downloadBtn" class="download-btn" onclick="downloadCurrentImage(event)">
                     <i class="fa-solid fa-download"></i>
                     <span id="btnText">Tải ảnh chất lượng cao</span>
@@ -253,6 +274,8 @@
             const grid = document.getElementById('photoGrid');
             const resHeader = document.getElementById('searchResultHeader');
             const notFoundMsg = document.getElementById('notFoundMsg');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const totalStats = document.getElementById('totalStats');
 
             loading.classList.remove('hidden');
             grid.innerHTML = "";
@@ -274,7 +297,10 @@
                     allData = photos;
                 }
                 
-                document.getElementById('totalStats').innerText = `HỆ THỐNG ĐANG LƯU TRỮ: ${result.total} ẢNH`;
+                // Cập nhật trạng thái loading
+                loadingStatus.classList.add('hidden');
+                totalStats.classList.remove('hidden');
+                totalStats.innerText = `HỆ THỐNG ĐANG LƯU TRỮ: ${result.total} ẢNH`;
                 
                 if(isSearching) {
                     if (allData.length > 0 && result.infoName && result.infoName !== "---") {
@@ -356,7 +382,7 @@
         async function downloadCurrentImage(e) {
             e.stopPropagation();
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobile) return; // Trên mobile chỉ hiện text hướng dẫn
+            if (isMobile) return; 
 
             const p = allData[currentIndex];
             const downloadUrl = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
@@ -374,7 +400,6 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
             } catch (error) {
-                // Fallback nếu fetch bị lỗi CORS (thường Google Drive cho phép tải trực tiếp qua blob nếu được cấu hình)
                 window.open(downloadUrl, '_self');
             }
         }
