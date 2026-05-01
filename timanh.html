@@ -39,8 +39,8 @@
             100% { transform: rotate(360deg); border-top-color: #4285F4; }
         }
 
-        /* Music Player Style */
-        .music-player {
+        /* Bottom Sticky Bar (Music & Stats) */
+        .bottom-sticky-bar {
             position: fixed;
             bottom: 20px;
             left: 20px;
@@ -51,17 +51,22 @@
             border-radius: 50px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             color: white;
             transition: all 0.3s ease;
         }
-        .music-btn { width: 35px; height: 35px; border-radius: 50%; background: #ef4444; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .music-btn { width: 35px; height: 35px; border-radius: 50%; background: #ef4444; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; flex-shrink: 0; }
         .music-btn:hover { transform: scale(1.1); }
-        .music-info { max-width: 150px; }
+        .music-info { max-width: 150px; border-right: 1px solid rgba(255,255,255,0.2); padding-right: 15px; }
         .music-name { font-size: 10px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.5px; }
-        .music-download { font-size: 14px; color: #fbbf24; cursor: pointer; transition: 0.2s; }
+        
+        .stats-info { display: flex; align-items: center; gap: 12px; padding-right: 5px; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+        .stat-value { font-size: 12px; font-weight: 900; color: #fbbf24; }
+        .stat-label { font-size: 8px; text-transform: uppercase; opacity: 0.7; font-weight: 700; letter-spacing: 0.5px; }
+
         .playing-art { animation: spin 4s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
@@ -136,7 +141,8 @@
             .nav-next { right: 20%; }
             .main-img-container { height: 60vh; }
             #fullImg { max-height: 50vh; }
-            .music-player { bottom: 10px; left: 10px; }
+            .bottom-sticky-bar { bottom: 10px; left: 10px; flex-wrap: wrap; border-radius: 20px; gap: 10px; }
+            .music-info { border-right: none; }
         }
 
         @media (max-width: 768px) {
@@ -148,21 +154,31 @@
 </head>
 <body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
 
-    <!-- Music Player -->
-    <div class="music-player">
+    <!-- Bottom Sticky Bar (Music & Stats) -->
+    <div class="bottom-sticky-bar">
+        <!-- Phần phát nhạc -->
         <audio id="tcrAudio" loop>
-            <source src="LINK_FILE_NHẠC_CỦA_ANH_Ở_ĐÂY" type="audio/mpeg">
+            <source src="music/tcr-rock.mp3" type="audio/mpeg">
         </audio>
         <div class="music-btn" onclick="toggleMusic()">
             <i id="musicIcon" class="fa-solid fa-play"></i>
         </div>
         <div class="music-info">
             <p class="text-[8px] opacity-60 uppercase font-bold">Bản sắc TCR</p>
-            <p class="music-name">BẢN NHẠC GỐC TCR</p>
+            <p class="music-name">Hào khí Thượng Cát</p>
         </div>
-        <a href="LINK_FILE_NHẠC_CỦA_ANH_Ở_ĐÂY" download="TCR_Original_Music" class="music-download" title="Tải nhạc">
-            <i class="fa-solid fa-cloud-arrow-down"></i>
-        </a>
+        
+        <!-- Visitors Stats -->
+        <div class="stats-info">
+            <div class="stat-item">
+                <span class="stat-value" id="onlineCount">--</span>
+                <span class="stat-label">Online</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="visitCount">--</span>
+                <span class="stat-label">Truy cập</span>
+            </div>
+        </div>
     </div>
 
     <!-- Banner -->
@@ -173,7 +189,7 @@
                 BƯỚC CHÂN <span class="text-yellow-400">DI SẢN</span> 2026
             </h1>
             <div class="flex items-center justify-center gap-4 text-sm md:text-lg font-bold uppercase tracking-widest opacity-90">
-                <span>27 THÁNG 04, 2026</span>
+                <span>28 THÁNG 04, 2026</span>
                 <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
                 <span>HÀ NỘI, VIỆT NAM</span>
             </div>
@@ -225,7 +241,7 @@
                 <h2>THÔNG TIN LIÊN HỆ</h2>
                 <div class="footer-grid">
                     <div class="footer-column">
-                        <p style="font-weight: 800; color: #ef4444; margin-bottom: 12px; border-bottom: 2px solid #ef4444; display: inline-block;">NHIẾP ẢNH GIA ĐỒNH HÀNH</p>
+                        <p style="font-weight: 800; color: #ef4444; margin-bottom: 12px; border-bottom: 2px solid #ef4444; display: inline-block;">NHIẾP ẢNH GIA ĐỒNG HÀNH</p>
                         <p>Mr. Quang Vũ, Mr. Liên Nguyễn, Ms. Huyền Nấm, Phúc Trần</p>
                     </div>
                     <div class="footer-divider"></div>
@@ -256,24 +272,41 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
         const PAGE_SIZE = 16;
-        const PRIORITY_FOLDER = "Anhtapthetcr"; // Tên thư mục ưu tiên
+        const PRIORITY_FOLDER = "Anhtapthetcr";
         let allData = [];
         let currentPage = 1;
         let currentIndex = 0;
         let searchTimeout;
 
+        // Xử lý phát nhạc
         function toggleMusic() {
             const audio = document.getElementById('tcrAudio');
             const icon = document.getElementById('musicIcon');
             const btn = document.querySelector('.music-btn');
-            if (audio.paused) { audio.play(); icon.className = "fa-solid fa-pause"; btn.classList.add('playing-art'); } 
-            else { audio.pause(); icon.className = "fa-solid fa-play"; btn.classList.remove('playing-art'); }
+            
+            if (audio.paused) { 
+                audio.play(); 
+                icon.className = "fa-solid fa-pause"; 
+                btn.classList.add('playing-art'); 
+            } 
+            else { 
+                audio.pause(); 
+                icon.className = "fa-solid fa-play"; 
+                btn.classList.remove('playing-art'); 
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('onlineCount').innerText = Math.floor(Math.random() * 20) + 5;
+            document.getElementById('visitCount').innerText = (12500).toLocaleString();
         }
 
         window.onload = () => {
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             document.getElementById('btnText').innerText = isMobile ? "ẤN GIỮ 3 GIÂY ĐỂ TẢI ẢNH HD" : "TẢI ẢNH CHẤT LƯỢNG CAO";
             startSearch("");
+            updateStats();
+            setInterval(updateStats, 10000);
         };
 
         function debounceSearch() {
