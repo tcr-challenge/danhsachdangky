@@ -49,21 +49,28 @@
             z-index: 1005;
         }
         
-        /* Dòng thông báo bám chân ảnh */
-        .download-info {
+        /* Nút tải ảnh bám chân ảnh */
+        .download-btn {
             margin-top: 10px;
             color: white;
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
-            background: rgba(239, 68, 68, 0.9);
-            padding: 6px 15px;
-            border-radius: 20px;
+            background: #ef4444;
+            padding: 10px 20px;
+            border-radius: 25px;
             z-index: 1015;
-            pointer-events: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .download-btn:hover { background: #dc2626; transform: scale(1.05); }
+        .download-btn:active { transform: scale(0.95); }
 
         .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 1010; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
         .nav-btn:hover { background: #ef4444; border-color: transparent; }
@@ -91,11 +98,11 @@
         .page-node.active { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 
         @media (max-width: 1024px) {
-            .nav-btn { top: auto; bottom: -60px; transform: none; }
+            .nav-btn { top: auto; bottom: -80px; transform: none; }
             .nav-prev { left: 20%; }
             .nav-next { right: 20%; }
             .main-img-container { height: 60vh; }
-            #fullImg { max-height: 55vh; }
+            #fullImg { max-height: 50vh; }
         }
 
         @media (max-width: 768px) {
@@ -111,7 +118,7 @@
     <!-- Banner -->
     <div id="mainBanner" class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
         <div class="max-w-6xl mx-auto text-center relative z-10">
-            <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">Thượng Cát Runners Presents</p>
+            <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT</p>
             <h1 class="font-heritage text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
                 BƯỚC CHÂN <span class="text-yellow-400">DI SẢN</span> 2026
             </h1>
@@ -207,8 +214,11 @@
                 <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
                 <img id="fullImg" src="" alt="TCR Photo" onclick="event.stopPropagation()">
                 <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
-                <!-- Dòng chữ bám sát chân ảnh -->
-                <div id="downloadLabel" class="download-info">Tải ảnh chất lượng cao</div>
+                <!-- Nút tải ảnh bám sát chân ảnh -->
+                <button id="downloadBtn" class="download-btn" onclick="downloadCurrentImage(event)">
+                    <i class="fa-solid fa-download"></i>
+                    <span id="btnText">Tải ảnh chất lượng cao</span>
+                </button>
             </div>
         </div>
         <div class="gallery-wrapper" onclick="event.stopPropagation()">
@@ -226,9 +236,8 @@
         let isSearching = false;
 
         window.onload = () => {
-            // Kiểm tra thiết bị để đổi text thông báo
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            document.getElementById('downloadLabel').innerText = isMobile ? "ẤN GIỮ 3 GIÂY ĐỂ TẢI ẢNH HD" : "TẢI ẢNH CHẤT LƯỢNG CAO";
+            document.getElementById('btnText').innerText = isMobile ? "ẤN GIỮ 3 GIÂY ĐỂ TẢI ẢNH HD" : "TẢI ẢNH CHẤT LƯỢNG CAO";
             startSearch("");
         };
 
@@ -305,24 +314,18 @@
             
             let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
             
-            // Logics phân trang rút gọn: 1 2 3 ... Cuối
             if (totalPages <= 4) {
                 for (let i = 1; i <= totalPages; i++) {
                     html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
                 }
             } else {
-                // Luôn hiện trang 1, 2, 3
                 for (let i = 1; i <= 3; i++) {
                     html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
                 }
-                
                 if (currentPage > 3 && currentPage < totalPages) {
                     if (currentPage > 4) html += `<span class="px-1 text-slate-400">...</span>`;
-                    if (currentPage != 1 && currentPage != 2 && currentPage != 3) {
-                         html += `<button onclick="changePage(${currentPage})" class="w-10 h-10 page-node border border-slate-200 active">${currentPage}</button>`;
-                    }
+                    html += `<button onclick="changePage(${currentPage})" class="w-10 h-10 page-node border border-slate-200 active">${currentPage}</button>`;
                 }
-
                 html += `<span class="px-1 text-slate-400">...</span>`;
                 html += `<button onclick="changePage(${totalPages})" class="w-10 h-10 page-node border border-slate-200 ${currentPage === totalPages ? 'active' : 'bg-white'}">${totalPages}</button>`;
             }
@@ -348,6 +351,32 @@
             document.getElementById('lightbox').style.display = 'flex';
             document.body.style.overflow = 'hidden';
             renderGalleryThumbs();
+        }
+
+        async function downloadCurrentImage(e) {
+            e.stopPropagation();
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) return; // Trên mobile chỉ hiện text hướng dẫn
+
+            const p = allData[currentIndex];
+            const downloadUrl = `https://lh3.googleusercontent.com/d/${p.id}=s0`;
+            
+            try {
+                const response = await fetch(downloadUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `TCR_Photo_${p.id}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                // Fallback nếu fetch bị lỗi CORS (thường Google Drive cho phép tải trực tiếp qua blob nếu được cấu hình)
+                window.open(downloadUrl, '_self');
+            }
         }
 
         function renderGalleryThumbs() {
