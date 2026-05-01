@@ -5,14 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Tìm Ảnh - TCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #ef4444;
             --secondary-color: #1e293b;
+            /* Font chuẩn Facebook/Hệ thống */
+            --fb-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        body { font-family: 'Barlow', sans-serif; overflow-x: hidden; }
+        body { font-family: var(--fb-font); overflow-x: hidden; }
+        
+        /* Chỉ giữ Barlow cho tiêu đề đặc biệt */
+        .font-heritage { font-family: 'Barlow', sans-serif; }
+
         .loader { border-top-color: #ef4444; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -34,17 +40,25 @@
         .img-instruction-overlay { position: fixed; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 1015; pointer-events: none; }
 
         .gallery-wrapper { width: 100%; max-width: 1100px; overflow: hidden; display: flex; justify-content: center; margin-top: 20px; padding-bottom: 20px; }
-        .banner-bg { background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); position: relative; overflow: hidden; }
+        
+        /* Banner logic */
+        .banner-bg { 
+            background: linear-gradient(135deg, #1e293b 0%, #ef4444 100%); 
+            background-size: cover;
+            background-position: center;
+            position: relative; 
+            overflow: hidden; 
+        }
         .banner-bg::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
+        
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
         
         * { font-style: normal !important; }
 
-        /* Footer CSS cập nhật theo yêu cầu */
         .footer-info {
             width: 100%;
             max-width: 1000px;
-            margin: 0 auto 70px auto; /* Thêm margin auto để căn giữa */
+            margin: 0 auto 70px auto;
             padding: 30px;
             box-sizing: border-box;
             background: rgba(255, 255, 255, 0.85); 
@@ -66,6 +80,11 @@
         .footer-divider { width: 2px; background-color: #d0d0d0; }
         .footer-info a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
 
+        /* Pagination Style */
+        .page-node { cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: bold; }
+        .page-node:hover:not(.active) { background: #fee2e2; color: #ef4444; }
+        .page-node.active { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
         @media (max-width: 768px) {
             .footer-grid { flex-direction: column; }
             .footer-divider { display: none; }
@@ -76,10 +95,10 @@
 <body class="bg-[#f8fafc] min-h-screen text-slate-900 leading-tight">
 
     <!-- Banner -->
-    <div class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
+    <div id="mainBanner" class="banner-bg text-white py-16 md:py-24 px-4 relative mb-[-4rem]">
         <div class="max-w-6xl mx-auto text-center relative z-10">
             <p class="text-yellow-400 font-bold tracking-[0.3em] uppercase text-sm mb-4">Thượng Cát Runners Presents</p>
-            <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
+            <h1 class="font-heritage text-5xl md:text-8xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">
                 BƯỚC CHÂN <span class="text-yellow-400">DI SẢN</span> 2026
             </h1>
             <div class="flex items-center justify-center gap-4 text-sm md:text-lg font-bold uppercase tracking-widest opacity-90">
@@ -141,15 +160,12 @@
 
         <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8"></div>
 
-        <div id="pagination" class="mt-16 flex justify-center items-center gap-4 hidden">
-            <button onclick="changePage(-1)" id="btnPrev" class="w-14 h-14 bg-white rounded-2xl shadow-xl hover:bg-red-600 hover:text-white disabled:opacity-20 transition-all flex items-center justify-center text-xl font-bold border border-slate-100">←</button>
-            <div class="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl font-black tracking-widest">
-                TRANG <span id="pageInfo" class="text-yellow-400 ml-2">1 / 1</span>
-            </div>
-            <button onclick="changePage(1)" id="btnNext" class="w-14 h-14 bg-white rounded-2xl shadow-xl hover:bg-red-600 hover:text-white disabled:opacity-20 transition-all flex items-center justify-center text-xl font-bold border border-slate-100">→</button>
+        <!-- Pagination Cập Nhật -->
+        <div id="pagination" class="mt-16 flex flex-wrap justify-center items-center gap-2 hidden">
+            <!-- Nút trang sẽ được render bởi JS -->
         </div>
 
-        <!-- Footer Đã cập nhật -->
+        <!-- Footer -->
         <div class="mt-20">
             <div class="footer-info">
                 <h2>THÔNG TIN LIÊN HỆ</h2>
@@ -165,7 +181,7 @@
                     <div class="footer-column">
                         <p style="font-weight: 800; color: #1e293b; margin-bottom: 8px;">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</p>
                         <p>Fanpage: <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank">Làng bên sông</a> và <a href="https://web.facebook.com/dinhthuongcat" target="_blank">Đình làng Thượng Cát</a></p>
-                        <p>Bản đồ: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank" style="font-style: italic;">Xem trên Google Maps</a></p>
+                        <p>Bản đồ: <a href="https://maps.app.goo.gl/JDyHh4N3E7R8cq1F7" target="_blank">Xem trên Google Maps</a></p>
                         <p style="font-size: 11px; margin-top: 10px; color: #94a3b8; font-weight: 700;">THƯỢNG CÁT - BẮC TỪ LIÊM - HÀ NỘI</p>
                     </div>
                 </div>
@@ -191,6 +207,9 @@
     </div>
 
     <script>
+        // CẤU HÌNH BANNER ẢNH TẠI ĐÂY
+        const BANNER_IMAGE_URL = ""; // Dán link ảnh banner vào đây (ví dụ: "https://.../anh.jpg")
+        
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
         const PAGE_SIZE = 16;
         let allData = [];
@@ -199,7 +218,13 @@
         let searchTimeout;
         let isSearching = false;
 
-        window.onload = () => startSearch("");
+        window.onload = () => {
+            // Xử lý banner
+            if (BANNER_IMAGE_URL && BANNER_IMAGE_URL.trim() !== "") {
+                document.getElementById('mainBanner').style.backgroundImage = `url('${BANNER_IMAGE_URL}')`;
+            }
+            startSearch("");
+        };
 
         function debounceSearch() {
             clearTimeout(searchTimeout);
@@ -227,18 +252,13 @@
                 let photos = result.photos || [];
 
                 if (!isSearching) {
-                    // Cập nhật logic lọc ưu tiên mạnh mẽ hơn
                     const targetName = "anhtapthe";
                     const priorityPhotos = [];
                     const otherPhotos = [];
-
                     photos.forEach(p => {
                         const folder = (p.folderName || "").toLowerCase();
-                        if (folder.includes(targetName)) {
-                            priorityPhotos.push(p);
-                        } else {
-                            otherPhotos.push(p);
-                        }
+                        if (folder.includes(targetName)) priorityPhotos.push(p);
+                        else otherPhotos.push(p);
                     });
                     allData = [...priorityPhotos, ...otherPhotos];
                 } else {
@@ -277,7 +297,51 @@
                     <img src="https://lh3.googleusercontent.com/d/${p.id}=s400" class="w-full h-64 md:h-72 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500" loading="lazy">
                 </div>`;
             }).join('');
-            updateUI();
+            updatePaginationUI();
+        }
+
+        // Logic phân trang mới dạng < 1 2 3 ... 10 >
+        function updatePaginationUI() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+            if (totalPages <= 1) { pagination.classList.add('hidden'); return; }
+            
+            pagination.classList.remove('hidden');
+            let html = '';
+
+            // Nút Quay lại
+            html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            if (startPage > 1) {
+                html += `<button onclick="changePage(1)" class="w-10 h-10 page-node bg-white border border-slate-200">1</button>`;
+                if (startPage > 2) html += `<span class="px-2">...</span>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<span class="px-2">...</span>`;
+                html += `<button onclick="changePage(${totalPages})" class="w-10 h-10 page-node bg-white border border-slate-200">${totalPages}</button>`;
+            }
+
+            // Nút Tiếp
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> > </button>`;
+
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(allData.length / PAGE_SIZE);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            render();
+            window.scrollTo({top: 400, behavior: 'smooth'});
         }
 
         function openLightbox(index) {
@@ -308,14 +372,6 @@
         function nextImg(e) { e.stopPropagation(); if (currentIndex < allData.length - 1) openLightbox(currentIndex + 1); }
         function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
-        function updateUI() {
-            const total = Math.ceil(allData.length / PAGE_SIZE);
-            document.getElementById('pagination').classList.toggle('hidden', total <= 1);
-            document.getElementById('pageInfo').innerText = `${currentPage} / ${total}`;
-            document.getElementById('btnPrev').disabled = (currentPage === 1);
-            document.getElementById('btnNext').disabled = (currentPage === total);
-        }
-        function changePage(step) { currentPage += step; render(); window.scrollTo({top: 400, behavior: 'smooth'}); }
     </script>
 </body>
 </html>
