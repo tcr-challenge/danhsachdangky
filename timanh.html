@@ -377,6 +377,33 @@
         }
         .social-btn:hover { background: #ef4444; transform: translateY(-3px); }
 
+        /* Style cho nút Tải toàn bộ ảnh */
+        .download-all-container {
+            padding: 0 24px 24px 24px;
+            text-align: center;
+        }
+        .download-all-btn {
+            background: #ef4444;
+            color: white;
+            font-weight: 900;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            text-decoration: none;
+        }
+        .download-all-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
         @media (max-width: 1024px) {
             .nav-btn { width: 45px; font-size: 24px; background: rgba(255, 255, 255, 0.6); }
             .main-img-container { height: 60vh; }
@@ -433,30 +460,24 @@
                     oninput="debounceSearch()">
             </div>
             
-            <!-- Container bao quanh 4 tab: bỏ flex-wrap, thêm overflow-x-auto và whitespace-nowrap -->
-<div class="flex flex-nowrap justify-start md:justify-center gap-2 mt-8 overflow-x-auto pb-4 no-scrollbar whitespace-nowrap px-2">
-    
+            <div class="flex flex-wrap justify-center gap-4 mt-8">
     <button onclick="filterByCategory('khaimac', this)" class="category-tab flex-shrink-0">
-        <img src="https://cdn-icons-png.flaticon.com/512/2665/2665513.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Khai mac">
-        <span class="text-[10px] md:text-[13px]">KHAI MẠC</span>
-    </button>
-
+                    <img src="https://cdn-icons-png.flaticon.com/512/2665/2665513.png" class="tab-icon" alt="Khai mạc">
+                    KHAI MẠC
+                </button>
     <button onclick="filterByCategory('start', this)" class="category-tab flex-shrink-0 active">
-        <img src="https://cdn-icons-png.flaticon.com/512/12893/12893003.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Xuat phat">
-        <span class="text-[10px] md:text-[13px]">XUẤT PHÁT</span>
-    </button>
-
+                    <img src="https://cdn-icons-png.flaticon.com/512/12893/12893003.png" class="tab-icon" alt="Xuất phát">
+                    XUẤT PHÁT
+                </button>
     <button onclick="filterByCategory('traogiai', this)" class="category-tab flex-shrink-0">
-        <img src="https://cdn-icons-png.flaticon.com/512/15681/15681266.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Trao giai">
-        <span class="text-[10px] md:text-[13px]">TRAO GIẢI</span>
-    </button>
-
+                    <img src="https://cdn-icons-png.flaticon.com/512/15681/15681266.png" class="tab-icon" alt="Trao giải">
+                    TRAO GIẢI
+                </button>
     <button onclick="filterByCategory('kidrun', this)" class="category-tab flex-shrink-0">
-        <img src="https://cdn-icons-png.flaticon.com/512/4357/4357645.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Kid run">
-        <span class="text-[10px] md:text-[13px]">KID RUN</span>
-    </button>
-
-</div>
+                    <img src="https://cdn-icons-png.flaticon.com/512/4357/4357645.png" class="tab-icon" alt="Kid Run">
+                    KID RUN
+                </button>
+            </div>
 
             <div class="text-center mt-6">
                 <p id="totalStats" class="hidden text-[24px] font-black text-slate-700 uppercase tracking-[0.2em]"></p>
@@ -482,6 +503,13 @@
                 <div class="py-2 md:px-4 text-center"><p class="text-[9px] text-slate-400 uppercase font-black mb-1">Số BIB</p><p id="infoBib" class="text-xl font-black text-red-600">--</p></div>
                 <div class="py-2 md:px-4 text-center"><p class="text-[9px] text-slate-400 uppercase font-black mb-1">Vận động viên</p><p id="infoName" class="text-xl font-black text-slate-800 uppercase">--</p></div>
                 <div class="py-2 md:px-4 text-center"><p class="text-[9px] text-slate-400 uppercase font-black mb-1">Câu lạc bộ</p><p id="infoClub" class="text-xl font-black text-slate-800 uppercase">--</p></div>
+            </div>
+            <!-- NÚT TẢI TOÀN BỘ ẢNH NẰM Ở ĐÂY -->
+            <div id="downloadAllBox" class="hidden download-all-container">
+                <a id="downloadAllBtn" href="#" target="_blank" class="download-all-btn">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    TẢI TOÀN BỘ ẢNH CỦA BẠN
+                </a>
             </div>
         </div>
         
@@ -573,7 +601,8 @@
 
         const loadingTexts = [
             "Đang đồng bộ dữ liệu từ Drive",
-            "Đề nghị bạn chạy giữ đều pace"
+            "Đề nghị bạn chạy giữ đều pace",
+            "Còn 500m nữa về đích"
         ];
 
         function startPaceEffect() {
@@ -651,12 +680,14 @@
             const loadingBox = document.getElementById('loadingBox');
             const loadingStatus = document.getElementById('loadingStatus');
             const syncEl = document.getElementById('syncLabel');
+            const downloadAllBox = document.getElementById('downloadAllBox');
 
             grid.innerHTML = "";
             resHeader.classList.add('hidden');
             notFoundMsg.classList.add('hidden');
             loadingBox.classList.remove('hidden');
             loadingStatus.classList.remove('hidden');
+            downloadAllBox.classList.add('hidden');
             document.getElementById('totalStats').classList.add('hidden');
             
             startPaceEffect();
@@ -701,6 +732,12 @@
                             document.getElementById('infoBib').innerText = result.infoBib || query;
                             document.getElementById('infoName').innerText = result.infoName;
                             document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
+                            
+                            // HIỂN THỊ NÚT TẢI TOÀN BỘ NẾU CÓ FOLDER URL
+                            if (result.folderUrl) {
+                                downloadAllBox.classList.remove('hidden');
+                                document.getElementById('downloadAllBtn').href = result.folderUrl;
+                            }
                         } else if (allData.length === 0) {
                             notFoundMsg.classList.remove('hidden');
                         }
