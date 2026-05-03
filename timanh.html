@@ -460,24 +460,30 @@
                     oninput="debounceSearch()">
             </div>
             
-            <div class="flex flex-wrap justify-center gap-4 mt-8">
+            <!-- Container bao quanh 4 tab: bỏ flex-wrap, thêm overflow-x-auto và whitespace-nowrap -->
+<div class="flex flex-wrap justify-start md:justify-center gap-2 mt-8 overflow-x-auto pb-4 no-scrollbar whitespace-nowrap px-2">
+    
     <button onclick="filterByCategory('khaimac', this)" class="category-tab flex-shrink-0">
         <img src="https://cdn-icons-png.flaticon.com/512/2665/2665513.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Khai mac">
-                    KHAI MẠC
-                </button>
+        <span class="text-[10px] md:text-[13px]">KHAI MẠC</span>
+    </button>
+
     <button onclick="filterByCategory('start', this)" class="category-tab flex-shrink-0 active">
         <img src="https://cdn-icons-png.flaticon.com/512/12893/12893003.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Xuat phat">
-                    XUẤT PHÁT
-                </button>
+        <span class="text-[10px] md:text-[13px]">XUẤT PHÁT</span>
+    </button>
+
     <button onclick="filterByCategory('traogiai', this)" class="category-tab flex-shrink-0">
         <img src="https://cdn-icons-png.flaticon.com/512/15681/15681266.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Trao giai">
-                    TRAO GIẢI
-                </button>
+        <span class="text-[10px] md:text-[13px]">TRAO GIẢI</span>
+    </button>
+
     <button onclick="filterByCategory('kidrun', this)" class="category-tab flex-shrink-0">
         <img src="https://cdn-icons-png.flaticon.com/512/4357/4357645.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Kid run">
-                    KID RUN
-                </button>
-            </div>
+        <span class="text-[10px] md:text-[13px]">KID RUN</span>
+    </button>
+
+</div>
 
             <div class="text-center mt-6">
                 <p id="totalStats" class="hidden text-[24px] font-black text-slate-700 uppercase tracking-[0.2em]"></p>
