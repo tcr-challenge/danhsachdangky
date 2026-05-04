@@ -2,36 +2,34 @@
 <html>
 <head>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #2c3e50; }
-    .box { background: white; padding: 40px; border-radius: 10px; shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; }
-    input { width: 200px; padding: 15px; font-size: 24px; border: 2px solid #ddd; border-radius: 5px; margin-bottom: 20px; text-align: center; }
-    button { padding: 15px 30px; font-size: 20px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 5px; }
-    #status { margin-top: 20px; font-weight: bold; color: #2c3e50; }
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #eceff1; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+    input { width: 80%; padding: 15px; font-size: 24px; border: 2px solid #007bff; border-radius: 8px; outline: none; }
+    #msg { margin-top: 15px; font-weight: bold; min-height: 20px; }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>NHẬP SỐ BIB</h2>
-    <input type="text" id="bibInput" placeholder="Ví dụ: 123" autofocus> <br>
-    <button onclick="submit()">HIỂN THỊ LÊN MÀN CHIẾU</button>
-    <div id="status"></div>
+  <div class="card">
+    <h3>TRANG NHẬP BIB</h3>
+    <input type="number" id="bib" placeholder="Số BIB..." autofocus onkeypress="if(event.keyCode==13) send()">
+    <div id="msg"></div>
   </div>
-
   <script>
-    function submit() {
-      var bib = document.getElementById('bibInput').value;
+    function send() {
+      var bib = document.getElementById('bib').value;
       if(!bib) return;
-      document.getElementById('status').innerText = "Đang xử lý...";
+      document.getElementById('msg').className = '';
+      document.getElementById('msg').innerText = 'Đang gửi...';
+      
       google.script.run.withSuccessHandler(function(res) {
-        document.getElementById('status').innerText = res;
-        document.getElementById('bibInput').value = '';
-        document.getElementById('bibInput').focus();
+        document.getElementById('msg').innerText = res;
+        document.getElementById('msg').className = res.includes('OK') ? 'success' : 'error';
+        document.getElementById('bib').value = '';
+        document.getElementById('bib').focus();
       }).processBib(bib);
     }
-    // Nhấn Enter để gửi
-    document.getElementById("bibInput").addEventListener("keyup", function(event) {
-      if (event.keyCode === 13) { submit(); }
-    });
   </script>
 </body>
 </html>
