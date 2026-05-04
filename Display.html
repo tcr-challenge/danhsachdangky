@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; padding: 0; background: #fff; font-family: 'Arial', sans-serif; overflow: hidden; }
+    .container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; }
+    .photo-frame { width: 450px; height: 450px; border: 15px solid #e67e22; border-radius: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+    .bib-tag { font-size: 120px; font-weight: 900; color: #e67e22; margin: 0; line-height: 1; }
+    .name-tag { font-size: 70px; font-weight: bold; color: #2c3e50; text-transform: uppercase; margin: 10px 0; }
+    .club-tag { font-size: 40px; color: #7f8c8d; font-style: italic; }
+    #waiting { font-size: 30px; color: #ccc; }
+  </style>
+</head>
+<body>
+  <div class="container" id="content" style="display:none;">
+    <div class="photo-frame"><img id="p_photo" src=""></div>
+    <div class="bib-tag" id="p_bib"></div>
+    <div class="name-tag" id="p_name"></div>
+    <div class="club-tag" id="p_club"></div>
+  </div>
+  <div class="container" id="loader">
+    <div id="waiting">Đang chờ vận động viên check-in...</div>
+  </div>
+
+  <script>
+    var currentBib = "";
+    function updateDisplay() {
+      google.script.run.withSuccessHandler(function(data) {
+        if (data && data.bib !== currentBib) {
+          currentBib = data.bib;
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('content').style.display = 'flex';
+          
+          document.getElementById('p_name').innerText = data.name;
+          document.getElementById('p_bib').innerText = "BIB " + data.bib;
+          document.getElementById('p_club').innerText = data.club;
+          document.getElementById('p_photo').src = data.photo;
+        }
+      }).getLatestData();
+    }
+    // Kiểm tra dữ liệu mới mỗi 1 giây
+    setInterval(updateDisplay, 1000);
+  </script>
+</body>
+</html>
