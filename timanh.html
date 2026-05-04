@@ -24,15 +24,34 @@
         
         .font-heritage { font-family: 'Barlow', sans-serif; }
 
+        .loader-container {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .google-loader {
-            display: inline-block;
-            width: 72px; 
-            height: 72px; 
+            position: absolute;
+            width: 100%;
+            height: 100%;
             border: 6px solid rgba(0,0,0,0.1);
             border-radius: 50%;
             border-top-color: #4285F4;
             animation: google-spin 1s linear infinite;
         }
+        
+        /* Ảnh GIF giữ nguyên không xoay */
+        .runner-gif {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
         @keyframes google-spin {
             0% { transform: rotate(0deg); border-top-color: #4285F4; }
             25% { border-top-color: #EA4335; }
@@ -377,7 +396,6 @@
         }
         .social-btn:hover { background: #ef4444; transform: translateY(-3px); }
 
-        /* Style cho nút Tải toàn bộ ảnh */
         .download-all-container {
             padding: 0 24px 24px 24px;
             text-align: center;
@@ -460,36 +478,34 @@
                     oninput="debounceSearch()">
             </div>
             
-            <!-- Container bao quanh 4 tab: bỏ flex-wrap, thêm overflow-x-auto và whitespace-nowrap -->
-<div class="flex flex-nowrap justify-start md:justify-center gap-2 mt-8 overflow-x-auto pb-4 no-scrollbar whitespace-nowrap px-2">
-    
-    <button onclick="filterByCategory('khaimac', this)" class="category-tab flex-shrink-0">
-        <img src="https://cdn-icons-png.flaticon.com/512/2665/2665513.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Khai mac">
-        <span class="text-[10px] md:text-[13px]">KHAI MẠC</span>
-    </button>
-
-    <button onclick="filterByCategory('start', this)" class="category-tab flex-shrink-0 active">
-        <img src="https://cdn-icons-png.flaticon.com/512/12893/12893003.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Xuat phat">
-        <span class="text-[10px] md:text-[13px]">XUẤT PHÁT</span>
-    </button>
-
-    <button onclick="filterByCategory('traogiai', this)" class="category-tab flex-shrink-0">
-        <img src="https://cdn-icons-png.flaticon.com/512/15681/15681266.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Trao giai">
-        <span class="text-[10px] md:text-[13px]">TRAO GIẢI</span>
-    </button>
-
-    <button onclick="filterByCategory('kidrun', this)" class="category-tab flex-shrink-0">
-        <img src="https://cdn-icons-png.flaticon.com/512/4357/4357645.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain" alt="Kid run">
-        <span class="text-[10px] md:text-[13px]">KID RUN</span>
-    </button>
-
-</div>
+            <div class="flex flex-nowrap justify-start md:justify-center gap-2 mt-2 overflow-x-auto pt-4 pb-4 no-scrollbar whitespace-nowrap px-2">
+                <button onclick="filterByCategory('khaimac', this)" class="category-tab flex-shrink-0 group">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2665/2665513.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain transition-transform duration-300 group-hover:rotate-12" alt="Khai mac">
+                    <span class="text-[10px] md:text-[13px]">KHAI MẠC</span>
+                </button>
+                <button onclick="filterByCategory('start', this)" class="category-tab flex-shrink-0 active relative z-10 group">
+                    <img src="https://cdn-icons-png.flaticon.com/512/12893/12893003.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain transition-transform duration-300 group-hover:rotate-12" alt="Xuat phat">
+                    <span class="text-[10px] md:text-[13px]">XUẤT PHÁT</span>
+                </button>
+                <button onclick="filterByCategory('traogiai', this)" class="category-tab flex-shrink-0 group">
+                    <img src="https://cdn-icons-png.flaticon.com/512/15681/15681266.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain transition-transform duration-300 group-hover:rotate-12" alt="Trao giai">
+                    <span class="text-[10px] md:text-[13px]">TRAO GIẢI</span>
+                </button>
+                <button onclick="filterByCategory('kidrun', this)" class="category-tab flex-shrink-0 group">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4357/4357645.png" class="w-10 h-10 md:w-12 md:h-12 mb-1 object-contain transition-transform duration-300 group-hover:rotate-12" alt="Kid run">
+                    <span class="text-[10px] md:text-[13px]">KID RUN</span>
+                </button>
+            </div>
 
             <div class="text-center mt-6">
                 <p id="totalStats" class="hidden text-[24px] font-black text-slate-700 uppercase tracking-[0.2em]"></p>
                 <div id="loadingBox" class="inline-block px-10 py-6 bg-white/80 rounded-[2.5rem] shadow-sm border border-slate-100 mt-4">
                     <div id="loadingStatus" class="flex flex-col items-center gap-6">
-                        <div class="google-loader"></div>
+                        <!-- Loader container giữ GIF cố định -->
+                        <div class="loader-container">
+                            <div class="google-loader"></div>
+                            <img src="images/gifrunner.gif" alt="Runner" class="runner-gif">
+                        </div>
                         <p id="paceLoad" class="pace-load-text">Pace Loading: 0:00</p>
                         <p id="syncLabel" class="sync-text">Đang đồng bộ dữ liệu từ Drive</p>
                     </div>
@@ -510,7 +526,6 @@
                 <div class="py-2 md:px-4 text-center"><p class="text-[9px] text-slate-400 uppercase font-black mb-1">Vận động viên</p><p id="infoName" class="text-xl font-black text-slate-800 uppercase">--</p></div>
                 <div class="py-2 md:px-4 text-center"><p class="text-[9px] text-slate-400 uppercase font-black mb-1">Câu lạc bộ</p><p id="infoClub" class="text-xl font-black text-slate-800 uppercase">--</p></div>
             </div>
-            <!-- NÚT TẢI TOÀN BỘ ẢNH NẰM Ở ĐÂY -->
             <div id="downloadAllBox" class="hidden download-all-container">
                 <a id="downloadAllBtn" href="#" target="_blank" class="download-all-btn">
                     <i class="fa-solid fa-cloud-arrow-down"></i>
@@ -528,16 +543,13 @@
         <div class="footer-grid">
             <div>
                 <div class="footer-logo-text">TCR <span class="text-red-500">RUNNERS</span></div>
-                <p class="text-sm leading-relaxed">
-                    Câu lạc bộ chạy bộ Thượng Cát - Nơi kết nối đam mê, lan tỏa sức khỏe và giữ gìn các giá trị di sản cộng đồng thông qua thể thao.
-                </p>
+                <p class="text-sm leading-relaxed">Câu lạc bộ chạy bộ Thượng Cát - Nơi kết nối đam mê, lan tỏa sức khỏe và giữ gìn các giá trị di sản cộng đồng thông qua thể thao.</p>
                 <div class="social-icons">
                     <a href="https://www.facebook.com/ThuongCatRunners" target="_blank" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
                     <a href="#" class="social-btn"><i class="fa-brands fa-youtube"></i></a>
                     <a href="#" class="social-btn"><i class="fa-brands fa-tiktok"></i></a>
                 </div>
             </div>
-            
             <div>
                 <h3 class="footer-heading">LỜI CẢM ƠN TỪ HỆ MẶT TRỜI TỚI CÁC NHIẾP ẢNH GIA</h3>
                 <div class="footer-link"><i class="fa-solid fa-camera text-red-500"></i> Mr. Quang Vũ</div>
@@ -545,30 +557,14 @@
                 <div class="footer-link"><i class="fa-solid fa-camera text-red-500"></i> Mr. Liên Nguyễn</div>
                 <div class="footer-link"><i class="fa-solid fa-camera text-red-500"></i> Mr. Phúc Trần</div>
             </div>
-
             <div>
                 <h3 class="footer-heading">THƯỢNG CÁT RUNNERS</h3>
                 <div class="text-sm flex flex-col gap-3">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-location-dot text-red-500"></i>
-                        Thượng Cát, Hà Nội
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fa-brands fa-facebook text-red-500"></i>
-                        Fanpage: Thuongcatrunners
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-users text-red-500"></i>
-                        Group chạy bộ: Thuongcatrunners
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-envelope text-red-500"></i>
-                        Email: Thuongcatrunners@gmail.com
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fa-brands fa-strava text-red-500"></i>
-                        Strarva: Thuongcatrunners
-                    </div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-red-500"></i> Thượng Cát, Hà Nội</div>
+                    <div class="flex items-center gap-3"><i class="fa-brands fa-facebook text-red-500"></i> Fanpage: Thuongcatrunners</div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-users text-red-500"></i> Group chạy bộ: Thuongcatrunners</div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-envelope text-red-500"></i> Email: Thuongcatrunners@gmail.com</div>
+                    <div class="flex items-center gap-3"><i class="fa-brands fa-strava text-red-500"></i> Strarva: Thuongcatrunners</div>
                 </div>
             </div>
         </div>
@@ -584,7 +580,6 @@
                 <div class="nav-btn nav-prev" onclick="prevImg(event)">&#10094;</div>
                 <img id="fullImg" src="" alt="TCR Photo">
                 <div class="nav-btn nav-next" onclick="nextImg(event)">&#10095;</div>
-                
                 <button id="downloadBtn" class="download-btn" onclick="downloadCurrentImage(event)">
                     <i class="fa-solid fa-download"></i> <span id="btnText">ẤN GIỮ ẢNH ĐỂ TẢI HD</span>
                 </button>
@@ -605,38 +600,21 @@
         let labelInterval;
         let isAlmostDone = false;
 
-        const loadingTexts = [
-            "Đang đồng bộ dữ liệu từ Drive",
-            "Đề nghị bạn chạy giữ đều pace",
-            "Còn 500m nữa về đích"
-        ];
+        const loadingTexts = ["Đang đồng bộ dữ liệu từ Drive", "Đề nghị bạn chạy giữ đều pace", "Còn 500m nữa về đích"];
 
         function startPaceEffect() {
             const paceEl = document.getElementById('paceLoad');
             const syncEl = document.getElementById('syncLabel');
             let textIdx = 0;
             isAlmostDone = false;
-            
             clearInterval(paceInterval);
             clearInterval(labelInterval);
-            
             syncEl.innerText = loadingTexts[0];
-            labelInterval = setInterval(() => {
-                if (!isAlmostDone) {
-                    textIdx = (textIdx + 1) % loadingTexts.length;
-                    syncEl.innerText = loadingTexts[textIdx];
-                }
-            }, 1800);
-
+            labelInterval = setInterval(() => { if (!isAlmostDone) { textIdx = (textIdx + 1) % loadingTexts.length; syncEl.innerText = loadingTexts[textIdx]; } }, 1800);
             paceInterval = setInterval(() => {
                 let min, sec;
-                if (!isAlmostDone) {
-                    min = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
-                    sec = Math.floor(Math.random() * 60);
-                } else {
-                    min = 2;
-                    sec = Math.floor(Math.random() * (35 - 25 + 1)) + 25; 
-                }
+                if (!isAlmostDone) { min = Math.floor(Math.random() * (9 - 2 + 1)) + 2; sec = Math.floor(Math.random() * 60); }
+                else { min = 2; sec = Math.floor(Math.random() * (35 - 25 + 1)) + 25; }
                 paceEl.innerText = `Pace Loading: ${min}:${sec.toString().padStart(2, '0')}`;
             }, 100);
         }
@@ -649,9 +627,7 @@
                     document.getElementById('visitCount').innerText = data.visitCount.toLocaleString();
                     document.getElementById('onlineCount').innerText = data.onlineCount;
                 }
-            } catch (error) {
-                console.error("Lỗi cập nhật thống kê:", error);
-            }
+            } catch (error) { console.error("Lỗi cập nhật thống kê:", error); }
         }
 
         window.onload = () => {
@@ -695,27 +671,16 @@
             loadingStatus.classList.remove('hidden');
             downloadAllBox.classList.add('hidden');
             document.getElementById('totalStats').classList.add('hidden');
-            
             startPaceEffect();
 
             try {
-                const fetchPromise = fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
-                
-                const res = await fetchPromise;
+                const res = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(query)}`);
                 const result = await res.json();
                 let photos = result.photos || [];
 
-                if (isCategory) {
-                    allData = photos.filter(p => (p.folderName || "").toLowerCase().includes(query.toLowerCase()));
-                } else if (query === "") {
-                    allData = photos.sort((a, b) => {
-                        let aIsPriority = (a.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
-                        let bIsPriority = (b.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase());
-                        return bIsPriority - aIsPriority;
-                    });
-                } else {
-                    allData = photos;
-                }
+                if (isCategory) { allData = photos.filter(p => (p.folderName || "").toLowerCase().includes(query.toLowerCase())); }
+                else if (query === "") { allData = photos.sort((a, b) => { let aIsPriority = (a.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase()); let bIsPriority = (b.folderName || "").toLowerCase().includes(PRIORITY_FOLDER.toLowerCase()); return bIsPriority - aIsPriority; }); }
+                else { allData = photos; }
                 
                 isAlmostDone = true;
                 clearInterval(labelInterval);
@@ -727,7 +692,6 @@
                     loadingStatus.classList.add('hidden');
                     loadingBox.classList.add('hidden');
                     syncEl.style.color = ""; 
-                    
                     document.getElementById('totalStats').classList.remove('hidden');
                     document.getElementById('totalStats').innerText = `ĐÃ TÌM THẤY : ${allData.length} TẤM ẢNH`;
                     
@@ -738,24 +702,13 @@
                             document.getElementById('infoBib').innerText = result.infoBib || query;
                             document.getElementById('infoName').innerText = result.infoName;
                             document.getElementById('infoClub').innerText = result.infoClub || "Tự do";
-                            
-                            // HIỂN THỊ NÚT TẢI TOÀN BỘ NẾU CÓ FOLDER URL
-                            if (result.folderUrl) {
-                                downloadAllBox.classList.remove('hidden');
-                                document.getElementById('downloadAllBtn').href = result.folderUrl;
-                            }
-                        } else if (allData.length === 0) {
-                            notFoundMsg.classList.remove('hidden');
-                        }
+                            if (result.folderUrl) { downloadAllBox.classList.remove('hidden'); document.getElementById('downloadAllBtn').href = result.folderUrl; }
+                        } else if (allData.length === 0) { notFoundMsg.classList.remove('hidden'); }
                     }
                     currentPage = 1;
                     render();
                 }, 800);
-            } catch (e) { 
-                clearInterval(paceInterval);
-                clearInterval(labelInterval);
-                console.error(e); 
-            }
+            } catch (e) { clearInterval(paceInterval); clearInterval(labelInterval); console.error(e); }
         }
 
         function render() {
@@ -764,9 +717,7 @@
             const currentItems = allData.slice(start, start + PAGE_SIZE);
             grid.innerHTML = currentItems.map((p, index) => {
                 const globalIndex = start + index;
-                return `<div class="photo-card cursor-pointer" onclick="openLightbox(${globalIndex})">
-                    <img src="https://lh3.googleusercontent.com/d/${p.id}=s600" loading="lazy">
-                </div>`;
+                return `<div class="photo-card cursor-pointer" onclick="openLightbox(${globalIndex})"><img src="https://lh3.googleusercontent.com/d/${p.id}=s600" loading="lazy"></div>`;
             }).join('');
             updatePaginationUI();
         }
@@ -776,38 +727,16 @@
             const totalPages = Math.ceil(allData.length / PAGE_SIZE);
             if (totalPages <= 1) { pagination.classList.add('hidden'); return; }
             pagination.classList.remove('hidden');
-
             let nodesHtml = `<div class="flex items-center gap-2">`;
             nodesHtml += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> < </button>`;
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    nodesHtml += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`;
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    nodesHtml += `<span class="px-1 text-slate-400">...</span>`;
-                }
-            }
-            nodesHtml += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> > </button>`;
-            nodesHtml += `</div>`;
-
-            let jumpHtml = `
-                <div class="go-to-page-container">
-                    <span class="go-to-page-label">Trang</span>
-                    <input type="number" id="goToPageInput" class="go-to-page-input" min="1" max="${totalPages}" value="${currentPage}">
-                    <button onclick="jumpToPage(document.getElementById('goToPageInput').value)" class="go-btn">Go</button>
-                </div>
-            `;
-            
+            for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { nodesHtml += `<button onclick="changePage(${i})" class="w-10 h-10 page-node border border-slate-200 ${i === currentPage ? 'active' : 'bg-white'}">${i}</button>`; } else if (i === currentPage - 2 || i === currentPage + 2) { nodesHtml += `<span class="px-1 text-slate-400">...</span>`; } }
+            nodesHtml += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 page-node bg-white border border-slate-200 disabled:opacity-30"> > </button></div>`;
+            let jumpHtml = `<div class="go-to-page-container"><span class="go-to-page-label">Trang</span><input type="number" id="goToPageInput" class="go-to-page-input" min="1" max="${totalPages}" value="${currentPage}"><button onclick="jumpToPage(document.getElementById('goToPageInput').value)" class="go-btn">Go</button></div>`;
             pagination.innerHTML = nodesHtml + jumpHtml;
         }
 
-        function jumpToPage(val) {
-            const page = parseInt(val);
-            const totalPages = Math.ceil(allData.length / PAGE_SIZE);
-            if (page >= 1 && page <= totalPages) { changePage(page); } else { document.getElementById('goToPageInput').value = currentPage; }
-        }
-
+        function jumpToPage(val) { const page = parseInt(val); const totalPages = Math.ceil(allData.length / PAGE_SIZE); if (page >= 1 && page <= totalPages) { changePage(page); } else { document.getElementById('goToPageInput').value = currentPage; } }
         function changePage(page) { if (page < 1 || page > Math.ceil(allData.length / PAGE_SIZE)) return; currentPage = page; render(); window.scrollTo({top: 400, behavior: 'smooth'}); }
-
         function openLightbox(index) {
             currentIndex = index;
             const p = allData[currentIndex];
