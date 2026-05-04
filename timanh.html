@@ -600,7 +600,7 @@
         let labelInterval;
         let isAlmostDone = false;
 
-        const loadingTexts = ["Đang đồng bộ dữ liệu từ Drive", "Đề nghị bạn chạy giữ đều pace", "Còn 500m nữa về đích"];
+        const loadingTexts = ["Đang đồng bộ dữ liệu từ Drive", "Đề nghị bạn chạy giữ đều pace", "Cố nhên, sắp tới rồi, sắp tới rồi", "Còn 500m nữa về đích"];
 
         function startPaceEffect() {
             const paceEl = document.getElementById('paceLoad');
@@ -684,7 +684,7 @@
                 
                 isAlmostDone = true;
                 clearInterval(labelInterval);
-                syncEl.innerText = "VỀ ĐÍCH RỒI";
+                syncEl.innerText = "FINISHER";
                 syncEl.style.color = "#10b981"; 
                 
                 setTimeout(() => {
