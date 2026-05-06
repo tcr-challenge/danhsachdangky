@@ -212,7 +212,8 @@
                 <input type="text" id="searchInput" 
                     placeholder="Tìm ẢNH theo BIB hoặc Tên của bạn..." 
                     class="flex-1 p-4 bg-transparent text-slate-800 outline-none text-lg text-center placeholder:text-slate-400" 
-                    oninput="debounceSearch()">
+                    oninput="debounceSearch(); updateSearchStyle(this)"
+                    style="transition: font-size 0.2s ease, font-weight 0.2s ease, color 0.2s ease;">
             </div>
             
             <div class="flex justify-center mt-3">
@@ -314,7 +315,7 @@
         </div>
 		</div>
         <div class="max-w-6xl mx-auto border-t border-slate-700 mt-12 pt-8 text-center text-xs tracking-widest uppercase opacity-50">
-            © 2026 THUONG CAT RUNNERS (TCR) - Powerd by Artificial Intelligenc
+            © 2026 THUONG CAT RUNNERS (TCR) - Powered by Artificial Intelligence
         </div>
     </footer>
 
@@ -412,15 +413,31 @@
             searchTimeout = setTimeout(() => startSearch(), 500);
         }
 
+        function updateSearchStyle(input) {
+            if (input.value.trim() !== "") {
+                input.style.fontSize = "22px";
+                input.style.fontWeight = "900";
+                input.style.color = "#ef4444";
+            } else {
+                input.style.fontSize = "";
+                input.style.fontWeight = "";
+                input.style.color = "";
+            }
+        }
+
         function goHome() {
             const tabs = document.querySelectorAll('.category-tab');
             tabs.forEach(t => t.classList.remove('active'));
-            document.getElementById('searchInput').value = "";
+            const inp = document.getElementById('searchInput');
+            inp.value = "";
+            updateSearchStyle(inp);
             startSearch("");
         }
 
         async function filterByCategory(folderName, btn) {
-            document.getElementById('searchInput').value = "";
+            const inp = document.getElementById('searchInput');
+            inp.value = "";
+            updateSearchStyle(inp);
             const tabs = document.querySelectorAll('.category-tab');
             tabs.forEach(t => t.classList.remove('active'));
             btn.classList.add('active');
@@ -485,7 +502,7 @@
             const currentItems = allData.slice(start, start + PAGE_SIZE);
             grid.innerHTML = currentItems.map((p, index) => {
                 const globalIndex = start + index;
-                return `<div class="photo-card cursor-pointer" onclick="openLightbox(${globalIndex})"><img src="https://lh3.googleusercontent.com/d/${p.id}=s300-rw" loading="lazy"></div>`;
+                return `<div class="photo-card cursor-pointer" onclick="openLightbox(${globalIndex})"><img src="https://lh3.googleusercontent.com/d/${p.id}=s600" loading="lazy"></div>`;
             }).join('');
             updatePaginationUI();
         }
@@ -522,7 +539,7 @@
 
         function renderGalleryThumbs() {
             const container = document.getElementById('galleryThumbs');
-            container.innerHTML = allData.map((p, idx) => `<img src="https://lh3.googleusercontent.com/d/${p.id}=s100-rw" class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-40'}" onclick="openLightbox(${idx})">`).join('');
+            container.innerHTML = allData.map((p, idx) => `<img src="https://lh3.googleusercontent.com/d/${p.id}=s100" class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl cursor-pointer flex-shrink-0 transition-all ${idx === currentIndex ? 'thumb-active' : 'opacity-40'}" onclick="openLightbox(${idx})">`).join('');
             const activeThumb = container.children[currentIndex];
             if(activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
