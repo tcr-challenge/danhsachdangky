@@ -164,6 +164,38 @@
         .face-db-status { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 8px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
         .loader { border-top-color: #f97316; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== COMMENT SECTION ===== */
+        .comment-section { background: white; border-radius: 2rem; padding: 32px; margin-top: 50px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 860px; margin-left: auto; margin-right: auto; }
+        .comment-title { font-size: 18px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .comment-form { background: #f8fafc; border-radius: 1.2rem; padding: 20px; margin-bottom: 24px; border: 1px solid #e2e8f0; }
+        .comment-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        @media (max-width: 640px) { .comment-input-row { grid-template-columns: 1fr; } }
+        .comment-input { width: 100%; padding: 10px 16px; border-radius: 12px; border: 2px solid #e2e8f0; font-size: 14px; font-weight: 600; color: #1e293b; outline: none; background: white; transition: border-color 0.2s; box-sizing: border-box; }
+        .comment-input:focus { border-color: #ef4444; }
+        .comment-textarea { width: 100%; padding: 12px 16px; border-radius: 12px; border: 2px solid #e2e8f0; font-size: 14px; font-weight: 500; color: #1e293b; outline: none; background: white; transition: border-color 0.2s; resize: vertical; min-height: 80px; box-sizing: border-box; font-family: var(--fb-font); }
+        .comment-textarea:focus { border-color: #ef4444; }
+        .comment-submit-btn { background: #ef4444; color: white; font-weight: 900; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; border: none; padding: 12px 28px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(239,68,68,0.3); margin-top: 12px; }
+        .comment-submit-btn:hover:not(:disabled) { background: #dc2626; transform: translateY(-2px); }
+        .comment-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .comment-msg { font-size: 13px; font-weight: 700; margin-top: 10px; min-height: 20px; }
+        .comment-list { display: flex; flex-direction: column; gap: 14px; }
+        .comment-item { background: #f8fafc; border-radius: 1.2rem; padding: 16px; border: 1px solid #e2e8f0; }
+        .comment-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .comment-avatar { width: 38px; height: 38px; background: linear-gradient(135deg, #ef4444, #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 15px; flex-shrink: 0; }
+        .comment-author { font-size: 14px; font-weight: 900; color: #1e293b; }
+        .comment-club { font-size: 11px; font-weight: 700; color: #ef4444; text-transform: uppercase; background: #fff1f2; padding: 2px 8px; border-radius: 20px; }
+        .comment-time { font-size: 11px; color: #94a3b8; font-weight: 600; margin-left: auto; }
+        .comment-body { font-size: 14px; color: #334155; line-height: 1.6; font-weight: 500; }
+        .comment-empty { text-align: center; color: #94a3b8; font-size: 13px; font-weight: 700; padding: 20px; }
+        .comment-load-more { text-align: center; margin-top: 16px; }
+        .comment-load-more-btn { background: white; border: 2px solid #e2e8f0; color: #475569; font-weight: 800; font-size: 12px; text-transform: uppercase; padding: 8px 24px; border-radius: 50px; cursor: pointer; transition: all 0.2s; }
+        .comment-load-more-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+        /* ===== LIVE STATS ANIMATION ===== */
+        .stat-value { transition: all 0.4s ease; }
+        .stat-pulse { animation: statPulse 0.5s ease; }
+        @keyframes statPulse { 0%,100% { transform: scale(1); color: #fbbf24; } 50% { transform: scale(1.25); color: #f97316; } }
     </style>
 </head>
 <body class="min-h-screen text-slate-900 leading-tight">
@@ -279,6 +311,38 @@
         
         <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4"></div>
         <div id="pagination" class="mt-16 flex flex-col items-center gap-6 hidden"></div>
+    </div>
+
+    <!-- ===== BÌNH LUẬN ===== -->
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="comment-section">
+            <div class="comment-title">
+                <i class="fa-solid fa-comments text-red-500"></i>
+                Để lại cảm xúc của bạn
+                <span id="commentCountBadge" class="bg-red-100 text-red-600 text-xs font-black px-3 py-1 rounded-full ml-auto"></span>
+            </div>
+            <div class="comment-form">
+                <div class="comment-input-row">
+                    <input type="text" id="cmtName" class="comment-input" placeholder="Họ tên của bạn *" maxlength="60">
+                    <input type="text" id="cmtClub" class="comment-input" placeholder="Câu lạc bộ (nếu có)" maxlength="80">
+                </div>
+                <textarea id="cmtText" class="comment-textarea" placeholder="Chia sẻ cảm xúc sau giải đấu... 🏃" maxlength="500"></textarea>
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <button class="comment-submit-btn" id="cmtSubmitBtn" onclick="submitComment()">
+                        <i class="fa-solid fa-paper-plane"></i> GỬI BÌNH LUẬN
+                    </button>
+                    <span id="cmtMsg" class="comment-msg"></span>
+                </div>
+            </div>
+            <div id="commentList" class="comment-list">
+                <div class="comment-empty"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải bình luận...</div>
+            </div>
+            <div class="comment-load-more" id="commentLoadMore" style="display:none;">
+                <button class="comment-load-more-btn" onclick="loadMoreComments()">
+                    <i class="fa-solid fa-chevron-down mr-1"></i> Xem thêm bình luận
+                </button>
+            </div>
+        </div>
     </div>
 
     <footer class="main-footer">
@@ -598,6 +662,109 @@
         function handleFaceFile(input) { if (!input.files || !input.files[0]) return; selectedFaceFile = input.files[0]; showFacePreview(selectedFaceFile); }
         function handleFaceDrop(e) { e.preventDefault(); document.getElementById('faceUploadZone').classList.remove('drag-over'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { selectedFaceFile = file; showFacePreview(file); } }
         function showFacePreview(file) { const reader = new FileReader(); reader.onload = (e) => { const preview = document.getElementById('facePreview'); preview.src = e.target.result; preview.style.display = 'block'; document.getElementById('faceUploadHint').style.display = 'none'; if (faceMatcher) document.getElementById('faceFindBtn').disabled = false; }; reader.readAsDataURL(file); }
+
+        // ===== LIVE STATS với animation =====
+        let _lastVisit = null, _lastOnline = null;
+        const _origFetchStats = fetchStats;
+        async function fetchStats() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getCount`);
+                const data = await response.json();
+                if (data.visitCount !== undefined) {
+                    const vEl = document.getElementById('visitCount');
+                    const oEl = document.getElementById('onlineCount');
+                    const newV = data.visitCount.toLocaleString();
+                    const newO = data.onlineCount;
+                    if (_lastVisit !== null && newV !== _lastVisit) { vEl.classList.remove('stat-pulse'); void vEl.offsetWidth; vEl.classList.add('stat-pulse'); }
+                    if (_lastOnline !== null && newO !== _lastOnline) { oEl.classList.remove('stat-pulse'); void oEl.offsetWidth; oEl.classList.add('stat-pulse'); }
+                    vEl.innerText = newV;
+                    oEl.innerText = newO;
+                    _lastVisit = newV; _lastOnline = newO;
+                }
+            } catch (error) { console.error("Lỗi cập nhật thống kê:", error); }
+        }
+
+        // ===== COMMENT SYSTEM =====
+        const CMT_PAGE_SIZE = 10;
+        let cmtAllLoaded = [];
+        let cmtShowCount = CMT_PAGE_SIZE;
+
+        async function loadComments() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getComments`);
+                const data = await res.json();
+                cmtAllLoaded = Array.isArray(data) ? data : [];
+                cmtShowCount = CMT_PAGE_SIZE;
+                renderComments();
+            } catch(e) {
+                document.getElementById('commentList').innerHTML = '<div class="comment-empty">Không thể tải bình luận. Vui lòng thử lại.</div>';
+            }
+        }
+
+        function renderComments() {
+            const list = document.getElementById('commentList');
+            const badge = document.getElementById('commentCountBadge');
+            const loadMore = document.getElementById('commentLoadMore');
+            const total = cmtAllLoaded.length;
+            badge.textContent = total > 0 ? `${total} bình luận` : '';
+            if (total === 0) {
+                list.innerHTML = '<div class="comment-empty">Chưa có bình luận nào. Hãy là người đầu tiên! 🎉</div>';
+                loadMore.style.display = 'none'; return;
+            }
+            const toShow = cmtAllLoaded.slice(0, cmtShowCount);
+            list.innerHTML = toShow.map(c => {
+                const initial = (c.name || '?')[0].toUpperCase();
+                const club = c.club ? `<span class="comment-club">${escHtml(c.club)}</span>` : '';
+                const time = c.time ? `<span class="comment-time">${escHtml(c.time)}</span>` : '';
+                return `<div class="comment-item">
+                    <div class="comment-item-header">
+                        <div class="comment-avatar">${initial}</div>
+                        <div><div class="comment-author">${escHtml(c.name || 'Ẩn danh')}</div>${club}</div>
+                        ${time}
+                    </div>
+                    <div class="comment-body">${escHtml(c.comment || '')}</div>
+                </div>`;
+            }).join('');
+            loadMore.style.display = cmtShowCount < total ? 'block' : 'none';
+        }
+
+        function loadMoreComments() { cmtShowCount += CMT_PAGE_SIZE; renderComments(); }
+
+        function escHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        async function submitComment() {
+            const name = document.getElementById('cmtName').value.trim();
+            const club = document.getElementById('cmtClub').value.trim();
+            const comment = document.getElementById('cmtText').value.trim();
+            const msgEl = document.getElementById('cmtMsg');
+            const btn = document.getElementById('cmtSubmitBtn');
+            if (!name) { msgEl.style.color = '#ef4444'; msgEl.textContent = '⚠️ Vui lòng nhập họ tên.'; return; }
+            if (!comment) { msgEl.style.color = '#ef4444'; msgEl.textContent = '⚠️ Vui lòng nhập nội dung.'; return; }
+            btn.disabled = true;
+            msgEl.style.color = '#64748b';
+            msgEl.textContent = '⏳ Đang gửi...';
+            try {
+                const params = new URLSearchParams({ action: 'addComment', name, club, comment });
+                const res = await fetch(`${SCRIPT_URL}?${params.toString()}`);
+                const data = await res.json();
+                if (data.success) {
+                    msgEl.style.color = '#10b981';
+                    msgEl.textContent = '✅ Cảm ơn bạn đã để lại bình luận!';
+                    document.getElementById('cmtName').value = '';
+                    document.getElementById('cmtClub').value = '';
+                    document.getElementById('cmtText').value = '';
+                    setTimeout(() => { msgEl.textContent = ''; }, 3000);
+                    loadComments();
+                } else { throw new Error(data.error || 'Lỗi'); }
+            } catch(e) {
+                msgEl.style.color = '#ef4444';
+                msgEl.textContent = '❌ Gửi thất bại. Kiểm tra kết nối mạng.';
+            }
+            btn.disabled = false;
+        }
+
+        // Load bình luận khi trang mở
+        window.addEventListener('DOMContentLoaded', () => { loadComments(); setInterval(loadComments, 60000); });
 
         async function runFaceSearch() {
             if (!selectedFaceFile || !faceMatcher) return;
