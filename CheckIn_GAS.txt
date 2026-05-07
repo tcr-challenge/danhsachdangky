@@ -1,0 +1,242 @@
+// ============================================================
+// GAS CHECK-IN SYSTEM — BƯỚC CHÂN DI SẢN 2026
+// Thêm vào file GAS hiện tại hoặc tạo project mới
+// ============================================================
+
+// ID Sheet danh sách VĐV (dùng chung với hệ thống tìm ảnh)
+const SHEET_ID_VDV   = '1uCGoHoHT-BCZ1K7mWEXR6upFk3CI6pkmKaC8YJw5sk8';
+
+// ID 2 Drive ảnh (giữ nguyên từ hệ thống cũ)
+const DRIVE_1_ID     = '1yiT46xvXiNklsoSmi-bNSZ0ucvciKncR';
+const DRIVE_2_ID     = '101SAfaIl2_j_U0XZPoUmANDGnWztJxjc';
+
+
+// ============================================================
+// HÀM CHÍNH
+// ============================================================
+function doGet(e) {
+  var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "";
+  var bib    = (e && e.parameter && e.parameter.bib)    ? e.parameter.bib.trim() : "";
+
+  // Cho phép CORS
+  var output;
+
+  switch(action) {
+
+    // Support nhập BIB → lưu vào Sheet CheckIn + trả về thông tin VĐV + ảnh
+    case "checkin":
+      output = doCheckIn(bib);
+      break;
+
+    // Màn hình chiếu poll để lấy VĐV mới nhất
+    case "getLatest":
+      output = getLatestCheckIn();
+      break;
+
+    // Lấy lịch sử check-in (dùng cho support xem lại)
+    case "getHistory":
+      output = getHistory();
+      break;
+
+    // Xoá VĐV hiện tại khỏi màn hình (support bấm sau khi VĐV xong)
+    case "clear":
+      output = clearDisplay();
+      break;
+
+    default:
+      output = { error: "Action không hợp lệ" };
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(output))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+// ============================================================
+// CHECK-IN: Tìm VĐV + Ảnh + Lưu Sheet
+// ============================================================
+function doCheckIn(bib) {
+  if (!bib) return { error: "Thiếu BIB" };
+
+  // 1. Tra thông tin VĐV từ Sheet
+  var vdvInfo = findVDV(bib);
+
+  // 2. Tìm ảnh từ Drive theo BIB
+  var photos = findPhotosByBib(vdvInfo.bib || bib);
+
+  // 3. Lưu vào Sheet CheckIn
+  saveCheckIn(vdvInfo, photos);
+
+  return {
+    success: true,
+    bib:     vdvInfo.bib     || bib,
+    name:    vdvInfo.name    || "Chưa cập nhật",
+    club:    vdvInfo.club    || "Chưa cập nhật",
+    photos:  photos.slice(0, 12), // Tối đa 12 ảnh cho màn hình chiếu
+    time:    new Date().toLocaleTimeString('vi-VN'),
+    total:   photos.length
+  };
+}
+
+
+// ============================================================
+// TÌM VĐV TRONG SHEET
+// ============================================================
+function findVDV(bib) {
+  try {
+    var ss   = SpreadsheetApp.openById(SHEET_ID_VDV);
+    var data = ss.getSheets()[0].getDataRange().getValues();
+    var sk   = bib.toLowerCase().trim();
+
+    for (var i = 1; i < data.length; i++) {
+      var bibInSheet  = (data[i][0] || "").toString().toLowerCase().trim();
+      var nameInSheet = (data[i][1] || "").toString().toLowerCase();
+      if (bibInSheet === sk || nameInSheet.includes(sk)) {
+        return {
+          bib:  data[i][0].toString(),
+          name: data[i][1].toString(),
+          club: data[i][2].toString()
+        };
+      }
+    }
+  } catch(e) {}
+  return { bib: bib, name: "Chưa cập nhật", club: "Chưa cập nhật" };
+}
+
+
+// ============================================================
+// TÌM ẢNH THEO BIB TRÊN DRIVE
+// ============================================================
+function findPhotosByBib(bib) {
+  var photos  = [];
+  var driveIds = [DRIVE_1_ID, DRIVE_2_ID];
+
+  driveIds.forEach(function(driveId) {
+    try {
+      var root    = DriveApp.getFolderById(driveId);
+      var folders = root.getFoldersByName(bib);
+      while (folders.hasNext()) {
+        var folder = folders.next();
+        var files  = folder.getFiles();
+        while (files.hasNext()) {
+          var f = files.next();
+          photos.push({ id: f.getId(), name: f.getName() });
+        }
+      }
+    } catch(e) {}
+  });
+
+  return photos;
+}
+
+
+// ============================================================
+// LƯU CHECK-IN VÀO SHEET "CheckIn"
+// ============================================================
+function saveCheckIn(vdvInfo, photos) {
+  try {
+    var ss    = SpreadsheetApp.openById(SHEET_ID_VDV);
+    var sheet = ss.getSheetByName("CheckIn") || ss.insertSheet("CheckIn");
+
+    // Tạo header nếu chưa có
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["Thời gian", "BIB", "Họ tên", "CLB", "Số ảnh", "Trạng thái"]);
+      sheet.getRange(1, 1, 1, 6).setFontWeight("bold").setBackground("#ef4444").setFontColor("white");
+    }
+
+    // Ghi dòng mới nhất vào hàng 2 (luôn ở đầu để getLatest lấy nhanh)
+    // Đồng thời lưu JSON đầy đủ vào ô G2 để getLatest đọc
+    var timeStr = new Date().toLocaleString('vi-VN');
+    sheet.insertRowAfter(1);
+    sheet.getRange(2, 1, 1, 6).setValues([[
+      timeStr,
+      vdvInfo.bib  || "",
+      vdvInfo.name || "",
+      vdvInfo.club || "",
+      photos.length,
+      "checked-in"
+    ]]);
+
+    // Lưu full JSON vào cột G (ẩn) để getLatest đọc nhanh
+    var payload = JSON.stringify({
+      bib:    vdvInfo.bib  || "",
+      name:   vdvInfo.name || "",
+      club:   vdvInfo.club || "",
+      photos: photos.slice(0, 12),
+      time:   timeStr,
+      total:  photos.length,
+      cleared: false
+    });
+    sheet.getRange(2, 7).setValue(payload);
+
+  } catch(e) {}
+}
+
+
+// ============================================================
+// LẤY VĐV MỚI NHẤT (Màn hình chiếu poll)
+// ============================================================
+function getLatestCheckIn() {
+  try {
+    var ss    = SpreadsheetApp.openById(SHEET_ID_VDV);
+    var sheet = ss.getSheetByName("CheckIn");
+    if (!sheet || sheet.getLastRow() < 2) return { empty: true };
+
+    var payload = sheet.getRange(2, 7).getValue();
+    if (!payload) return { empty: true };
+
+    return JSON.parse(payload);
+  } catch(e) {
+    return { error: e.message };
+  }
+}
+
+
+// ============================================================
+// XOÁ MÀN HÌNH CHIẾU (Support bấm "Xong")
+// ============================================================
+function clearDisplay() {
+  try {
+    var ss    = SpreadsheetApp.openById(SHEET_ID_VDV);
+    var sheet = ss.getSheetByName("CheckIn");
+    if (!sheet || sheet.getLastRow() < 2) return { success: true };
+
+    var payload = sheet.getRange(2, 7).getValue();
+    if (payload) {
+      var data    = JSON.parse(payload);
+      data.cleared = true;
+      sheet.getRange(2, 7).setValue(JSON.stringify(data));
+    }
+    return { success: true };
+  } catch(e) {
+    return { error: e.message };
+  }
+}
+
+
+// ============================================================
+// LỊCH SỬ CHECK-IN
+// ============================================================
+function getHistory() {
+  try {
+    var ss    = SpreadsheetApp.openById(SHEET_ID_VDV);
+    var sheet = ss.getSheetByName("CheckIn");
+    if (!sheet || sheet.getLastRow() < 2) return { history: [] };
+
+    var data    = sheet.getDataRange().getValues();
+    var history = [];
+    for (var i = 1; i < Math.min(data.length, 51); i++) { // Tối đa 50 dòng gần nhất
+      history.push({
+        time:  data[i][0],
+        bib:   data[i][1],
+        name:  data[i][2],
+        club:  data[i][3],
+        total: data[i][4]
+      });
+    }
+    return { history: history };
+  } catch(e) {
+    return { history: [] };
+  }
+}

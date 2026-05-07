@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bước Chân Di Sản 2026 — Check-in</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red:    #dc2626;
+            --gold:   #d97706;
+            --dark:   #080808;
+            --card:   #111;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: var(--dark);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== IDLE SCREEN ===== */
+        #idleScreen {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: var(--dark);
+            transition: opacity 0.6s;
+            z-index: 10;
+        }
+        #idleScreen.hidden { opacity: 0; pointer-events: none; }
+
+        .idle-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(48px, 8vw, 96px);
+            letter-spacing: 6px;
+            line-height: 1;
+            text-align: center;
+        }
+        .idle-title .red  { color: var(--red); }
+        .idle-title .gold { color: var(--gold); }
+        .idle-sub {
+            font-size: clamp(14px, 2vw, 20px);
+            color: #555; letter-spacing: 4px; text-transform: uppercase;
+            margin-top: 16px; font-weight: 600;
+        }
+        .idle-pulse {
+            margin-top: 48px; display: flex; gap: 8px; align-items: center;
+        }
+        .idle-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+            animation: idlePulse 1.5s ease-in-out infinite;
+        }
+        .idle-dot:nth-child(2) { animation-delay: 0.3s; }
+        .idle-dot:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes idlePulse { 0%,100%{opacity:0.2;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+
+        /* Animated lines background */
+        .bg-lines {
+            position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
+        }
+        .bg-line {
+            position: absolute; height: 1px; background: linear-gradient(90deg, transparent, #222, transparent);
+            width: 100%; animation: lineSweep 4s ease-in-out infinite;
+        }
+        .bg-line:nth-child(1) { top: 20%; animation-delay: 0s; }
+        .bg-line:nth-child(2) { top: 50%; animation-delay: 1.3s; }
+        .bg-line:nth-child(3) { top: 80%; animation-delay: 2.6s; }
+        @keyframes lineSweep { 0%,100%{opacity:0;transform:scaleX(0)} 50%{opacity:1;transform:scaleX(1)} }
+
+        /* ===== CHECKIN SCREEN ===== */
+        #checkinScreen {
+            position: absolute; inset: 0;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.5s;
+            display: flex; flex-direction: column;
+        }
+        #checkinScreen.show { opacity: 1; pointer-events: all; }
+
+        /* TOP BAR */
+        .top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 32px;
+            background: #0d0d0d;
+            border-bottom: 2px solid var(--red);
+            flex-shrink: 0;
+        }
+        .top-event {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px; letter-spacing: 3px; color: var(--red);
+        }
+        .top-checkin-label {
+            font-size: 11px; font-weight: 700; letter-spacing: 3px;
+            text-transform: uppercase; color: #444;
+        }
+        .top-time {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px; letter-spacing: 2px; color: #333;
+        }
+
+        /* MAIN CONTENT */
+        .checkin-content {
+            flex: 1; display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+        }
+
+        /* LEFT — VĐV INFO */
+        .vdv-info {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 40px 48px;
+            background: linear-gradient(135deg, #0d0d0d 0%, #111 100%);
+            border-right: 1px solid #1a1a1a;
+            position: relative; overflow: hidden;
+        }
+
+        /* Decorative BIB watermark */
+        .bib-watermark {
+            position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 280px; color: rgba(220,38,38,0.04);
+            letter-spacing: -10px; pointer-events: none; user-select: none;
+            line-height: 1;
+        }
+
+        .checkin-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3);
+            border-radius: 4px; padding: 6px 14px; margin-bottom: 24px;
+            width: fit-content;
+        }
+        .checkin-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: idlePulse 1s infinite; }
+        .checkin-badge-text { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
+
+        .vdv-bib {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(80px, 12vw, 140px);
+            letter-spacing: 8px; color: var(--red);
+            line-height: 1; margin-bottom: 4px;
+            animation: bibSlide 0.5s ease-out;
+        }
+        @keyframes bibSlide { from{opacity:0;transform:translateX(-30px)} to{opacity:1;transform:translateX(0)} }
+
+        .vdv-name {
+            font-size: clamp(28px, 4vw, 52px);
+            font-weight: 900; line-height: 1.1;
+            color: white; margin-bottom: 12px;
+            animation: bibSlide 0.5s ease-out 0.1s both;
+        }
+        .vdv-club {
+            font-size: clamp(14px, 1.8vw, 22px);
+            font-weight: 600; color: #555;
+            letter-spacing: 1px; text-transform: uppercase;
+            animation: bibSlide 0.5s ease-out 0.2s both;
+        }
+
+        .vdv-divider {
+            width: 60px; height: 3px; background: var(--red);
+            margin: 20px 0; border-radius: 2px;
+            animation: bibSlide 0.5s ease-out 0.15s both;
+        }
+
+        .vdv-meta {
+            display: flex; gap: 12px; margin-top: 24px;
+            animation: bibSlide 0.5s ease-out 0.25s both;
+        }
+        .vdv-meta-chip {
+            padding: 6px 14px; border-radius: 4px;
+            font-size: 12px; font-weight: 700; letter-spacing: 1px;
+            background: #1a1a1a; color: #555; text-transform: uppercase;
+        }
+        .vdv-meta-chip.highlight { background: rgba(220,38,38,0.1); color: var(--red); }
+
+        /* RIGHT — PHOTOS */
+        .vdv-photos {
+            background: #0a0a0a;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        .photos-header {
+            padding: 16px 20px; border-bottom: 1px solid #1a1a1a;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .photos-header-label {
+            font-size: 11px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: #333;
+        }
+        .photos-count {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px; color: var(--red); letter-spacing: 2px;
+        }
+
+        .photos-grid {
+            flex: 1; overflow-y: auto; padding: 16px;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; align-content: start;
+        }
+        .photos-grid::-webkit-scrollbar { width: 4px; }
+        .photos-grid::-webkit-scrollbar-track { background: #0a0a0a; }
+        .photos-grid::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+        .photo-item {
+            aspect-ratio: 1; overflow: hidden; border-radius: 6px;
+            border: 1px solid #1a1a1a; cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            animation: photoFade 0.4s ease-out both;
+        }
+        .photo-item:hover { transform: scale(1.03); border-color: var(--red); }
+        .photo-item img {
+            width: 100%; height: 100%; object-fit: cover;
+            display: block;
+        }
+        @keyframes photoFade { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+
+        .no-photos {
+            grid-column: span 3; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 200px;
+            color: #333; font-size: 14px; gap: 8px;
+        }
+        .no-photos-icon { font-size: 48px; }
+
+        /* BOTTOM BAR */
+        .bottom-bar {
+            padding: 10px 32px; background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .bottom-welcome {
+            font-size: 13px; color: #333; font-weight: 600; letter-spacing: 1px;
+        }
+        .bottom-welcome span { color: var(--gold); }
+        .bottom-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 16px; letter-spacing: 3px; color: #222;
+        }
+
+        /* LIGHTBOX */
+        #lightbox {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.95); z-index: 100;
+            align-items: center; justify-content: center;
+            cursor: zoom-out;
+        }
+        #lightbox.show { display: flex; }
+        #lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+
+        /* CONFIG overlay */
+        #configPanel {
+            position: fixed; bottom: 16px; right: 16px;
+            background: #111; border: 1px solid #222; border-radius: 10px;
+            padding: 16px; width: 320px; z-index: 50;
+            display: none;
+        }
+        #configPanel.show { display: block; }
+        .config-input {
+            width: 100%; background: #0a0a0a; border: 1px solid #222;
+            border-radius: 6px; padding: 8px 12px; color: white;
+            font-size: 12px; font-family: monospace; outline: none; margin-top: 6px;
+        }
+        .config-input:focus { border-color: var(--red); }
+        .config-save {
+            margin-top: 10px; width: 100%; padding: 8px; background: var(--red);
+            border: none; border-radius: 6px; color: white;
+            font-weight: 700; font-size: 12px; cursor: pointer; letter-spacing: 1px;
+        }
+
+        /* Keyboard shortcut hint */
+        .hint { position: fixed; bottom: 8px; left: 8px; font-size: 10px; color: #1a1a1a; z-index: 1; }
+    </style>
+</head>
+<body>
+
+<!-- IDLE SCREEN -->
+<div id="idleScreen">
+    <div class="bg-lines">
+        <div class="bg-line"></div>
+        <div class="bg-line"></div>
+        <div class="bg-line"></div>
+    </div>
+    <div style="position:relative;z-index:1;text-align:center;">
+        <div class="idle-title">
+            <div>BƯỚC CHÂN</div>
+            <div class="red">DI SẢN</div>
+            <div class="gold">2026</div>
+        </div>
+        <div class="idle-sub">Hệ thống Check-in vận động viên</div>
+        <div class="idle-pulse">
+            <div class="idle-dot"></div>
+            <div class="idle-dot"></div>
+            <div class="idle-dot"></div>
+        </div>
+    </div>
+</div>
+
+<!-- CHECKIN SCREEN -->
+<div id="checkinScreen">
+
+    <div class="top-bar">
+        <div class="top-event">BƯỚC CHÂN DI SẢN 2026</div>
+        <div class="top-checkin-label">CHECK-IN VẬN ĐỘNG VIÊN</div>
+        <div class="top-time" id="clock">--:--:--</div>
+    </div>
+
+    <div class="checkin-content">
+
+        <!-- LEFT: VĐV INFO -->
+        <div class="vdv-info">
+            <div class="bib-watermark" id="bibWatermark">0000</div>
+
+            <div class="checkin-badge">
+                <div class="checkin-badge-dot"></div>
+                <div class="checkin-badge-text">Check-in thành công</div>
+            </div>
+
+            <div class="vdv-bib"  id="dispBib">0000</div>
+            <div class="vdv-name" id="dispName">Họ và tên</div>
+            <div class="vdv-divider"></div>
+            <div class="vdv-club" id="dispClub">Câu lạc bộ</div>
+
+            <div class="vdv-meta">
+                <div class="vdv-meta-chip highlight" id="dispPhotoCount">0 ảnh</div>
+                <div class="vdv-meta-chip" id="dispTime">--:--</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: PHOTOS -->
+        <div class="vdv-photos">
+            <div class="photos-header">
+                <div class="photos-header-label">Ảnh thi đấu</div>
+                <div class="photos-count" id="photoHeaderCount">0 ảnh</div>
+            </div>
+            <div class="photos-grid" id="photosGrid">
+                <div class="no-photos">
+                    <div class="no-photos-icon">📷</div>
+                    <div>Đang tải ảnh...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-bar">
+        <div class="bottom-welcome">Chào mừng <span id="dispNameShort">bạn</span> đến với giải chạy!</div>
+        <div class="bottom-logo">BƯỚC CHÂN DI SẢN 2026</div>
+    </div>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- CONFIG -->
+<div id="configPanel">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;margin-bottom:8px;">⚙️ Cấu hình</div>
+    <label style="font-size:11px;color:#444;">GAS URL</label>
+    <input type="text" class="config-input" id="gasUrlDisplay" placeholder="https://script.google.com/macros/s/AKfycbx92k3TKPz9BAw36Q7NMQOhwQMQaEWevDoIDjlwqH2VfgHz9Z1y1dClF_JThtbabyizIQ/exec">
+    <button class="config-save" onclick="saveConfig()">LƯU & KẾT NỐI</button>
+</div>
+
+<div class="hint">Nhấn G để cấu hình · F để fullscreen</div>
+
+<script>
+    // ===== CONFIG =====
+    let GAS_URL = localStorage.getItem('display_gas_url') || '';
+    let currentData  = null;
+    let lastBib      = null;
+    let pollInterval = null;
+
+    // ===== CLOCK =====
+    function updateClock() {
+        document.getElementById('clock').textContent =
+            new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ===== POLL GAS =====
+    function startPolling() {
+        if (pollInterval) clearInterval(pollInterval);
+        if (!GAS_URL) return;
+        pollInterval = setInterval(fetchLatest, 2000);
+        fetchLatest(); // Ngay lập tức
+    }
+
+    async function fetchLatest() {
+        if (!GAS_URL) return;
+        try {
+            const res  = await fetch(`${GAS_URL}?action=getLatest&t=${Date.now()}`);
+            const data = await res.json();
+
+            if (data.empty || data.error) {
+                // Không có dữ liệu mới → về idle
+                return;
+            }
+
+            if (data.cleared) {
+                // Support đã bấm xoá
+                showIdle();
+                lastBib = null;
+                return;
+            }
+
+            // Có dữ liệu mới — chỉ update nếu BIB khác
+            if (data.bib !== lastBib) {
+                lastBib = data.bib;
+                showCheckin(data);
+            }
+
+        } catch(e) {}
+    }
+
+    // ===== SHOW CHECKIN =====
+    function showCheckin(data) {
+        // Điền thông tin VĐV
+        document.getElementById('dispBib').textContent      = data.bib  || '----';
+        document.getElementById('bibWatermark').textContent = data.bib  || '----';
+        document.getElementById('dispName').textContent     = data.name || 'Chưa cập nhật';
+        document.getElementById('dispClub').textContent     = data.club || 'Chưa cập nhật';
+        document.getElementById('dispTime').textContent     = data.time || '--:--';
+        document.getElementById('dispNameShort').textContent = (data.name || 'bạn').split(' ').pop();
+        document.getElementById('dispPhotoCount').textContent = `${data.photos?.length || 0} ảnh`;
+        document.getElementById('photoHeaderCount').textContent = `${data.total || 0} ảnh`;
+
+        // Render ảnh
+        renderPhotos(data.photos || []);
+
+        // Hiện màn hình check-in
+        document.getElementById('idleScreen').classList.add('hidden');
+        document.getElementById('checkinScreen').classList.add('show');
+    }
+
+    // ===== RENDER PHOTOS =====
+    function renderPhotos(photos) {
+        const grid = document.getElementById('photosGrid');
+        if (!photos || photos.length === 0) {
+            grid.innerHTML = `
+                <div class="no-photos">
+                    <div class="no-photos-icon">📷</div>
+                    <div>Chưa có ảnh trong kho</div>
+                </div>`;
+            return;
+        }
+
+        grid.innerHTML = photos.map((p, idx) => `
+            <div class="photo-item" style="animation-delay:${idx * 0.05}s"
+                onclick="openLightbox('https://lh3.googleusercontent.com/d/${p.id}=s1200')">
+                <img src="https://lh3.googleusercontent.com/d/${p.id}=s400"
+                    alt="${p.name || ''}"
+                    onerror="this.parentElement.style.display='none'">
+            </div>
+        `).join('');
+    }
+
+    // ===== IDLE =====
+    function showIdle() {
+        document.getElementById('idleScreen').classList.remove('hidden');
+        document.getElementById('checkinScreen').classList.remove('show');
+    }
+
+    // ===== LIGHTBOX =====
+    function openLightbox(url) {
+        document.getElementById('lightboxImg').src = url;
+        document.getElementById('lightbox').classList.add('show');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('show');
+    }
+
+    // ===== CONFIG =====
+    function saveConfig() {
+        GAS_URL = document.getElementById('gasUrlDisplay').value.trim();
+        localStorage.setItem('display_gas_url', GAS_URL);
+        document.getElementById('configPanel').classList.remove('show');
+        startPolling();
+    }
+
+    // ===== KEYBOARD SHORTCUTS =====
+    document.addEventListener('keydown', e => {
+        if (e.key === 'g' || e.key === 'G') {
+            document.getElementById('gasUrlDisplay').value = GAS_URL;
+            document.getElementById('configPanel').classList.toggle('show');
+        }
+        if (e.key === 'f' || e.key === 'F') {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        }
+        if (e.key === 'Escape') {
+            closeLightbox();
+            document.getElementById('configPanel').classList.remove('show');
+        }
+    });
+
+    // ===== INIT =====
+    window.onload = () => {
+        if (GAS_URL) {
+            document.getElementById('gasUrlDisplay').value = GAS_URL;
+            startPolling();
+        } else {
+            // Tự động mở config nếu chưa cấu hình
+            setTimeout(() => document.getElementById('configPanel').classList.add('show'), 500);
+        }
+    };
+</script>
+</body>
+</html>
