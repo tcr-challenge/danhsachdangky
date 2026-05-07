@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bước Chân Di Sản 2026 — Check-in</title>
+    <title>Bước Chân Di Sản 2026 — Màn hình chiếu</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --red:    #dc2626;
-            --gold:   #d97706;
-            --dark:   #080808;
-            --card:   #111;
+            --red:  #dc2626;
+            --gold: #d97706;
+            --dark: #080808;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -18,13 +17,14 @@
             font-family: 'Barlow', sans-serif;
             background: var(--dark);
             color: white;
+            width: 100vw;
             height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* ===== IDLE SCREEN ===== */
+        /* ===== IDLE ===== */
         #idleScreen {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
@@ -37,43 +37,36 @@
 
         .idle-title {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(48px, 8vw, 96px);
-            letter-spacing: 6px;
-            line-height: 1;
-            text-align: center;
+            font-size: clamp(56px, 12vw, 120px);
+            letter-spacing: 6px; line-height: 1; text-align: center;
         }
         .idle-title .red  { color: var(--red); }
         .idle-title .gold { color: var(--gold); }
         .idle-sub {
-            font-size: clamp(14px, 2vw, 20px);
-            color: #555; letter-spacing: 4px; text-transform: uppercase;
-            margin-top: 16px; font-weight: 600;
+            font-size: clamp(12px, 2.5vw, 18px);
+            color: #444; letter-spacing: 4px; text-transform: uppercase;
+            margin-top: 20px; font-weight: 600; text-align: center;
         }
-        .idle-pulse {
-            margin-top: 48px; display: flex; gap: 8px; align-items: center;
-        }
+        .idle-pulse { margin-top: 48px; display: flex; gap: 10px; align-items: center; }
         .idle-dot {
-            width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+            width: 10px; height: 10px; border-radius: 50%; background: var(--red);
             animation: idlePulse 1.5s ease-in-out infinite;
         }
         .idle-dot:nth-child(2) { animation-delay: 0.3s; }
         .idle-dot:nth-child(3) { animation-delay: 0.6s; }
-        @keyframes idlePulse { 0%,100%{opacity:0.2;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+        @keyframes idlePulse { 0%,100%{opacity:0.2;transform:scale(1)} 50%{opacity:1;transform:scale(1.5)} }
 
-        /* Animated lines background */
-        .bg-lines {
-            position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
-        }
+        .bg-lines { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
         .bg-line {
-            position: absolute; height: 1px; background: linear-gradient(90deg, transparent, #222, transparent);
-            width: 100%; animation: lineSweep 4s ease-in-out infinite;
+            position: absolute; width: 1px; background: linear-gradient(180deg, transparent, #1a1a1a, transparent);
+            height: 100%; animation: lineSweep 4s ease-in-out infinite;
         }
-        .bg-line:nth-child(1) { top: 20%; animation-delay: 0s; }
-        .bg-line:nth-child(2) { top: 50%; animation-delay: 1.3s; }
-        .bg-line:nth-child(3) { top: 80%; animation-delay: 2.6s; }
-        @keyframes lineSweep { 0%,100%{opacity:0;transform:scaleX(0)} 50%{opacity:1;transform:scaleX(1)} }
+        .bg-line:nth-child(1) { left: 25%; animation-delay: 0s; }
+        .bg-line:nth-child(2) { left: 50%; animation-delay: 1.3s; }
+        .bg-line:nth-child(3) { left: 75%; animation-delay: 2.6s; }
+        @keyframes lineSweep { 0%,100%{opacity:0;transform:scaleY(0)} 50%{opacity:1;transform:scaleY(1)} }
 
-        /* ===== CHECKIN SCREEN ===== */
+        /* ===== CHECKIN SCREEN — PORTRAIT LAYOUT ===== */
         #checkinScreen {
             position: absolute; inset: 0;
             opacity: 0; pointer-events: none;
@@ -84,125 +77,127 @@
 
         /* TOP BAR */
         .top-bar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 16px 32px;
-            background: #0d0d0d;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 2px;
+            padding: 14px 20px 10px;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a0a0a 50%, #0d0d0d 100%);
             border-bottom: 2px solid var(--red);
-            flex-shrink: 0;
+            flex-shrink: 0; position: relative;
         }
         .top-event {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 22px; letter-spacing: 3px; color: var(--red);
+            font-family: 'Barlow', sans-serif;
+            font-size: clamp(18px, 4vw, 34px);
+            letter-spacing: 4px; font-weight: 900;
+            background: linear-gradient(90deg, #ff6b6b, #ffffff, #ff6b6b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center; line-height: 1.1;
+            transition: opacity 0.5s;
+            min-height: 1.2em;
         }
-        .top-checkin-label {
-            font-size: 11px; font-weight: 700; letter-spacing: 3px;
-            text-transform: uppercase; color: #444;
+        .top-event .highlight {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .top-time {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 28px; letter-spacing: 2px; color: #333;
+            font-size: clamp(13px, 2.5vw, 20px); letter-spacing: 3px; color: #2a2a2a;
         }
 
-        /* MAIN CONTENT */
-        .checkin-content {
-            flex: 1; display: grid;
-            grid-template-columns: 1fr 1fr;
-            overflow: hidden;
-        }
-
-        /* LEFT — VĐV INFO */
-        .vdv-info {
-            display: flex; flex-direction: column; justify-content: center;
-            padding: 40px 48px;
-            background: linear-gradient(135deg, #0d0d0d 0%, #111 100%);
-            border-right: 1px solid #1a1a1a;
+        /* VĐV INFO SECTION */
+        .vdv-section {
+            flex-shrink: 0;
+            padding: 20px 24px 16px;
+            background: linear-gradient(180deg, #0d0d0d 0%, #0a0a0a 100%);
+            border-bottom: 1px solid #1a1a1a;
             position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+            align-items: center; text-align: center;
         }
 
-        /* Decorative BIB watermark */
+        /* BIB watermark */
         .bib-watermark {
-            position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+            position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 280px; color: rgba(220,38,38,0.04);
-            letter-spacing: -10px; pointer-events: none; user-select: none;
-            line-height: 1;
+            font-size: clamp(120px, 28vw, 260px);
+            color: rgba(220,38,38,0.04);
+            pointer-events: none; user-select: none; line-height: 1;
+            white-space: nowrap;
         }
 
         .checkin-badge {
-            display: inline-flex; align-items: center; gap: 8px;
+            display: inline-flex; align-items: center; gap: 6px;
             background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3);
-            border-radius: 4px; padding: 6px 14px; margin-bottom: 24px;
-            width: fit-content;
+            border-radius: 4px; padding: 4px 14px; margin-bottom: 10px;
         }
         .checkin-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: idlePulse 1s infinite; }
         .checkin-badge-text { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
 
+        .vdv-main { width: 100%; position: relative; z-index: 1; }
         .vdv-bib {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(80px, 12vw, 140px);
+            font-size: clamp(72px, 18vw, 160px);
             letter-spacing: 8px; color: var(--red);
-            line-height: 1; margin-bottom: 4px;
-            animation: bibSlide 0.5s ease-out;
+            line-height: 1;
+            animation: slideIn 0.5s ease-out;
         }
-        @keyframes bibSlide { from{opacity:0;transform:translateX(-30px)} to{opacity:1;transform:translateX(0)} }
-
         .vdv-name {
-            font-size: clamp(28px, 4vw, 52px);
-            font-weight: 900; line-height: 1.1;
-            color: white; margin-bottom: 12px;
-            animation: bibSlide 0.5s ease-out 0.1s both;
+            font-size: clamp(26px, 6vw, 56px);
+            font-weight: 900; line-height: 1.1; color: white;
+            text-transform: uppercase; letter-spacing: 2px;
+            animation: slideIn 0.5s ease-out 0.1s both;
         }
-        .vdv-club {
-            font-size: clamp(14px, 1.8vw, 22px);
-            font-weight: 600; color: #555;
-            letter-spacing: 1px; text-transform: uppercase;
-            animation: bibSlide 0.5s ease-out 0.2s both;
-        }
-
         .vdv-divider {
             width: 60px; height: 3px; background: var(--red);
-            margin: 20px 0; border-radius: 2px;
-            animation: bibSlide 0.5s ease-out 0.15s both;
+            margin: 10px auto; border-radius: 2px;
         }
-
+        .vdv-club {
+            font-size: clamp(14px, 3vw, 24px);
+            font-weight: 700; color: #666;
+            letter-spacing: 2px; text-transform: uppercase;
+            animation: slideIn 0.5s ease-out 0.2s both;
+        }
         .vdv-meta {
-            display: flex; gap: 12px; margin-top: 24px;
-            animation: bibSlide 0.5s ease-out 0.25s both;
+            display: flex; gap: 8px; margin-top: 12px;
+            justify-content: center;
+            animation: slideIn 0.5s ease-out 0.25s both;
         }
         .vdv-meta-chip {
-            padding: 6px 14px; border-radius: 4px;
+            padding: 5px 14px; border-radius: 4px;
             font-size: 12px; font-weight: 700; letter-spacing: 1px;
-            background: #1a1a1a; color: #555; text-transform: uppercase;
+            background: #1a1a1a; color: #444; text-transform: uppercase;
         }
-        .vdv-meta-chip.highlight { background: rgba(220,38,38,0.1); color: var(--red); }
+        .vdv-meta-chip.hl { background: rgba(220,38,38,0.1); color: var(--red); }
 
-        /* RIGHT — PHOTOS */
-        .vdv-photos {
-            background: #0a0a0a;
-            display: flex; flex-direction: column;
-            overflow: hidden; position: relative;
-        }
+        @keyframes slideIn { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
 
-        /* THUMBNAIL STRIP + AUTO TOGGLE — nằm mép trên ảnh to */
-        .photo-strip {
-            position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-            display: flex; align-items: center; gap: 8px;
-            padding: 10px 12px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 60%, transparent);
+        /* THUMBNAIL STRIP */
+        .thumb-strip {
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 10px 16px;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 1px solid #111;
         }
         .thumb {
-            width: 56px; height: 56px; border-radius: 6px; overflow: hidden;
-            border: 2px solid transparent; cursor: pointer;
+            width: 70px; height: 70px; border-radius: 8px; overflow: hidden;
+            border: 2px solid #222; cursor: pointer;
             transition: border-color 0.2s, transform 0.2s; flex-shrink: 0;
         }
-        .thumb.active { border-color: var(--red); transform: scale(1.08); }
+        .thumb.active { border-color: var(--red); transform: scale(1.1); }
         .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thumb-empty { display: none; }
 
-        /* AUTO toggle */
+        /* Auto toggle */
         .auto-toggle {
-            margin-left: auto; display: flex; align-items: center; gap: 6px;
-            cursor: pointer; user-select: none;
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer; user-select: none; padding: 6px 12px;
+            border: 1px solid #222; border-radius: 6px;
+            transition: border-color 0.2s;
         }
+        .auto-toggle:hover { border-color: #444; }
         .auto-toggle-box {
             width: 18px; height: 18px; border-radius: 4px;
             border: 2px solid #444; background: transparent;
@@ -211,63 +206,65 @@
         }
         .auto-toggle-box.checked { background: var(--red); border-color: var(--red); }
         .auto-toggle-box.checked::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; }
-        .auto-toggle-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; }
+        .auto-toggle-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #444; text-transform: uppercase; }
 
-        /* ẢNH TO */
+        /* MAIN PHOTO — chiếm phần lớn còn lại */
         .photo-main {
             flex: 1; overflow: hidden; position: relative;
+            background: #050505;
+            display: flex; align-items: center; justify-content: center;
         }
         .photo-main img {
-            width: 100%; height: 100%; object-fit: cover;
-            display: block; transition: opacity 0.4s;
+            width: 100%; height: 100%;
+            object-fit: contain; /* contain để không crop ảnh */
+            display: block;
+            transition: opacity 0.4s;
+            cursor: zoom-in;
         }
         .photo-main img.fade { opacity: 0; }
 
-        /* Progress bar tự động chuyển */
+        /* Progress bar */
         .auto-progress {
             position: absolute; bottom: 0; left: 0; height: 3px;
             background: var(--red); width: 0%;
             transition: width linear;
-            display: none;
+            display: none; z-index: 5;
         }
         .auto-progress.running { display: block; }
 
+        /* No photos */
         .no-photos {
-            flex: 1; display: flex; flex-direction: column;
+            display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            color: #333; font-size: 14px; gap: 8px;
+            color: #2a2a2a; font-size: 16px; gap: 12px;
+            width: 100%; height: 100%;
         }
-        .no-photos-icon { font-size: 48px; }
-
-        @keyframes photoFade { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        .no-photos-icon { font-size: 64px; }
 
         /* BOTTOM BAR */
         .bottom-bar {
-            padding: 10px 32px; background: #0a0a0a;
-            border-top: 1px solid #1a1a1a;
-            display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0;
+            padding: 8px 20px; background: #0a0a0a;
+            border-top: 1px solid #111;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .bottom-welcome {
-            font-size: 13px; color: #333; font-weight: 600; letter-spacing: 1px;
-        }
+        .bottom-welcome { font-size: 12px; color: #2a2a2a; font-weight: 600; letter-spacing: 1px; }
         .bottom-welcome span { color: var(--gold); }
         .bottom-logo {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 16px; letter-spacing: 3px; color: #222;
+            font-size: 14px; letter-spacing: 3px; color: #1a1a1a;
         }
 
         /* LIGHTBOX */
         #lightbox {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.95); z-index: 100;
-            align-items: center; justify-content: center;
-            cursor: zoom-out;
+            background: rgba(0,0,0,0.97); z-index: 100;
+            align-items: center; justify-content: center; cursor: zoom-out;
         }
         #lightbox.show { display: flex; }
-        #lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+        #lightbox img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
 
-        /* CONFIG overlay — fullscreen */
+        /* CONFIG */
         #configPanel {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.93);
@@ -277,12 +274,12 @@
         #configPanel.hidden { display: none; }
         .config-box {
             background: #141414; border: 1px solid #2a2a2a;
-            border-radius: 16px; padding: 40px; width: 500px; max-width: 90vw;
+            border-radius: 16px; padding: 36px; width: 480px; max-width: 90vw;
         }
         .config-input {
             width: 100%; background: #0a0a0a; border: 1px solid #2a2a2a;
             border-radius: 8px; padding: 12px 14px; color: white;
-            font-size: 12px; font-family: monospace; outline: none;
+            font-size: 12px; font-family: monospace; outline: none; margin-top: 8px;
         }
         .config-input:focus { border-color: var(--red); }
         .config-save {
@@ -293,20 +290,19 @@
         }
         .config-save:hover { background: #b91c1c; }
 
-        /* Keyboard shortcut hint */
-        .hint { position: fixed; bottom: 8px; left: 8px; font-size: 10px; color: #1a1a1a; z-index: 1; }
+        .hint { position: fixed; bottom: 6px; left: 8px; font-size: 10px; color: #111; z-index: 1; }
     </style>
 </head>
 <body>
 
-<!-- IDLE SCREEN -->
+<!-- IDLE -->
 <div id="idleScreen">
     <div class="bg-lines">
         <div class="bg-line"></div>
         <div class="bg-line"></div>
         <div class="bg-line"></div>
     </div>
-    <div style="position:relative;z-index:1;text-align:center;">
+    <div style="position:relative;z-index:1;text-align:center;padding:24px;">
         <div class="idle-title">
             <div>BƯỚC CHÂN</div>
             <div class="red">DI SẢN</div>
@@ -324,67 +320,59 @@
 <!-- CHECKIN SCREEN -->
 <div id="checkinScreen">
 
+    <!-- TOP BAR -->
     <div class="top-bar">
-        <div class="top-event">BƯỚC CHÂN DI SẢN 2026</div>
-        <div class="top-checkin-label">CHECK-IN VẬN ĐỘNG VIÊN</div>
+        <div class="top-event" id="topEvent">BƯỚC CHÂN <span class="highlight">DI SẢN</span> 2026</div>
         <div class="top-time" id="clock">--:--:--</div>
     </div>
 
-    <div class="checkin-content">
-
-        <!-- LEFT: VĐV INFO -->
-        <div class="vdv-info">
-            <div class="bib-watermark" id="bibWatermark">0000</div>
-
+    <!-- VĐV INFO -->
+    <div class="vdv-section">
+        <div class="bib-watermark" id="bibWatermark">0000</div>
+        <div class="vdv-main">
             <div class="checkin-badge">
                 <div class="checkin-badge-dot"></div>
                 <div class="checkin-badge-text">Check-in thành công</div>
             </div>
-
             <div class="vdv-bib"  id="dispBib">0000</div>
             <div class="vdv-name" id="dispName">Họ và tên</div>
             <div class="vdv-divider"></div>
             <div class="vdv-club" id="dispClub">Câu lạc bộ</div>
-
             <div class="vdv-meta">
-                <div class="vdv-meta-chip highlight" id="dispPhotoCount">0 ảnh</div>
-                <div class="vdv-meta-chip" id="dispTime">--:--</div>
+                <div class="vdv-meta-chip hl" id="dispPhotoCount">0 ảnh</div>
+                <div class="vdv-meta-chip"    id="dispTime">--:--</div>
             </div>
         </div>
-
-        <!-- RIGHT: PHOTOS -->
-        <div class="vdv-photos">
-            <!-- Thumbnail strip + auto toggle -->
-            <div class="photo-strip" id="photoStrip" style="display:none;">
-                <div class="thumb active" id="thumb0" onclick="selectPhoto(0)">
-                    <img id="thumbImg0" src="" alt="">
-                </div>
-                <div class="thumb" id="thumb1" onclick="selectPhoto(1)">
-                    <img id="thumbImg1" src="" alt="">
-                </div>
-                <div class="thumb" id="thumb2" onclick="selectPhoto(2)">
-                    <img id="thumbImg2" src="" alt="">
-                </div>
-                <!-- Auto toggle -->
-                <div class="auto-toggle" onclick="toggleAuto()">
-                    <div class="auto-toggle-box" id="autoBox"></div>
-                    <div class="auto-toggle-label">Tự động</div>
-                </div>
-            </div>
-
-            <!-- Ảnh to -->
-            <div class="photo-main" id="photoMain">
-                <div class="no-photos" id="noPhotos">
-                    <div class="no-photos-icon">📷</div>
-                    <div>Đang tải ảnh...</div>
-                </div>
-                <img id="mainImg" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-                <div class="auto-progress" id="autoProgress"></div>
-            </div>
-        </div>
-
     </div>
 
+    <!-- THUMBNAIL STRIP -->
+    <div class="thumb-strip" id="thumbStrip" style="display:none;">
+        <div class="thumb active" id="thumb0" onclick="selectPhoto(0)">
+            <img id="thumbImg0" src="" alt="">
+        </div>
+        <div class="thumb" id="thumb1" onclick="selectPhoto(1)">
+            <img id="thumbImg1" src="" alt="">
+        </div>
+        <div class="thumb" id="thumb2" onclick="selectPhoto(2)">
+            <img id="thumbImg2" src="" alt="">
+        </div>
+        <div class="auto-toggle" onclick="toggleAuto()">
+            <div class="auto-toggle-box" id="autoBox"></div>
+            <div class="auto-toggle-label">Tự động 5s</div>
+        </div>
+    </div>
+
+    <!-- ẢNH TO -->
+    <div class="photo-main" id="photoMain">
+        <div class="no-photos" id="noPhotos">
+            <div class="no-photos-icon">📷</div>
+            <div>Chưa có ảnh</div>
+        </div>
+        <img id="mainImg" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
+        <div class="auto-progress" id="autoProgress"></div>
+    </div>
+
+    <!-- BOTTOM BAR -->
     <div class="bottom-bar">
         <div class="bottom-welcome">Chào mừng <span id="dispNameShort">bạn</span> đến với giải chạy!</div>
         <div class="bottom-logo">BƯỚC CHÂN DI SẢN 2026</div>
@@ -397,28 +385,32 @@
     <img id="lightboxImg" src="" alt="">
 </div>
 
-<!-- CONFIG — fullscreen overlay -->
+<!-- CONFIG -->
 <div id="configPanel">
     <div class="config-box">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#dc2626;margin-bottom:4px;">CẤU HÌNH MÀN HÌNH CHIẾU</div>
-        <div style="font-size:12px;color:#444;margin-bottom:24px;">Dán GAS URL vào đây · Nhấn Enter hoặc bấm Lưu</div>
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;margin-bottom:8px;">GAS URL</div>
-        <input type="text" class="config-input" id="gasUrlDisplay"
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:#dc2626;margin-bottom:4px;">CẤU HÌNH MÀN HÌNH CHIẾU</div>
+        <div style="font-size:12px;color:#444;margin-bottom:20px;">Dán GAS URL vào đây · Nhấn Enter hoặc bấm Lưu</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#444;text-transform:uppercase;">GAS URL</div>
+        <input type="text" class="config-input" id="gasUrlInput"
             placeholder="https://script.google.com/macros/s/..."
             onkeydown="if(event.key==='Enter')saveConfig()">
-        <button class="config-save" onclick="saveConfig()">LƯU & BẮT ĐẦU POLL</button>
-        <div style="margin-top:12px;font-size:11px;color:#2a2a2a;text-align:center;">Nhấn G bất kỳ lúc nào để mở lại · F để fullscreen</div>
+        <button class="config-save" onclick="saveConfig()">LƯU & BẮT ĐẦU</button>
+        <div style="margin-top:12px;font-size:11px;color:#222;text-align:center;">Nhấn G để mở lại · F để fullscreen</div>
     </div>
 </div>
 
-<div class="hint">Nhấn G để cấu hình · F để fullscreen</div>
+<div class="hint">G: cấu hình · F: fullscreen</div>
 
 <script>
-    // ===== CONFIG =====
-    let GAS_URL = localStorage.getItem('display_gas_url') || '';
-    let currentData  = null;
-    let lastBib      = null;
-    let pollInterval = null;
+    // ===== STATE =====
+    let GAS_URL       = localStorage.getItem('display_gas_url') || '';
+    let lastBib       = null;
+    let pollInterval  = null;
+    let currentPhotos = [];
+    let currentIdx    = 0;
+    let autoMode      = false;
+    let autoTimer     = null;
+    const AUTO_DELAY  = 5000;
 
     // ===== CLOCK =====
     function updateClock() {
@@ -428,12 +420,12 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // ===== POLL GAS =====
+    // ===== POLL =====
     function startPolling() {
         if (pollInterval) clearInterval(pollInterval);
         if (!GAS_URL) return;
         pollInterval = setInterval(fetchLatest, 2000);
-        fetchLatest(); // Ngay lập tức
+        fetchLatest();
     }
 
     async function fetchLatest() {
@@ -441,34 +433,16 @@
         try {
             const res  = await fetch(`${GAS_URL}?action=getLatest&t=${Date.now()}`);
             const data = await res.json();
+            if (data.error || data.empty) return;
 
-            if (data.empty || data.error) {
-                // Không có dữ liệu mới → về idle
-                return;
-            }
-
-            // BIB mới → hiển thị ngay (bất kể cleared cũ)
             if (data.bib !== lastBib) {
                 lastBib = data.bib;
                 if (!data.cleared) showCheckin(data);
                 return;
             }
-            // Cùng BIB → kiểm tra cleared
-            if (data.cleared) {
-                showIdle();
-                lastBib = null;
-            }
-
+            if (data.cleared) { showIdle(); lastBib = null; }
         } catch(e) {}
     }
-
-    // ===== PHOTO STATE =====
-    let currentPhotos  = [];
-    let currentIdx     = 0;
-    let autoMode       = false;
-    let autoTimer      = null;
-    let progressTimer  = null;
-    const AUTO_DELAY   = 5000; // 5 giây
 
     // ===== SHOW CHECKIN =====
     function showCheckin(data) {
@@ -479,9 +453,7 @@
         document.getElementById('dispTime').textContent      = data.time || '--:--';
         document.getElementById('dispNameShort').textContent = (data.name || 'bạn').split(' ').pop();
         document.getElementById('dispPhotoCount').textContent = `${data.photos?.length || 0} ảnh`;
-
         renderPhotos(data.photos || []);
-
         document.getElementById('idleScreen').classList.add('hidden');
         document.getElementById('checkinScreen').classList.add('show');
     }
@@ -492,23 +464,22 @@
         currentPhotos = photos || [];
         currentIdx    = 0;
 
-        const strip   = document.getElementById('photoStrip');
+        const strip   = document.getElementById('thumbStrip');
         const mainImg = document.getElementById('mainImg');
         const noPhoto = document.getElementById('noPhotos');
 
         if (currentPhotos.length === 0) {
-            strip.style.display = 'none';
+            strip.style.display   = 'none';
             mainImg.style.display = 'none';
             noPhoto.style.display = 'flex';
-            noPhoto.innerHTML = '<div class="no-photos-icon">📷</div><div>Chưa có ảnh trong kho</div>';
             return;
         }
 
-        noPhoto.style.display = 'none';
-        mainImg.style.display = 'block';
-        strip.style.display   = 'flex';
+        noPhoto.style.display   = 'none';
+        mainImg.style.display   = 'block';
+        strip.style.display     = 'flex';
 
-        // Cập nhật 3 thumbnail (tối đa 3 ảnh)
+        // Thumbnails (tối đa 3)
         for (let i = 0; i < 3; i++) {
             const thumb    = document.getElementById('thumb' + i);
             const thumbImg = document.getElementById('thumbImg' + i);
@@ -519,11 +490,10 @@
                 thumb.style.display = 'none';
             }
         }
-
         selectPhoto(0);
     }
 
-    // ===== CHỌN ẢNH =====
+    // ===== SELECT PHOTO =====
     function selectPhoto(idx) {
         if (!currentPhotos[idx]) return;
         currentIdx = idx;
@@ -531,28 +501,21 @@
         const mainImg = document.getElementById('mainImg');
         mainImg.classList.add('fade');
         setTimeout(() => {
-            mainImg.src = `https://lh3.googleusercontent.com/d/${currentPhotos[idx].id}=s1200`;
+            mainImg.src = `https://lh3.googleusercontent.com/d/${currentPhotos[idx].id}=s1600`;
             mainImg.classList.remove('fade');
         }, 200);
 
-        // Active thumbnail
         for (let i = 0; i < 3; i++) {
             document.getElementById('thumb' + i).classList.toggle('active', i === idx);
         }
-
-        // Reset progress nếu đang auto
         if (autoMode) startProgressBar();
     }
 
-    // ===== AUTO SLIDESHOW =====
+    // ===== AUTO =====
     function toggleAuto() {
         autoMode = !autoMode;
         document.getElementById('autoBox').classList.toggle('checked', autoMode);
-        if (autoMode) {
-            startAuto();
-        } else {
-            stopAuto();
-        }
+        autoMode ? startAuto() : stopAuto();
     }
 
     function startAuto() {
@@ -560,35 +523,32 @@
         if (currentPhotos.length < 2) return;
         startProgressBar();
         autoTimer = setInterval(() => {
-            const next = (currentIdx + 1) % Math.min(currentPhotos.length, 3);
-            selectPhoto(next);
+            selectPhoto((currentIdx + 1) % Math.min(currentPhotos.length, 3));
         }, AUTO_DELAY);
     }
 
     function stopAuto() {
         clearInterval(autoTimer);
-        clearInterval(progressTimer);
         autoTimer = null;
         const bar = document.getElementById('autoProgress');
         bar.classList.remove('running');
-        bar.style.width = '0%';
         bar.style.transition = 'none';
+        bar.style.width = '0%';
     }
 
     function startProgressBar() {
-        clearInterval(progressTimer);
         const bar = document.getElementById('autoProgress');
         bar.style.transition = 'none';
         bar.style.width = '0%';
         bar.classList.add('running');
-        // Trigger reflow
-        bar.offsetWidth;
+        bar.offsetWidth; // reflow
         bar.style.transition = `width ${AUTO_DELAY}ms linear`;
         bar.style.width = '100%';
     }
 
     // ===== IDLE =====
     function showIdle() {
+        stopAuto();
         document.getElementById('idleScreen').classList.remove('hidden');
         document.getElementById('checkinScreen').classList.remove('show');
     }
@@ -604,7 +564,7 @@
 
     // ===== CONFIG =====
     function saveConfig() {
-        const val = document.getElementById('gasUrlDisplay').value.trim();
+        const val = document.getElementById('gasUrlInput').value.trim();
         if (!val) { alert('Chưa nhập GAS URL!'); return; }
         GAS_URL = val;
         localStorage.setItem('display_gas_url', GAS_URL);
@@ -612,12 +572,11 @@
         startPolling();
     }
 
-    // ===== KEYBOARD SHORTCUTS =====
+    // ===== KEYBOARD =====
     document.addEventListener('keydown', e => {
         if (e.key === 'g' || e.key === 'G') {
-            const panel = document.getElementById('configPanel');
-            document.getElementById('gasUrlDisplay').value = GAS_URL;
-            panel.classList.toggle('hidden');
+            document.getElementById('gasUrlInput').value = GAS_URL;
+            document.getElementById('configPanel').classList.toggle('hidden');
         }
         if (e.key === 'f' || e.key === 'F') {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -629,14 +588,32 @@
         }
     });
 
+    // ===== ROTATING TOP TEXT =====
+    const topTexts = [
+        'BƯỚC CHÂN <span class="highlight">DI SẢN</span> 2026',
+        'LỄ HỘI TRUYỀN THỐNG <span class="highlight">ĐÌNH LÀNG THƯỢNG CÁT</span> 2026',
+        'POWERED BY <span class="highlight">THƯỢNG CÁT RUNNERS</span> — TCR'
+    ];
+    let topIdx = 0;
+    function rotateTopText() {
+        const el = document.getElementById('topEvent');
+        if (!el) return;
+        el.style.opacity = '0';
+        setTimeout(() => {
+            topIdx = (topIdx + 1) % topTexts.length;
+            el.innerHTML = topTexts[topIdx];
+            el.style.opacity = '1';
+        }, 500);
+    }
+    setInterval(rotateTopText, 5000);
+
     // ===== INIT =====
     window.onload = () => {
         if (GAS_URL) {
-            document.getElementById('gasUrlDisplay').value = GAS_URL;
+            document.getElementById('gasUrlInput').value = GAS_URL;
             document.getElementById('configPanel').classList.add('hidden');
             startPolling();
         }
-        // Nếu chưa có URL → overlay tự hiện (không hidden)
     };
 </script>
 </body>
