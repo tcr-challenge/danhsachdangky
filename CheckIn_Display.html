@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bước Chân Di Sản 2026 — Màn hình chiếu</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
@@ -36,18 +36,23 @@
         #idleScreen.hidden { opacity: 0; pointer-events: none; }
 
         .idle-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(56px, 12vw, 120px);
-            letter-spacing: 6px; line-height: 1; text-align: center;
+            font-family: 'Barlow', sans-serif;
+            font-size: clamp(48px, 14vw, 130px);
+            font-weight: 900; letter-spacing: 2px; line-height: 1.05; text-align: center;
+            text-transform: uppercase;
         }
         .idle-title .red  { color: var(--red); }
         .idle-title .gold { color: var(--gold); }
         .idle-sub {
-            font-size: clamp(12px, 2.5vw, 18px);
+            font-family: 'Barlow', sans-serif;
+            font-size: clamp(11px, 2.2vw, 16px);
             color: #444; letter-spacing: 4px; text-transform: uppercase;
             margin-top: 20px; font-weight: 600; text-align: center;
         }
-        .idle-pulse { margin-top: 48px; display: flex; gap: 10px; align-items: center; }
+        .idle-pulse {
+            margin-top: 48px; display: flex; gap: 10px; align-items: center;
+            justify-content: center; width: 100%;
+        }
         .idle-dot {
             width: 10px; height: 10px; border-radius: 50%; background: var(--red);
             animation: idlePulse 1.5s ease-in-out infinite;
@@ -291,6 +296,31 @@
         .config-save:hover { background: #b91c1c; }
 
         .hint { position: fixed; bottom: 6px; left: 8px; font-size: 10px; color: #111; z-index: 1; }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .top-bar { padding: 10px 14px 8px; }
+            .top-event { font-size: clamp(13px, 4.5vw, 20px); letter-spacing: 2px; }
+            .top-time { font-size: 12px; }
+            .vdv-section { padding: 14px 16px 10px; }
+            .vdv-bib { font-size: clamp(56px, 20vw, 100px); }
+            .vdv-name { font-size: clamp(20px, 7vw, 36px); }
+            .vdv-club { font-size: clamp(12px, 3.5vw, 18px); }
+            .thumb { width: 54px; height: 54px; }
+            .thumb-strip { padding: 8px 12px; gap: 8px; }
+            .auto-toggle-label { font-size: 10px; }
+            .bottom-bar { padding: 6px 14px; }
+            .bottom-welcome { font-size: 11px; }
+            .bottom-logo { font-size: 11px; }
+            .idle-title { font-size: clamp(36px, 16vw, 80px); }
+            .idle-sub { font-size: 10px; letter-spacing: 3px; }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            .vdv-bib { font-size: clamp(60px, 16vw, 110px); }
+            .vdv-name { font-size: clamp(22px, 6vw, 44px); }
+            .thumb { width: 60px; height: 60px; }
+        }
     </style>
 </head>
 <body>
@@ -403,7 +433,7 @@
 
 <script>
     // ===== STATE =====
-    let GAS_URL       = localStorage.getItem('display_gas_url') || '';
+    let GAS_URL       = localStorage.getItem('display_gas_url') || 'https://script.google.com/macros/s/AKfycbw4jCIsCWiE-pcQmVRwleb6XjZlP0ACVQYQeSSMBdv0D-CJ_guEC0vYVUDp300teRU9HA/exec';
     let lastBib       = null;
     let pollInterval  = null;
     let currentPhotos = [];
