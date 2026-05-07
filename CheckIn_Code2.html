@@ -180,51 +180,66 @@
         .vdv-photos {
             background: #0a0a0a;
             display: flex; flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; position: relative;
         }
 
-        .photos-header {
-            padding: 16px 20px; border-bottom: 1px solid #1a1a1a;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-shrink: 0;
+        /* THUMBNAIL STRIP + AUTO TOGGLE — nằm mép trên ảnh to */
+        .photo-strip {
+            position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 60%, transparent);
         }
-        .photos-header-label {
-            font-size: 11px; font-weight: 700; letter-spacing: 2px;
-            text-transform: uppercase; color: #333;
+        .thumb {
+            width: 56px; height: 56px; border-radius: 6px; overflow: hidden;
+            border: 2px solid transparent; cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s; flex-shrink: 0;
         }
-        .photos-count {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px; color: var(--red); letter-spacing: 2px;
-        }
+        .thumb.active { border-color: var(--red); transform: scale(1.08); }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        .photos-grid {
-            flex: 1; overflow-y: auto; padding: 16px;
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 8px; align-content: start;
+        /* AUTO toggle */
+        .auto-toggle {
+            margin-left: auto; display: flex; align-items: center; gap: 6px;
+            cursor: pointer; user-select: none;
         }
-        .photos-grid::-webkit-scrollbar { width: 4px; }
-        .photos-grid::-webkit-scrollbar-track { background: #0a0a0a; }
-        .photos-grid::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+        .auto-toggle-box {
+            width: 18px; height: 18px; border-radius: 4px;
+            border: 2px solid #444; background: transparent;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .auto-toggle-box.checked { background: var(--red); border-color: var(--red); }
+        .auto-toggle-box.checked::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; }
+        .auto-toggle-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; }
 
-        .photo-item {
-            aspect-ratio: 1; overflow: hidden; border-radius: 6px;
-            border: 1px solid #1a1a1a; cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-            animation: photoFade 0.4s ease-out both;
+        /* ẢNH TO */
+        .photo-main {
+            flex: 1; overflow: hidden; position: relative;
         }
-        .photo-item:hover { transform: scale(1.03); border-color: var(--red); }
-        .photo-item img {
+        .photo-main img {
             width: 100%; height: 100%; object-fit: cover;
-            display: block;
+            display: block; transition: opacity 0.4s;
         }
-        @keyframes photoFade { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        .photo-main img.fade { opacity: 0; }
+
+        /* Progress bar tự động chuyển */
+        .auto-progress {
+            position: absolute; bottom: 0; left: 0; height: 3px;
+            background: var(--red); width: 0%;
+            transition: width linear;
+            display: none;
+        }
+        .auto-progress.running { display: block; }
 
         .no-photos {
-            grid-column: span 3; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; height: 200px;
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
             color: #333; font-size: 14px; gap: 8px;
         }
         .no-photos-icon { font-size: 48px; }
+
+        @keyframes photoFade { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
 
         /* BOTTOM BAR */
         .bottom-bar {
@@ -252,25 +267,31 @@
         #lightbox.show { display: flex; }
         #lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
 
-        /* CONFIG overlay */
+        /* CONFIG overlay — fullscreen */
         #configPanel {
-            position: fixed; bottom: 16px; right: 16px;
-            background: #111; border: 1px solid #222; border-radius: 10px;
-            padding: 16px; width: 320px; z-index: 50;
-            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.93);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200;
         }
-        #configPanel.show { display: block; }
+        #configPanel.hidden { display: none; }
+        .config-box {
+            background: #141414; border: 1px solid #2a2a2a;
+            border-radius: 16px; padding: 40px; width: 500px; max-width: 90vw;
+        }
         .config-input {
-            width: 100%; background: #0a0a0a; border: 1px solid #222;
-            border-radius: 6px; padding: 8px 12px; color: white;
-            font-size: 12px; font-family: monospace; outline: none; margin-top: 6px;
+            width: 100%; background: #0a0a0a; border: 1px solid #2a2a2a;
+            border-radius: 8px; padding: 12px 14px; color: white;
+            font-size: 12px; font-family: monospace; outline: none;
         }
         .config-input:focus { border-color: var(--red); }
         .config-save {
-            margin-top: 10px; width: 100%; padding: 8px; background: var(--red);
-            border: none; border-radius: 6px; color: white;
-            font-weight: 700; font-size: 12px; cursor: pointer; letter-spacing: 1px;
+            margin-top: 16px; width: 100%; padding: 14px; background: var(--red);
+            border: none; border-radius: 8px; color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px; letter-spacing: 2px; cursor: pointer;
         }
+        .config-save:hover { background: #b91c1c; }
 
         /* Keyboard shortcut hint */
         .hint { position: fixed; bottom: 8px; left: 8px; font-size: 10px; color: #1a1a1a; z-index: 1; }
@@ -333,15 +354,32 @@
 
         <!-- RIGHT: PHOTOS -->
         <div class="vdv-photos">
-            <div class="photos-header">
-                <div class="photos-header-label">Ảnh thi đấu</div>
-                <div class="photos-count" id="photoHeaderCount">0 ảnh</div>
+            <!-- Thumbnail strip + auto toggle -->
+            <div class="photo-strip" id="photoStrip" style="display:none;">
+                <div class="thumb active" id="thumb0" onclick="selectPhoto(0)">
+                    <img id="thumbImg0" src="" alt="">
+                </div>
+                <div class="thumb" id="thumb1" onclick="selectPhoto(1)">
+                    <img id="thumbImg1" src="" alt="">
+                </div>
+                <div class="thumb" id="thumb2" onclick="selectPhoto(2)">
+                    <img id="thumbImg2" src="" alt="">
+                </div>
+                <!-- Auto toggle -->
+                <div class="auto-toggle" onclick="toggleAuto()">
+                    <div class="auto-toggle-box" id="autoBox"></div>
+                    <div class="auto-toggle-label">Tự động</div>
+                </div>
             </div>
-            <div class="photos-grid" id="photosGrid">
-                <div class="no-photos">
+
+            <!-- Ảnh to -->
+            <div class="photo-main" id="photoMain">
+                <div class="no-photos" id="noPhotos">
                     <div class="no-photos-icon">📷</div>
                     <div>Đang tải ảnh...</div>
                 </div>
+                <img id="mainImg" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
+                <div class="auto-progress" id="autoProgress"></div>
             </div>
         </div>
 
@@ -359,12 +397,18 @@
     <img id="lightboxImg" src="" alt="">
 </div>
 
-<!-- CONFIG -->
+<!-- CONFIG — fullscreen overlay -->
 <div id="configPanel">
-    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;margin-bottom:8px;">⚙️ Cấu hình</div>
-    <label style="font-size:11px;color:#444;">GAS URL</label>
-    <input type="text" class="config-input" id="gasUrlDisplay" placeholder="https://script.google.com/macros/s/AKfycbx92k3TKPz9BAw36Q7NMQOhwQMQaEWevDoIDjlwqH2VfgHz9Z1y1dClF_JThtbabyizIQ/exec">
-    <button class="config-save" onclick="saveConfig()">LƯU & KẾT NỐI</button>
+    <div class="config-box">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#dc2626;margin-bottom:4px;">CẤU HÌNH MÀN HÌNH CHIẾU</div>
+        <div style="font-size:12px;color:#444;margin-bottom:24px;">Dán GAS URL vào đây · Nhấn Enter hoặc bấm Lưu</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;margin-bottom:8px;">GAS URL</div>
+        <input type="text" class="config-input" id="gasUrlDisplay"
+            placeholder="https://script.google.com/macros/s/..."
+            onkeydown="if(event.key==='Enter')saveConfig()">
+        <button class="config-save" onclick="saveConfig()">LƯU & BẮT ĐẦU POLL</button>
+        <div style="margin-top:12px;font-size:11px;color:#2a2a2a;text-align:center;">Nhấn G bất kỳ lúc nào để mở lại · F để fullscreen</div>
+    </div>
 </div>
 
 <div class="hint">Nhấn G để cấu hình · F để fullscreen</div>
@@ -403,62 +447,144 @@
                 return;
             }
 
-            if (data.cleared) {
-                // Support đã bấm xoá
-                showIdle();
-                lastBib = null;
-                return;
-            }
-
-            // Có dữ liệu mới — chỉ update nếu BIB khác
+            // BIB mới → hiển thị ngay (bất kể cleared cũ)
             if (data.bib !== lastBib) {
                 lastBib = data.bib;
-                showCheckin(data);
+                if (!data.cleared) showCheckin(data);
+                return;
+            }
+            // Cùng BIB → kiểm tra cleared
+            if (data.cleared) {
+                showIdle();
+                lastBib = null;
             }
 
         } catch(e) {}
     }
 
+    // ===== PHOTO STATE =====
+    let currentPhotos  = [];
+    let currentIdx     = 0;
+    let autoMode       = false;
+    let autoTimer      = null;
+    let progressTimer  = null;
+    const AUTO_DELAY   = 5000; // 5 giây
+
     // ===== SHOW CHECKIN =====
     function showCheckin(data) {
-        // Điền thông tin VĐV
-        document.getElementById('dispBib').textContent      = data.bib  || '----';
-        document.getElementById('bibWatermark').textContent = data.bib  || '----';
-        document.getElementById('dispName').textContent     = data.name || 'Chưa cập nhật';
-        document.getElementById('dispClub').textContent     = data.club || 'Chưa cập nhật';
-        document.getElementById('dispTime').textContent     = data.time || '--:--';
+        document.getElementById('dispBib').textContent       = data.bib  || '----';
+        document.getElementById('bibWatermark').textContent  = data.bib  || '----';
+        document.getElementById('dispName').textContent      = data.name || 'Chưa cập nhật';
+        document.getElementById('dispClub').textContent      = data.club || 'Chưa cập nhật';
+        document.getElementById('dispTime').textContent      = data.time || '--:--';
         document.getElementById('dispNameShort').textContent = (data.name || 'bạn').split(' ').pop();
         document.getElementById('dispPhotoCount').textContent = `${data.photos?.length || 0} ảnh`;
-        document.getElementById('photoHeaderCount').textContent = `${data.total || 0} ảnh`;
 
-        // Render ảnh
         renderPhotos(data.photos || []);
 
-        // Hiện màn hình check-in
         document.getElementById('idleScreen').classList.add('hidden');
         document.getElementById('checkinScreen').classList.add('show');
     }
 
     // ===== RENDER PHOTOS =====
     function renderPhotos(photos) {
-        const grid = document.getElementById('photosGrid');
-        if (!photos || photos.length === 0) {
-            grid.innerHTML = `
-                <div class="no-photos">
-                    <div class="no-photos-icon">📷</div>
-                    <div>Chưa có ảnh trong kho</div>
-                </div>`;
+        stopAuto();
+        currentPhotos = photos || [];
+        currentIdx    = 0;
+
+        const strip   = document.getElementById('photoStrip');
+        const mainImg = document.getElementById('mainImg');
+        const noPhoto = document.getElementById('noPhotos');
+
+        if (currentPhotos.length === 0) {
+            strip.style.display = 'none';
+            mainImg.style.display = 'none';
+            noPhoto.style.display = 'flex';
+            noPhoto.innerHTML = '<div class="no-photos-icon">📷</div><div>Chưa có ảnh trong kho</div>';
             return;
         }
 
-        grid.innerHTML = photos.map((p, idx) => `
-            <div class="photo-item" style="animation-delay:${idx * 0.05}s"
-                onclick="openLightbox('https://lh3.googleusercontent.com/d/${p.id}=s1200')">
-                <img src="https://lh3.googleusercontent.com/d/${p.id}=s400"
-                    alt="${p.name || ''}"
-                    onerror="this.parentElement.style.display='none'">
-            </div>
-        `).join('');
+        noPhoto.style.display = 'none';
+        mainImg.style.display = 'block';
+        strip.style.display   = 'flex';
+
+        // Cập nhật 3 thumbnail (tối đa 3 ảnh)
+        for (let i = 0; i < 3; i++) {
+            const thumb    = document.getElementById('thumb' + i);
+            const thumbImg = document.getElementById('thumbImg' + i);
+            if (currentPhotos[i]) {
+                thumb.style.display = 'block';
+                thumbImg.src = `https://lh3.googleusercontent.com/d/${currentPhotos[i].id}=s200`;
+            } else {
+                thumb.style.display = 'none';
+            }
+        }
+
+        selectPhoto(0);
+    }
+
+    // ===== CHỌN ẢNH =====
+    function selectPhoto(idx) {
+        if (!currentPhotos[idx]) return;
+        currentIdx = idx;
+
+        const mainImg = document.getElementById('mainImg');
+        mainImg.classList.add('fade');
+        setTimeout(() => {
+            mainImg.src = `https://lh3.googleusercontent.com/d/${currentPhotos[idx].id}=s1200`;
+            mainImg.classList.remove('fade');
+        }, 200);
+
+        // Active thumbnail
+        for (let i = 0; i < 3; i++) {
+            document.getElementById('thumb' + i).classList.toggle('active', i === idx);
+        }
+
+        // Reset progress nếu đang auto
+        if (autoMode) startProgressBar();
+    }
+
+    // ===== AUTO SLIDESHOW =====
+    function toggleAuto() {
+        autoMode = !autoMode;
+        document.getElementById('autoBox').classList.toggle('checked', autoMode);
+        if (autoMode) {
+            startAuto();
+        } else {
+            stopAuto();
+        }
+    }
+
+    function startAuto() {
+        stopAuto();
+        if (currentPhotos.length < 2) return;
+        startProgressBar();
+        autoTimer = setInterval(() => {
+            const next = (currentIdx + 1) % Math.min(currentPhotos.length, 3);
+            selectPhoto(next);
+        }, AUTO_DELAY);
+    }
+
+    function stopAuto() {
+        clearInterval(autoTimer);
+        clearInterval(progressTimer);
+        autoTimer = null;
+        const bar = document.getElementById('autoProgress');
+        bar.classList.remove('running');
+        bar.style.width = '0%';
+        bar.style.transition = 'none';
+    }
+
+    function startProgressBar() {
+        clearInterval(progressTimer);
+        const bar = document.getElementById('autoProgress');
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        bar.classList.add('running');
+        // Trigger reflow
+        bar.offsetWidth;
+        bar.style.transition = `width ${AUTO_DELAY}ms linear`;
+        bar.style.width = '100%';
     }
 
     // ===== IDLE =====
@@ -478,17 +604,20 @@
 
     // ===== CONFIG =====
     function saveConfig() {
-        GAS_URL = document.getElementById('gasUrlDisplay').value.trim();
+        const val = document.getElementById('gasUrlDisplay').value.trim();
+        if (!val) { alert('Chưa nhập GAS URL!'); return; }
+        GAS_URL = val;
         localStorage.setItem('display_gas_url', GAS_URL);
-        document.getElementById('configPanel').classList.remove('show');
+        document.getElementById('configPanel').classList.add('hidden');
         startPolling();
     }
 
     // ===== KEYBOARD SHORTCUTS =====
     document.addEventListener('keydown', e => {
         if (e.key === 'g' || e.key === 'G') {
+            const panel = document.getElementById('configPanel');
             document.getElementById('gasUrlDisplay').value = GAS_URL;
-            document.getElementById('configPanel').classList.toggle('show');
+            panel.classList.toggle('hidden');
         }
         if (e.key === 'f' || e.key === 'F') {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -496,7 +625,7 @@
         }
         if (e.key === 'Escape') {
             closeLightbox();
-            document.getElementById('configPanel').classList.remove('show');
+            if (GAS_URL) document.getElementById('configPanel').classList.add('hidden');
         }
     });
 
@@ -504,11 +633,10 @@
     window.onload = () => {
         if (GAS_URL) {
             document.getElementById('gasUrlDisplay').value = GAS_URL;
+            document.getElementById('configPanel').classList.add('hidden');
             startPolling();
-        } else {
-            // Tự động mở config nếu chưa cấu hình
-            setTimeout(() => document.getElementById('configPanel').classList.add('show'), 500);
         }
+        // Nếu chưa có URL → overlay tự hiện (không hidden)
     };
 </script>
 </body>
