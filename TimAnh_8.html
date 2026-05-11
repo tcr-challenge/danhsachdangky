@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Thêm thư viện face-api từ File 1 -->
-    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- face-api.js KHÔNG CẦN NỮA — dùng Face++ API qua GAS -->
+    <!-- <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script> -->
     <style>
         :root {
             --primary-color: #ef4444;
@@ -572,155 +572,114 @@
         function prevImg(e) { e.stopPropagation(); if (currentIndex > 0) openLightbox(currentIndex - 1); }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-        const FACE_THRESHOLD = 0.42; 
-        const FACE_MAX_RESULTS = 30;
-        let faceModelsLoaded = false;
-        let faceDatabase = null;
-        let faceMatcher = null;
+        // ════════════════════════════════════════════════════════
+        //  FACE++ SEARCH — không cần load model, không cần JSON DB
+        //  Upload ảnh → GAS gọi Face++ → kết quả trong 1-2 giây
+        // ════════════════════════════════════════════════════════
         let selectedFaceFile = null;
 
-        function openFaceModal() { document.getElementById('faceModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; if (!faceModelsLoaded) loadFaceModels(); }
-        function closeFaceModal() { document.getElementById('faceModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
-        function closeFaceModalOutside(e) { if (e.target === document.getElementById('faceModal')) closeFaceModal(); }
-        function setFaceStatus(msg, loading = false) { document.getElementById('faceStatusText').textContent = msg; document.getElementById('faceSpinner').style.display = loading ? 'block' : 'none'; }
-
-        async function loadFaceModels() {
-            setFaceStatus('Đang load AI models...', true);
-            try {
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-                await Promise.all([
-                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-                ]);
-                faceModelsLoaded = true;
-                setFaceStatus('AI sẵn sàng! Đang load database khuôn mặt...', true);
-                await loadFaceDatabase();
-            } catch(e) { setFaceStatus('❌ Lỗi load AI. Kiểm tra mạng.'); }
+        function openFaceModal() {
+            document.getElementById('faceModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            setFaceStatus('Chọn ảnh chân dung để tìm kiếm');
+            document.getElementById('faceDbStatus').textContent = '⚡ Powered by Face++ AI — độ chính xác 99%';
+            document.getElementById('faceDbStatus').style.color = '#10b981';
+        }
+        function closeFaceModal() {
+            document.getElementById('faceModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        function closeFaceModalOutside(e) {
+            if (e.target === document.getElementById('faceModal')) closeFaceModal();
+        }
+        function setFaceStatus(msg, loading = false) {
+            document.getElementById('faceStatusText').textContent = msg;
+            document.getElementById('faceSpinner').style.display = loading ? 'block' : 'none';
+        }
+        function handleFaceFile(input) {
+            if (!input.files || !input.files[0]) return;
+            selectedFaceFile = input.files[0];
+            showFacePreview(selectedFaceFile);
+        }
+        function handleFaceDrop(e) {
+            e.preventDefault();
+            document.getElementById('faceUploadZone').classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) { selectedFaceFile = file; showFacePreview(file); }
+        }
+        function showFacePreview(file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const preview = document.getElementById('facePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                document.getElementById('faceUploadHint').style.display = 'none';
+                document.getElementById('faceFindBtn').disabled = false;
+                setFaceStatus('Sẵn sàng! Nhấn TÌM KIẾM.');
+            };
+            reader.readAsDataURL(file);
         }
 
-        async function loadFaceDatabase() {
-            try {
-                document.getElementById('faceDbStatus').textContent = '⏳ Đang load database...';
-
-                const allEntries = [];
-                const seen = new Set();
-                const total = FACE_DB_FILE_IDS.length;
-                let loaded = 0;
-
-                async function fetchOneFile(fileName, i) {
-                    try {
-                        const url = FACE_DB_BASE + fileName;
-                        const res = await fetch(url);
-                        if (!res.ok) throw new Error('HTTP ' + res.status);
-                        return await res.json();
-                    } catch(e) {
-                        console.warn(`Part ${i+1} lỗi:`, e.message);
-                        return null;
-                    }
-                }
-
-                // Tải tuần tự (không song song) để tránh bị Google rate-limit
-                for (let i = 0; i < FACE_DB_FILE_IDS.length; i++) {
-                    const fileId = FACE_DB_FILE_IDS[i];
-                    document.getElementById('faceDbStatus').textContent =
-                        `⏳ Đang tải file ${i+1}/${total}...`;
-
-                    const chunk = await fetchOneFile(fileId, i);
-                    loaded++;
-
-                    if (Array.isArray(chunk)) {
-                        chunk.forEach(entry => {
-                            if (entry.id && !seen.has(entry.id)) {
-                                seen.add(entry.id);
-                                allEntries.push(entry);
-                            }
-                        });
-                        document.getElementById('faceDbStatus').textContent =
-                            `⏳ File ${loaded}/${total} — ${allEntries.length} entries...`;
-                    } else {
-                        console.warn(`Part ${i+1} không đọc được — bỏ qua`);
-                    }
-                }
-
-                if (allEntries.length === 0) throw new Error('Database trống — Google chặn tải file');
-
-                faceDatabase = allEntries;
-
-                document.getElementById('faceDbStatus').textContent = '⏳ Đang xây dựng AI model...';
-
-                const grouped = {};
-                allEntries.forEach(entry => {
-                    if (!entry.descriptor) return;
-                    if (!grouped[entry.id]) grouped[entry.id] = { entry, descriptors: [] };
-                    grouped[entry.id].descriptors.push(new Float32Array(entry.descriptor));
-                });
-
-                const labeled = Object.entries(grouped).map(([id, val]) =>
-                    new faceapi.LabeledFaceDescriptors(id, val.descriptors)
-                );
-
-                if (labeled.length === 0) throw new Error('Không có dữ liệu khuôn mặt');
-
-                faceMatcher = new faceapi.FaceMatcher(labeled, FACE_THRESHOLD);
-
-                document.getElementById('faceDbStatus').textContent =
-                    `✅ Database: ${labeled.length} ảnh — ${allEntries.length} khuôn mặt`;
-                document.getElementById('faceDbStatus').style.color = '#10b981';
-                setFaceStatus('Sẵn sàng! Chọn ảnh chân dung của bạn.');
-                if (selectedFaceFile) document.getElementById('faceFindBtn').disabled = false;
-
-            } catch(e) {
-                document.getElementById('faceDbStatus').textContent = '❌ Lỗi: ' + e.message;
-                document.getElementById('faceDbStatus').style.color = '#ef4444';
-                setFaceStatus('Lỗi load database. Kiểm tra File ID và quyền Drive.');
-                console.error('loadFaceDatabase error:', e);
-            }
+        // Resize ảnh xuống max 600px để giảm dung lượng gửi lên GAS
+        function resizeAndEncodeImage(file, maxSize) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width, h = img.height;
+                        if (w > maxSize || h > maxSize) {
+                            if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+                            else       { w = Math.round(w * maxSize / h); h = maxSize; }
+                        }
+                        const c = document.createElement('canvas');
+                        c.width = w; c.height = h;
+                        c.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
-
-        function handleFaceFile(input) { if (!input.files || !input.files[0]) return; selectedFaceFile = input.files[0]; showFacePreview(selectedFaceFile); }
-        function handleFaceDrop(e) { e.preventDefault(); document.getElementById('faceUploadZone').classList.remove('drag-over'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { selectedFaceFile = file; showFacePreview(file); } }
-        function showFacePreview(file) { const reader = new FileReader(); reader.onload = (e) => { const preview = document.getElementById('facePreview'); preview.src = e.target.result; preview.style.display = 'block'; document.getElementById('faceUploadHint').style.display = 'none'; if (faceMatcher) document.getElementById('faceFindBtn').disabled = false; }; reader.readAsDataURL(file); }
 
         async function runFaceSearch() {
-            if (!selectedFaceFile || !faceMatcher) return;
+            if (!selectedFaceFile) return;
             document.getElementById('faceFindBtn').disabled = true;
             setFaceStatus('Đang phân tích khuôn mặt...', true);
             try {
-                const img = await faceapi.bufferToImage(selectedFaceFile);
-                const detections = await faceapi.detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 })).withFaceLandmarks().withFaceDescriptors();
-                if (detections.length === 0) { setFaceStatus('⚠️ Không thấy mặt. Hãy chọn ảnh khác rõ hơn.'); document.getElementById('faceFindBtn').disabled = false; return; }
-                const matchedIds = new Set();
-                detections.forEach(det => { const match = faceMatcher.findBestMatch(det.descriptor); if (match.label !== 'unknown') matchedIds.add(match.label); });
-                if (matchedIds.size === 0) { setFaceStatus('😕 Không tìm thấy ảnh phù hợp.'); document.getElementById('faceFindBtn').disabled = false; return; }
-                const resultPhotos = [];
-                const seen = new Set();
-                const bibSet = new Set();
-                faceDatabase.forEach(entry => { if (matchedIds.has(entry.id) && !seen.has(entry.id)) { seen.add(entry.id); resultPhotos.push({ id: entry.id, name: entry.name, folderName: entry.folder }); if (/^\d{4}$/.test(entry.folder)) bibSet.add(entry.folder); } });
-                const limited = resultPhotos.slice(0, FACE_MAX_RESULTS);
+                const base64 = await resizeAndEncodeImage(selectedFaceFile, 600);
+                setFaceStatus('Đang tìm kiếm trong hàng nghìn ảnh...', true);
+
+                const res  = await fetch(`${SCRIPT_URL}?action=faceppSearch&image=${encodeURIComponent(base64)}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    setFaceStatus('⚠️ ' + (data.error || 'Không tìm thấy'));
+                    document.getElementById('faceFindBtn').disabled = false;
+                    return;
+                }
+
                 closeFaceModal();
-                allData = limited;
+                allData = data.photos.map(p => ({
+                    id: p.id, name: p.id, folderName: p.folder,
+                }));
                 currentPage = 1;
                 document.getElementById('totalStats').classList.remove('hidden');
-                document.getElementById('totalStats').innerText = `TÌM BẰNG MẶT: ${limited.length} TẤM ẢNH`;
+                document.getElementById('totalStats').innerText = `TÌM BẰNG MẶT: ${allData.length} TẤM ẢNH`;
                 document.getElementById('searchResultHeader').classList.remove('hidden');
-                document.getElementById('foundCount').innerText = `Tìm thấy ${limited.length} ảnh bằng AI`;
-                const bibList = [...bibSet];
-                if (bibList.length > 0) {
-                    const bibQuery = bibList[0];
-                    try {
-                        const infoRes = await fetch(`${SCRIPT_URL}?query=${encodeURIComponent(bibQuery)}`);
-                        const infoData = await infoRes.json();
-                        document.getElementById('infoBib').innerText = infoData.infoBib || bibQuery;
-                        document.getElementById('infoName').innerText = infoData.infoName || 'Chưa cập nhật';
-                        document.getElementById('infoClub').innerText = infoData.infoClub || 'Chưa cập nhật';
-                        if (infoData.folderUrl) { document.getElementById('downloadAllBox').classList.remove('hidden'); document.getElementById('downloadAllBtn').href = infoData.folderUrl; }
-                        if (bibList.length > 1) { document.getElementById('foundCount').innerText = `Tìm thấy ${limited.length} ảnh — ${bibList.length} BIB khớp: ${bibList.join(', ')}`; }
-                    } catch(e) { document.getElementById('infoBib').innerText = bibQuery; document.getElementById('infoName').innerText = 'Không tra được thông tin'; document.getElementById('infoClub').innerText = '--'; }
-                } else { document.getElementById('infoBib').innerText = '🤖 AI'; document.getElementById('infoName').innerText = 'Nhận diện khuôn mặt'; document.getElementById('infoClub').innerText = `${limited.length} ảnh khớp`; }
+                document.getElementById('foundCount').innerText = `Tìm thấy ${allData.length} ảnh — Face++ AI`;
+                document.getElementById('infoBib').innerText  = data.infoBib  || '🤖 AI';
+                document.getElementById('infoName').innerText = data.infoName || 'Nhận diện khuôn mặt';
+                document.getElementById('infoClub').innerText = data.infoClub || `${allData.length} ảnh khớp`;
                 render();
                 window.scrollTo({ top: 400, behavior: 'smooth' });
-            } catch(e) { setFaceStatus('❌ Lỗi xử lý.'); document.getElementById('faceFindBtn').disabled = false; }
+            } catch(e) {
+                setFaceStatus('❌ Lỗi: ' + e.message);
+                document.getElementById('faceFindBtn').disabled = false;
+            }
         }
     </script>
 </body>
