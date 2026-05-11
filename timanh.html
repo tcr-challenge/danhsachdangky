@@ -359,6 +359,22 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqxpd5d4rfOhkVOn54FKvyBvTQXgZztVOZIVhc8iJeyWYnsQBcFCUOfwzu1KnGkFSn/exec";
+
+        // ✅ Đọc thẳng từ GitHub — không bị CORS, không bị chặn
+        const FACE_DB_BASE = "https://raw.githubusercontent.com/tcr-challenge/danhsachdangky/main/facedb/";
+        const FACE_DB_FILE_IDS = [
+            "tcr_database_part_01.json",
+            "tcr_database_part_02.json",
+            "tcr_database_part_03.json",
+            "tcr_database_part_04.json",
+            "tcr_database_part_05.json",
+            "tcr_database_part_06.json",
+            "tcr_database_part_07.json",
+            "tcr_database_part_08.json",
+            "tcr_database_part_09.json",
+            "tcr_database_part_10.json",
+        ];
+
         const PAGE_SIZE = 20;
         const PRIORITY_FOLDER = "Anhtapthetcr";
         let allData = [];
@@ -585,30 +601,77 @@
 
         async function loadFaceDatabase() {
             try {
-                document.getElementById('faceDbStatus').textContent = '⏳ Đang load database...';
-                const res = await fetch(`${SCRIPT_URL}?action=getFaceDB`);
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                if (data.error) throw new Error(data.error);
-                if (!Array.isArray(data) || data.length === 0) throw new Error('Database trống');
-                faceDatabase = data;
+                document.getElementById('faceDbStatus').textContent = '⏳ Đang tải database...';
+
+                const allEntries = [];
+                const seen = new Set();
+                const total = FACE_DB_FILE_IDS.length;
+
+                // Tải TUẦN TỰ — yield UI sau mỗi file để trang không đơ
+                for (let i = 0; i < total; i++) {
+                    document.getElementById('faceDbStatus').textContent =
+                        `⏳ File ${i+1}/${total} — ${allEntries.length} ảnh...`;
+
+                    // Nhường browser render UI trước khi fetch
+                    await new Promise(r => setTimeout(r, 30));
+
+                    try {
+                        const res = await fetch(FACE_DB_BASE + FACE_DB_FILE_IDS[i]);
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const chunk = await res.json();
+
+                        if (Array.isArray(chunk)) {
+                            // Xử lý theo batch 300 — không block main thread
+                            for (let b = 0; b < chunk.length; b += 300) {
+                                chunk.slice(b, b + 300).forEach(entry => {
+                                    if (entry.id && !seen.has(entry.id)) {
+                                        seen.add(entry.id);
+                                        allEntries.push(entry);
+                                    }
+                                });
+                                await new Promise(r => setTimeout(r, 0));
+                            }
+                        }
+                    } catch(e) {
+                        console.warn(`Part ${i+1} lỗi:`, e.message);
+                    }
+                }
+
+                if (allEntries.length === 0) throw new Error('Không tải được file nào');
+
+                faceDatabase = allEntries;
+                document.getElementById('faceDbStatus').textContent =
+                    `⏳ Đang xây dựng AI matcher...`;
+                await new Promise(r => setTimeout(r, 30));
+
+                // Build grouped theo batch
                 const grouped = {};
-                data.forEach(entry => {
-                    if (!entry.descriptor) return;
+                for (let i = 0; i < allEntries.length; i++) {
+                    const entry = allEntries[i];
+                    if (!entry.descriptor) continue;
                     if (!grouped[entry.id]) grouped[entry.id] = { entry, descriptors: [] };
                     grouped[entry.id].descriptors.push(new Float32Array(entry.descriptor));
-                });
-                const labeled = Object.entries(grouped).map(([id, val]) => new faceapi.LabeledFaceDescriptors(id, val.descriptors));
-                if (labeled.length === 0) throw new Error('Không có dữ liệu khuôn mặt');
+                    if (i % 500 === 0) await new Promise(r => setTimeout(r, 0));
+                }
+
+                const labeled = Object.entries(grouped).map(([id, val]) =>
+                    new faceapi.LabeledFaceDescriptors(id, val.descriptors)
+                );
+                if (labeled.length === 0) throw new Error('Không có descriptor');
+
                 faceMatcher = new faceapi.FaceMatcher(labeled, FACE_THRESHOLD);
-                document.getElementById('faceDbStatus').textContent = `✅ Database: ${labeled.length} ảnh — ${data.length} khuôn mặt`;
+
+                document.getElementById('faceDbStatus').textContent =
+                    `✅ Database: ${labeled.length} ảnh — ${allEntries.length} khuôn mặt`;
                 document.getElementById('faceDbStatus').style.color = '#10b981';
                 setFaceStatus('Sẵn sàng! Chọn ảnh chân dung của bạn.');
                 if (selectedFaceFile) document.getElementById('faceFindBtn').disabled = false;
+
             } catch(e) {
                 document.getElementById('faceDbStatus').textContent = '❌ Lỗi: ' + e.message;
                 document.getElementById('faceDbStatus').style.color = '#ef4444';
-                setFaceStatus('Lỗi load database. Kiểm tra GAS.');
+                setFaceStatus('Lỗi load database.');
+                console.error('loadFaceDatabase error:', e);
             }
         }
 
