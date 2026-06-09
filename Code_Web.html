@@ -1,0 +1,1623 @@
+
+Claude finished the response
+
+Code_Web.html
+html
+
+a có code này hiển thị được bib, tên và ảnh từ các drive, file json nhưng chức năng tìm kiếm nhấn tìm bib hoặc tên thì lại không ra được kết quả, mặc dù khi nhập bib hoặc tên vào ô tìm kiếm nó vẫn gợi ý ra đúng số bib của vận động viên
+
+1:57 PM
+
+Viewed 3 files
+Viewed 3 files
+Tôi đã tìm ra lỗi. Có 2 bug trong code:
+
+Bug 1 — Dòng 543: Regex sai trong isLikelyBib()
+
+js
+function isLikelyBib(raw) { return /^d+$/.test(raw.trim()); }
+Viết ^d+$ thay vì ^\d+$ (thiếu dấu \). Vì vậy hàm này luôn trả về false — kể cả khi nhập số BIB thuần túy như 1234, nó cũng bị coi là tìm theo tên, dẫn đến searchRunnersByName('1234') và không ra kết quả.
+
+Bug 2 — Hàm lookupRunner() dùng sai key
+
+js
+function lookupRunner(bib) {
+  const key = bib.toString().replace(/[^0-9]/g, "").padStart(4, "0");
+  return RUNNERS[key] || null;  // ← key kiểu "0012"
+}
+Nhưng trong RUNNERS, key được lưu dạng số BIB thực tế (ví dụ "12", "0012", "M0012"...) tùy theo file runners.json. Đồng thời khi tìm ảnh theo BIB, code dùng p.bib === bib4 (bib4 là 4 chữ số), nhưng searchRunnersByName lại so sánh p.bib === bib (key gốc từ RUNNERS). Nếu format không khớp thì photoCount luôn bằng 0.
+
+Đây là file đã sửa 2 lỗi trên:
+
+
+Ran a command, edited a file
+Ran a command, edited a file
+Bây giờ sửa lookupRunner để thử nhiều dạng key khác nhau, phòng trường hợp file runners.json lưu BIB theo format khác nhau:
+
+
+Ran 4 commands, viewed 2 files, edited a file
+Ran 4 commands, viewed 2 files, edited a file
+Đã tìm ra và sửa 2 bug:
+
+Bug 1 — Lỗi chính gây mất tìm kiếm (dòng 543)
+js
+// ❌ Lỗi: thiếu dấu \ trước d
+function isLikelyBib(raw) { return /^d+$/.test(raw.trim()); }
+
+// ✅ Đúng
+function isLikelyBib(raw) { return /^\d+$/.test(raw.trim()); }
+Vì thiếu \, regex ^d+$ chỉ khớp với chuỗi toàn chữ "d" (ví dụ "ddd"), không bao giờ khớp số. Kết quả: kể cả nhập BIB số như 1234 cũng bị xử lý như tìm tên → searchRunnersByName('1234') → không ra kết quả.
+
+Bug 2 — lookupRunner() có thể miss key
+js
+// ❌ Chỉ thử đúng 1 format "0012"
+return RUNNERS[key] || null;
+
+// ✅ Thử lần lượt: key gốc → "0012" → "12" → ...
+return RUNNERS[bib] || RUNNERS[key4] || RUNNERS[digits] || RUNNERS[keyRaw] || null;
+Phòng trường hợp file runners.json lưu key theo format khác nhau (có thể là "12", "0012", hay chính xác BIB gốc).
+
+
+Code web fixed
+Code · HTML 
+1780988427002_image.png
+Thay thế phần header theo style này cho anh.
+1 - có một banner phía trên
+2- phong cách chữ và màu sắc như hình
+3 - Ô tìm kiếm như hình
+
+2:01 PM
+
+Viewed 2 files
+Viewed 2 files
+Đã nắm được toàn bộ cấu trúc. Bây giờ mình sẽ làm lại header theo đúng style trong ảnh:
+
+
+Ran 2 commands, viewed a file
+Ran 2 commands, viewed a file
+Cấu trúc đúng. Giờ copy ra output:
+
+
+Ran a command, read a file
+Ran a command, read a file
+Đã xong! Những thay đổi trong file Code_Web_v2.html:
+
+Header mới theo style ảnh:
+
+Banner trên cùng — badge vàng "TÌM ẢNH GIẢI CHẠY" nổi bật
+Chữ lớn — "PHÚC HÒA CITY TRAIL 2026" kiểu chữ Montserrat đậm, chữ vàng xen trắng
+Badge phụ — "GIẢI VIỆT DÃ XÃ PHÚC HÒA MỞ RỘNG" nền vàng bên dưới
+Ngày/địa điểm — nhỏ hơn, màu mờ, có dấu chấm phân cách
+Nền hero — tối gradient có ảnh mờ phía sau như trong mẫu
+Ô tìm kiếm mới:
+
+Nền trắng bo tròn (pill shape) giống ảnh mẫu
+Chữ placeholder màu xám nhạt
+Nút tìm kiếm đỏ tròn với icon 🔍 ở phải
+Dropdown gợi ý cũng chuyển sang nền trắng cho đồng bộ
+Bonus: Đã tích hợp luôn cả 2 bug fix từ lần trước (regex BIB + lookupRunner).
+
+
+Code web v2
+Code · HTML 
+
+Code_Web.html
+html
+
+anh muốn code tìm theo dạng:
+1- nếu tìm tìm theo số bib thì chỉ được nhập đúng 4 số, không được nhập hơn
+2- nếu tìm theo tên vận động viên sẽ ưu tiên tìm theo tên cuối cùng, ví dụ: Nguyễn Văn Tuấn, Trần Thị Hoa - nhập Hoa, Tuấn thì sẽ lấy tên của họ thay vì tìm tất cả chữ có tên trùng. 
+3- Tìm theo nick name: ví dụ: Tuấn đi bộ, Tuấn tiền lẻ, Sơn ironman thì sẽ tìm kiếm lọc thông minh ra tên chính thức là : Tuần, Sơn
+
+2:15 PM
+
+View the search-related JS functions
+View the search-related JS functions
+Đã hiểu toàn bộ logic. Bây giờ sửa 3 yêu cầu:
+
+
+Ran 2 commands
+Ran 2 commands
+Tất cả đều vào đúng chỗ. Copy ra output:
+
+
+Ran a command, read a file
+Ran a command, read a file
+Đã cập nhật xong! Đây là chi tiết 3 thay đổi:
+
+1. BIB chỉ nhập đúng 4 số
+
+Khi gõ số, ô input tự động chặn lại ở ký tự thứ 4, không gõ thêm được
+Khi nhấn Tìm mà số chưa đủ 4 chữ số → hiện toast lỗi: "Số BIB phải đúng 4 chữ số (ví dụ: 0044)"
+2. Ưu tiên tìm theo tên cuối (tên gọi kiểu Việt Nam)
+
+Hệ thống tính điểm theo thứ tự ưu tiên:
+
+Điểm	Điều kiện
+100	Tên cuối khớp chính xác (nhập "Hoa" → "Trần Thị Hoa")
+80	Tên cuối bắt đầu bằng query
+60	Tên cuối chứa query
+50	Bất kỳ từ nào trong tên khớp chính xác
+40	Tên đầy đủ bắt đầu bằng query
+20	Tên đầy đủ chứa query
+→ Nhập "Hoa" sẽ ưu tiên "Trần Thị Hoa" lên đầu thay vì lẫn lộn mọi tên có chữ "Hoa"
+
+3. Tìm theo nickname thông minh
+
+Khi nhập nhiều từ như "Tuấn đi bộ" hay "Sơn ironman":
+
+Hệ thống tự bóc tách từ đầu tiên ("Tuấn", "Sơn") làm ứng viên tên chính
+Tìm kiếm tên cuối của VĐV khớp với từ đó
+Điểm 35 nếu tên cuối khớp chính xác nickname candidate
+
+Code web search
+Code · HTML 
+anh thay ảnh banner header chỗ nào
+
+2:18 PM
+Trong code, ảnh nền hero được set bằng CSS background-image ở dòng này:
+
+css
+.hero-bg::before { 
+  content: ''; 
+  position: absolute; 
+  inset: 0; 
+  background: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=60') center/cover no-repeat; 
+  opacity: 0.12; 
+}
+Anh chỉ cần thay URL trong url('...') thành link ảnh của anh là xong. Ví dụ:
+
+css
+background: url('https://link-anh-cua-ban.jpg') center/cover no-repeat;
+Một số cách lấy link ảnh:
+
+Upload lên Google Drive → chuột phải → "Lấy link" → chuyển sang dạng https://drive.google.com/uc?id=FILE_ID
+Upload lên Imgur hoặc imgbb.com → copy direct link
+Nếu ảnh đã trên web thì copy thẳng URL ảnh
+Lưu ý: opacity: 0.12 đang để rất mờ để chữ dễ đọc. Nếu ảnh anh đã tối sẵn thì có thể tăng lên 0.25 – 0.4 để ảnh hiện rõ hơn.
+
+
+credentials.json
+1 line
+
+json
+
+
+token.json
+1 line
+
+json
+
+2 file này là của web trước repo trên github, a tạo một repo khác tên là buochandisan2026 - thì thay như nào
+
+2:24 PM
+2 file này chứa OAuth credentials để truy cập Google Drive — chúng không liên quan đến GitHub repo URL.
+
+Thứ anh cần thay là trong file HTML, chỗ CONFIG:
+
+javascript
+const CONFIG = {
+  jsonUrl:        'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json',
+  runnersUrl:     'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json',
+  folderTemplate: 'https://drive.google.com/drive/folders/...',
+};
+Anh chỉ cần thay tên repo trong 2 URL đó. Cấu trúc là:
+
+https://raw.githubusercontent.com/[TÊN_TÀI_KHOẢN]/[TÊN_REPO]/main/photos.json
+Ví dụ nếu repo mới tên buochandisan2026 thuộc account tcr-challenge:
+
+https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json
+https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json
+Lưu ý quan trọng: 2 file credentials.json và token.json anh vừa upload chứa client secret và refresh token thật của Google OAuth. Anh nên revoke và tạo lại credentials tại console.cloud.google.com vì đã lộ ra ngoài.
+
+tất cả repo a tạo trên github dùng chung 2 file này được k
+
+2:25 PM
+Được, 2 file này là credentials của Google Cloud Project phuchoacitytrail — không liên quan gì đến GitHub repo.
+
+Nghĩa là:
+
+Bao nhiêu repo GitHub cũng dùng chung 1 bộ credentials này
+Miễn là script Python dùng cùng 1 Google Drive account để lấy ảnh
+Tuy nhiên nhắc lại: client_secret và refresh_token trong 2 file này đang lộ ra ngoài do upload lên đây. Nếu ai có 2 file này họ có thể truy cập Google Drive của anh.
+
+Anh nên làm ngay:
+
+Vào console.cloud.google.com → chọn project phuchoacitytrail
+APIs & Services → Credentials → xóa OAuth client cũ → tạo lại cái mới
+Tải credentials.json mới về và chạy lại token.json
+
+Code_Web.html
+html
+
+
+generate_index.py
+307 lines
+
+py
+
+trong này của anh chỉ có 5 id folder drive của giải chaytj mới, sao web vẫn load được ảnh từ drive của giải cũ nhỉ
+
+2:28 PM
+Vì trong file HTML, CONFIG.jsonUrl trỏ đến file photos.json trên GitHub repo cũ:
+
+javascript
+const CONFIG = {
+  jsonUrl:    'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json',
+  runnersUrl: 'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json',
+Web không đọc trực tiếp từ Google Drive — nó chỉ đọc file photos.json trên GitHub. File photos.json đó được tạo ra bởi script generate_index.py và chứa sẵn các link ảnh Drive.
+
+Tóm lại luồng là:
+
+generate_index.py  →  quét 5 folder Drive mới  →  tạo photos.json  →  push lên GitHub
+                                                                              ↓
+                                                              Web đọc photos.json từ GitHub
+Vậy tại sao vẫn thấy ảnh cũ? Vì photos.json trên repo buochandisan2026 hiện tại vẫn chứa data của giải cũ — chưa chạy lại generate_index.py với 5 folder Drive mới để ghi đè.
+
+Anh cần:
+
+Chạy generate_index.py với 5 folder ID mới → nó tạo photos.json mới
+Push file đó lên GitHub repo buochandisan2026
+Web sẽ tự động hiển thị đúng ảnh của giải mới
+anh muons đăng ký lại phần thống kê online trên firebase
+
+2:46 PM
+Trong file HTML, phần Firebase config ở cuối:
+
+javascript
+const firebaseConfig = {
+    apiKey: "AIzaSyBMMZU9dWuzWgzpjSyNL5xB9v-QEh95sdw",
+    authDomain: "phuchoatrail2026.firebaseapp.com",
+    databaseURL: "https://phuchoatrail2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "phuchoatrail2026",
+    storageBucket: "phuchoatrail2026.firebasestorage.app",
+    messagingSenderId: "665306842437",
+    appId: "1:665306842437:web:9ffc0f64e15bb01b542a2c",
+};
+Đây đang dùng project phuchoatrail2026 của giải cũ. Để tạo project mới cho giải Bước Chân Di Sản 2026:
+
+Bước 1 — Tạo Firebase project mới
+
+Vào console.firebase.google.com
+Add project → đặt tên ví dụ buochandisan2026
+Tắt Google Analytics nếu không cần → Create project
+Bước 2 — Bật Realtime Database
+
+Vào Build → Realtime Database → Create database
+Chọn region asia-southeast1 (Singapore)
+Chọn Start in test mode → Enable
+Bước 3 — Lấy config mới
+
+Vào Project Settings (icon bánh răng)
+Kéo xuống Your apps → Add app → Web (</>)
+Đặt tên app → Register
+Copy toàn bộ firebaseConfig mới
+Bước 4 — Thay vào HTML Tìm đoạn const firebaseConfig = { trong file HTML, thay bằng config vừa copy.
+
+Anh làm xong bước 3 thì paste config vào đây, mình thay vào file HTML luôn cho anh.
+
+1780991297704_image.png
+2:48 PM
+Anh đã tạo project BCDS2026 rồi. Giờ cần thêm Web app để lấy config. Làm theo các bước sau:
+
+Bước 1 — Thêm Web app
+
+Click icon </> (Web) trong phần "Your apps" như trong ảnh → đặt tên app (ví dụ bcds2026-web) → Register app
+
+Bước 2 — Bật Realtime Database (nếu chưa làm)
+
+Ở menu trái click Realtime Database → Create database → asia-southeast1 → Start in test mode → Enable
+
+Bước 3 — Sau khi Register app
+
+Firebase sẽ hiện ra đoạn config dạng:
+
+javascript
+const firebaseConfig = {
+  apiKey: "...",
+  authDomain: "bcds2026-9c6a6.firebaseapp.com",
+  databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bcds2026-9c6a6",
+  ...
+};
+Paste config đó vào đây, mình sẽ thay vào file HTML và cập nhật luôn cho anh.
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD9kOdlwT6jEtX3QdNZyq8h7khuNoammS8",
+  authDomain: "bcds2026-9c6a6.firebaseapp.com",
+  databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bcds2026-9c6a6",
+  storageBucket: "bcds2026-9c6a6.firebasestorage.app",
+  messagingSenderId: "354115933539",
+  appId: "1:354115933539:web:f4c49fb913d494f92fef56",
+  measurementId: "G-DFQEFSMHTH"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+Show more
+2:53 PM
+
+Ran 3 commands, read a file
+Ran 3 commands, read a file
+Đã thay xong! Firebase giờ trỏ về project BCDS2026 mới.
+
+Thống kê online, lượt xem, thả tim sẽ đếm riêng hoàn toàn, không lẫn với giải cũ nữa.
+
+Lưu ý thêm: Anh nhớ vào Firebase → Realtime Database → Rules và đặt rules cho phép đọc/ghi:
+
+json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+Nếu không thì thống kê sẽ không cập nhật được.
+
+
+Code web firebase
+Code · HTML 
+cho icon trái tim khi nhấn bay lên mượt mà nhẹ nhàng không bị giật cục, và bay lên cao nữa
+
+2:55 PM
+
+Viewed 2 files, ran 2 commands, read a file
+Viewed 2 files, ran 2 commands, read a file
+Đã cập nhật! Những gì thay đổi:
+
+Animation bay lên:
+
+Bay cao gấp đôi — từ 460px thay vì 220px cũ
+Xuất hiện mượt với fade-in nhẹ lúc đầu thay vì pop đột ngột
+Dùng cubic-bezier thay ease-out — cảm giác nhẹ nhàng hơn hẳn
+Mỗi tim có duration ngẫu nhiên 1.8s–2.6s → không đồng loạt, trông tự nhiên
+4 kiểu easing khác nhau ngẫu nhiên cho mỗi tim
+Spawn tim:
+
+Tăng từ 5–7 lên 7–10 tim mỗi lần nhấn
+Phân tán theo hình quạt đều thay vì random hoàn toàn → trông đẹp hơn
+Delay giữa các tim ngắn hơn (60ms) + thêm jitter nhỏ → không giật cục
+Thêm 2 icon mới: 🤍 💓
+
+Code web heart
+Code · HTML 
+
+Code_Web.html
+html
+
+Sửa cho anh, mỗi trang hiển thị 24 ảnh, 4 ảnh một hàng
+
+3:05 PM
+
+Ran 4 commands, read a file
+Ran 4 commands, read a file
+Đã sửa xong! Tóm tắt thay đổi:
+
+Desktop	Mobile
+Số ảnh/trang	24	12
+Số cột	4 cột	2 cột
+Áp dụng cho cả 3 grid: trang chủ (browse), kết quả BIB, và album tab.
+
+
+Code web grid
+Code · HTML 
+// Import the functions you need from the SDKs you need import { initializeApp } from "firebase/app"; import { getAnalytics } from "firebase/analytics"; // TODO: Add SDKs for Firebase products that you want to use // https://firebase.google.com/docs/web/setup#available-libraries // Your web app's Firebase configuration // For Firebase JS SDK v7.20.0 and later, measurementId is optional const firebaseConfig = { apiKey: "AIzaSyD9kOdlwT6jEtX3QdNZyq8h7khuNoammS8", authDomain: "bcds2026-9c6a6.firebaseapp.com", databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "bcds2026-9c6a6", storageBucket: "bcds2026-9c6a6.firebasestorage.app", messagingSenderId: "354115933539", appId: "1:354115933539:web:f4c49fb913d494f92fef56", measurementId: "G-DFQEFSMHTH" }; // Initialize Firebase const app = initializeApp(firebaseConfig); const analytics = getAnalytics(app);
+
+Cập nhật code thống kê firebass mưới
+
+Show more
+3:06 PM
+
+Ran 3 commands, read a file
+Ran 3 commands, read a file
+Đã cập nhật xong! Firebase giờ trỏ về project BCDS2026 mới (bcds2026-9c6a6). Thống kê online, lượt xem và thả tim sẽ đếm riêng cho giải này.
+
+
+Code web fb2
+Code · HTML 
+1780992413017_image.png
+realtime này ok chưa
+
+3:07 PM
+Rules hiện tại đang ở test mode — cho phép đọc/ghi đến ngày 9/7/2026 thì hết hạn. Hoàn toàn dùng được cho web.
+
+Nếu anh muốn không bị hết hạn, thay rules thành:
+
+json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+Paste vào ô rules rồi nhấn Publish là xong.
+
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+
+
+raw
+Code web fb2 · HTML
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tìm Ảnh — Phúc Hoà City Trail 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c27; --border: #2a2a3d;
+      --accent: #f7c948; --accent2: #ff6b35; --text: #f0f0f5; --muted: #7070a0;
+      --success: #4ade80; --radius: 12px; --thumb-w: 180px; --thumb-ratio: 3/2;
+      --font-display: 'Montserrat', 'Segoe UI', sans-serif;
+      --font-body: 'Open Sans', 'Segoe UI', Roboto, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    /* ══ HERO BANNER ══ */
+    header { display: none; }
+    .hero { position: relative; padding: 0; overflow: hidden; min-height: 520px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .hero-bg { position: absolute; inset: 0; background: linear-gradient(160deg, #1a0a2e 0%, #0d1a35 40%, #0a0a0f 100%); z-index: 0; }
+    .hero-bg::before { content: ''; position: absolute; inset: 0; background: url('images/banner.jpg') center/cover no-repeat; opacity: 0.50; }
+    .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,10,15,0.3) 0%, rgba(10,10,15,0.5) 60%, rgba(10,10,15,0.92) 100%); }
+    .hero-content { position: relative; z-index: 2; width: 100%; text-align: center; padding: 56px 20px 44px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .hero-top-badge { display: inline-block; background: var(--accent); color: #0a0a0f; font-family: var(--font-display); font-weight: 800; font-size: clamp(11px, 2vw, 14px); letter-spacing: 3px; padding: 7px 22px; border-radius: 4px; margin-bottom: 18px; text-transform: uppercase; box-shadow: 0 4px 20px rgba(247,201,72,0.35); }
+    .hero h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(42px, 10vw, 96px); letter-spacing: 1px; line-height: 1; margin: 0 0 14px; text-transform: uppercase; color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,0.6); }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub-badge { display: inline-block; background: var(--accent); color: #0a0a0f; font-family: var(--font-display); font-weight: 800; font-size: clamp(10px, 1.8vw, 13px); letter-spacing: 2.5px; padding: 7px 24px; border-radius: 4px; margin-bottom: 14px; text-transform: uppercase; box-shadow: 0 4px 20px rgba(247,201,72,0.35); }
+    .hero-date { font-family: var(--font-display); font-weight: 700; font-size: clamp(11px, 1.8vw, 14px); letter-spacing: 2px; color: rgba(255,255,255,0.75); margin-bottom: 36px; text-transform: uppercase; }
+    .hero-date span { color: var(--accent); margin: 0 8px; }
+    .search-container { max-width: 680px; width: 100%; margin: 0 auto; position: relative; z-index: 10; padding: 0 16px; }
+    .bib-row { display: flex; gap: 0; align-items: stretch; margin-bottom: 16px; background: #fff; border-radius: 50px; overflow: visible; padding: 6px 6px 6px 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.35); }
+    .mf-m { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #4fc3f7; line-height: 1; }
+    .mf-sep { color: var(--border); font-size: 20px; line-height: 1; font-weight: 300; }
+    .mf-f { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #f48fb1; line-height: 1; }
+    /* ẨN M/F LABELS TRÊN MOBILE */
+    @media (max-width: 600px) {
+    }
+    .bib-input { flex: 1; padding: 10px 12px; background: transparent; border: none; color: #222; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: 0.5px; outline: none; min-width: 0; width: 100%; }
+    .bib-input::placeholder { color: #aaa; font-size: 15px; font-weight: 500; letter-spacing: 0; }
+    .bib-input:focus { outline: none; }
+    .search-btn { padding: 12px 24px; background: #e63946; color: #fff; border: none; border-radius: 44px; font-family: var(--font-display); font-weight: 800; font-size: 14px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; box-shadow: 0 4px 16px rgba(230,57,70,0.45); display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 0; }
+    .search-btn:hover { background: #c1121f; transform: scale(1.06); }
+    .search-btn:active { transform: scale(0.98); }
+    .search-btn-icon { font-size: 20px; line-height: 1; }
+    #name-results-section { display: none; max-width: 1100px; margin: 32px auto 0; padding: 0 20px; }
+    .name-results-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .name-results-title { font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: 1px; color: var(--text); }
+    .name-results-title em { color: var(--accent); font-style: normal; }
+    .name-results-count { font-family: var(--font-body); font-size: 13px; color: var(--muted); }
+    .runner-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .runner-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; }
+    .runner-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(247,201,72,0.18); transform: translateY(-2px); }
+    .runner-card-thumb { width: 100%; aspect-ratio: 3/2; background: var(--surface2); overflow: hidden; position: relative; }
+    .runner-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+    .runner-card:hover .runner-card-thumb img { transform: scale(1.06); }
+    .runner-card-thumb .rc-no-photo { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--border); background: var(--surface2); }
+    .runner-card-thumb .rc-photo-count { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; }
+    .runner-card-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+    .runner-card-name { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--text); line-height: 1.3; }
+    .runner-card-name mark { background: rgba(247,201,72,0.28); color: var(--accent); border-radius: 2px; }
+    .runner-card-bib { font-family: var(--font-display); font-weight: 800; font-size: 18px; letter-spacing: 2px; color: var(--accent); }
+    .runner-card-club { font-family: var(--font-body); font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .bib-clear-btn { display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: var(--border); border: none; cursor: pointer; color: var(--text); font-size: 13px; line-height: 1; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; flex-shrink: 0; padding: 0; z-index: 5; }
+    .bib-clear-btn:hover { background: var(--accent); color: #0a0a0f; }
+    .bib-clear-btn.visible { display: flex; }
+    .bib-input.has-value { padding-right: 44px; }
+    .autocomplete-dropdown { display: none; position: absolute; top: calc(100% + 8px); left: 16px; right: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 16px; z-index: 200; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.18); max-height: 260px; overflow-y: auto; }
+    .autocomplete-dropdown.open { display: block; }
+    .ac-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f0f0f0; }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.focused { background: #f9f5e8; }
+    .ac-bib { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--accent); min-width: 52px; flex-shrink: 0; }
+    .ac-name { font-family: var(--font-body); font-size: 14px; font-weight: 600; color: #111; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ac-club { font-family: var(--font-body); font-size: 12px; color: var(--muted); white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+    .ac-count { font-family: var(--font-body); font-size: 11px; color: var(--accent2); background: rgba(255,107,53,0.12); padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
+    .ac-empty { padding: 14px 16px; color: #888; font-size: 13px; text-align: center; }
+    .status-bar { max-width: 700px; margin: 10px auto 0; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--muted); text-align: center; min-height: 20px; letter-spacing: 0.2px; }
+    .status-bar.loading { color: var(--accent); }
+    .status-bar.success { color: var(--success); }
+    .status-bar.error { color: #f87171; }
+    .progress-wrap { max-width: 700px; margin: 6px auto 0; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; display: none; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.3s; }
+    .progress-wrap.active { display: block; }
+    .notice-banner { display: none; }
+    #viewer-section { display: none; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    .viewer-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .viewer-bib { font-family: var(--font-display); font-weight: 800; font-size: 34px; letter-spacing: 3px; color: var(--accent); line-height: 1; }
+    .viewer-subtitle { font-family: var(--font-body); font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 5px; letter-spacing: 0.2px; }
+    .runner-info-card { display: none; margin-top: 10px; padding: 9px 16px; background: linear-gradient(135deg, rgba(247,201,72,0.08) 0%, rgba(255,107,53,0.06) 100%); border: 1px solid rgba(247,201,72,0.3); border-radius: 10px; flex-direction: row; align-items: center; gap: 0; width: fit-content; max-width: 100%; }
+    .runner-info-card.visible { display: inline-flex; }
+    .runner-info-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.5px; color: #fff; line-height: 1.2; white-space: nowrap; padding-right: 14px; }
+    .runner-info-sep { width: 1px; align-self: stretch; background: rgba(247,201,72,0.3); flex-shrink: 0; margin: 0 14px 0 0; }
+    .runner-info-club { font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .runner-info-club-name { color: var(--accent); font-weight: 600; }
+    .folder-link-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; font-family: var(--font-body); font-size: 13px; font-weight: 500; transition: all 0.2s; }
+    .folder-link-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-w), 1fr)); gap: 8px; }
+    .result-card { position: relative; aspect-ratio: var(--thumb-ratio); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); transition: all 0.18s; }
+    .result-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
+    .result-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .result-card .bib-tag { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 11px; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; }
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.93); backdrop-filter: blur(14px); align-items: center; justify-content: center; flex-direction: column; padding: 16px; cursor: pointer; }
+    .lightbox.open { display: flex; }
+    .lb-close { position: absolute; top: 18px; right: 18px; background: var(--surface); border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; }
+    .lb-close:hover { background: var(--accent); color: #0a0a0f; border-color: var(--accent); }
+    .lb-main { position: relative; display: flex; align-items: center; justify-content: center; max-width: 92vw; max-height: 72vh; flex: 1; cursor: default; }
+    .lb-img { max-width: 88vw; max-height: 70vh; border-radius: 10px; object-fit: contain; display: block; box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: opacity 0.2s; cursor: default; }
+    .lb-img.hidden { opacity: 0; }
+    .lb-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; }
+    .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(10,10,15,0.75); border: 1px solid var(--border); color: var(--text); width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; backdrop-filter: blur(6px); z-index: 5; }
+    .lb-nav:hover { border-color: var(--accent); color: var(--accent); background: rgba(10,10,15,0.95); }
+    #lb-prev { left: -64px; } #lb-next { right: -64px; }
+    .lb-info { margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: default; }
+    .lb-bib-label { font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: 3px; color: var(--accent); }
+    .lb-runner-block { display: none; flex-direction: row; align-items: center; gap: 0; padding: 8px 16px; background: linear-gradient(135deg, rgba(247,201,72,0.1), rgba(255,107,53,0.07)); border: 1px solid rgba(247,201,72,0.25); border-radius: 10px; width: fit-content; }
+    .lb-runner-block.visible { display: inline-flex; }
+    .lb-runner-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.5px; color: #fff; line-height: 1.2; white-space: nowrap; padding-right: 14px; }
+    .lb-runner-sep { width: 1px; align-self: stretch; background: rgba(247,201,72,0.3); flex-shrink: 0; margin: 0 14px 0 0; }
+    .lb-runner-club { font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.3px; white-space: nowrap; }
+    .lb-counter { font-family: var(--font-body); font-size: 13px; font-weight: 400; color: var(--muted); }
+    .lb-folder-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; font-family: var(--font-body); font-size: 13px; font-weight: 500; transition: all 0.2s; }
+    .lb-folder-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .lb-thumbs { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 2px; max-width: 88vw; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--border) transparent; margin-top: 6px; cursor: default; }
+    .lb-thumbs::-webkit-scrollbar { height: 3px; }
+    .lb-thumb { flex-shrink: 0; width: 72px; height: 50px; border-radius: 5px; overflow: hidden; border: 2px solid transparent; cursor: pointer; transition: all 0.16s; background: var(--surface2); }
+    .lb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lb-thumb:hover { border-color: var(--muted); } .lb-thumb.active { border-color: var(--accent); }
+    @media (max-width: 680px) { #lb-prev { left: 4px; } #lb-next { right: 4px; } .lb-img { max-height: 50vh; } }
+    .section { padding: 36px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-title { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: 2px; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .count-badge { background: var(--surface2); border: 1px solid var(--border); padding: 2px 10px; border-radius: 20px; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--accent); }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+    .photo-card { position: relative; aspect-ratio: 3/2; border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); transition: all 0.18s; }
+    .photo-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
+    .photo-card img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-card .bib-tag { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 11px; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; }
+    .skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 28px; flex-wrap: wrap; }
+    .page-btn { width: 38px; height: 38px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .page-btn.active { background: var(--accent); color: #0a0a0f; border-color: var(--accent); font-weight: 700; }
+    .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .page-jump { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .page-jump-label { font-family: var(--font-body); font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .page-jump-input { width: 52px; height: 38px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.5px; text-align: center; outline: none; transition: border-color 0.2s; }
+    .page-jump-input:focus { border-color: var(--accent); }
+    .page-jump-input::-webkit-inner-spin-button, .page-jump-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .page-jump-btn { height: 38px; padding: 0 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; letter-spacing: 0.3px; }
+    .page-jump-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .page-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 13px 18px; border-radius: 10px; font-family: var(--font-body); font-size: 14px; font-weight: 500; z-index: 3000; transform: translateY(100px); opacity: 0; transition: all 0.3s; max-width: 300px; }
+    .toast.show { transform: none; opacity: 1; }
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: #f87171; color: #f87171; }
+ 
+    /* ══ STATS WIDGET ══ */
+    .stats-widget { position: fixed; bottom: 24px; left: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 6px; user-select: none; }
+    .online-pill, .visits-pill { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(19,19,26,0.92); border: 1px solid var(--border); border-radius: 999px; font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--muted); backdrop-filter: blur(12px); transition: border-color 0.2s; cursor: default; white-space: nowrap; }
+    .online-pill:hover { border-color: var(--success); }
+    .visits-pill:hover { border-color: var(--accent); }
+    .online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; animation: pulse-dot 2s ease-in-out infinite; }
+    .visits-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.75); } }
+    .online-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: var(--success); }
+    .visits-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: var(--accent); }
+ 
+    @media (max-width: 600px) {
+      body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
+      .toast { bottom: calc(70px + env(safe-area-inset-bottom)); right: 12px; }
+      .stats-widget { left: 0; right: 0; bottom: 0; flex-direction: row; justify-content: space-around; align-items: center; gap: 0; padding: 8px 6px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); background: rgba(10,10,15,0.97); border-top: 1px solid var(--border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 0; }
+      .heart-pill, .online-pill, .visits-pill { flex: 1; justify-content: center; background: transparent; border: none; border-radius: 0; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 4px 0; gap: 5px; font-size: 11px; }
+      .heart-pill  { border-right: 1px solid var(--border) !important; }
+      .online-pill { border-right: 1px solid var(--border) !important; }
+      .heart-icon-wrap { width: 20px; height: 20px; }
+      .heart-icon { font-size: 16px; }
+      .heart-count { font-size: 12px; }
+      .online-count, .visits-count { font-size: 12px; }
+      .online-dot, .visits-dot { width: 6px; height: 6px; }
+    }
+ 
+    /* ══ ALBUM TABS ══ */
+    .album-tabs-outer { max-width: 700px; margin: 10px auto 0; border-radius: 0; overflow: hidden; }
+    .album-tabs-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .album-tab-btn { display: inline-flex; align-items: center; justify-content: flex-start; gap: 7px; padding: 13px 18px; background: linear-gradient(to bottom, rgba(247,201,72,0.09) 0%, var(--bg) 100%); border: none; border-top: 2px solid var(--border); color: var(--muted); font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: 1px; cursor: pointer; transition: all 0.22s; white-space: nowrap; position: relative; overflow: hidden; width: 100%; border-radius: 0; }
+    .album-tab-btn::before { display: none; }
+    .album-tab-btn:hover { background: linear-gradient(to bottom, rgba(247,201,72,0.15) 0%, var(--bg) 100%); color: var(--text); border-top-color: var(--accent); }
+    .album-tab-btn.active { background: linear-gradient(to bottom, rgba(247,201,72,0.20) 0%, var(--bg) 100%); color: var(--accent); border-top: 2px solid var(--accent); }
+    .album-tab-btn .tab-icon { font-size: 16px; line-height: 1; }
+    .album-tab-btn .tab-count { background: rgba(247,201,72,0.15); color: var(--accent); font-family: var(--font-body); font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 20px; letter-spacing: 0; }
+    .tab-count .tc-sep { color: rgba(247,201,72,0.4); margin: 0 3px; font-weight: 300; }
+    .tab-count .tc-views { color: var(--accent2); }
+    #album-section { display: none; max-width: 1100px; margin: 32px auto 0; padding: 0 20px 60px; }
+    .album-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .album-header-left { display: flex; flex-direction: column; gap: 4px; }
+    .album-title { font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: 2px; color: var(--accent); line-height: 1; }
+    .album-meta { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-weight: 400; }
+    .album-back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, rgba(247,201,72,0.12), rgba(255,107,53,0.08)); border: 1.5px solid var(--accent); border-radius: 10px; color: var(--accent); font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; box-shadow: 0 0 10px rgba(247,201,72,0.1); }
+    .album-back-btn:hover { background: linear-gradient(135deg, rgba(247,201,72,0.22), rgba(255,107,53,0.14)); box-shadow: 0 0 18px rgba(247,201,72,0.22); transform: translateY(-1px); }
+    .album-back-btn:active { transform: translateY(0); }
+    .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-w), 1fr)); gap: 8px; }
+    .album-card { position: relative; aspect-ratio: var(--thumb-ratio); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); transition: all 0.18s; }
+    .album-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
+    .album-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .album-card .bib-tag { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 11px; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; }
+ 
+    @media (max-width: 600px) {
+      :root { --thumb-w: 140px; }
+      header { padding: 10px 12px; }
+      .logo { font-size: clamp(9px, 3vw, 16px); letter-spacing: 0.5px; }
+      .viewer-bib { font-size: 24px; }
+      .photo-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .bib-input { font-size: 20px; letter-spacing: 3px; }
+      .search-btn { padding: 15px 14px; font-size: 13px; }
+      .bib-row { flex-wrap: nowrap; }
+      .mf-m, .mf-f { font-size: 18px; }
+      .page-jump-label { display: none; }
+      .album-tabs-outer { max-width: 100%; margin: 10px 8px 0; }
+      .album-tab-btn { padding: 11px 6px; font-size: 11px; }
+      .album-title { font-size: 20px; }
+      .lb-runner-name { font-size: 14px; }
+    }
+ 
+    /* LYCHEE LOADING */
+    .lychee-loading { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(10,10,15,0.88); backdrop-filter: blur(10px); flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+    .lychee-loading.show { display: flex; }
+    .lychee-bounce { font-size: 64px; animation: lychee-jump 0.7s ease-in-out infinite alternate; transform-origin: bottom center; filter: drop-shadow(0 8px 18px rgba(247,100,80,0.5)); line-height: 1; }
+    @keyframes lychee-jump { 0% { transform: translateY(0) rotate(-8deg) scale(1); } 40% { transform: translateY(-28px) rotate(6deg) scale(1.08); } 70% { transform: translateY(-42px) rotate(-4deg) scale(1.12); } 100% { transform: translateY(-20px) rotate(8deg) scale(1.05); } }
+    .lychee-shadow { width: 36px; height: 10px; background: rgba(247,100,80,0.22); border-radius: 50%; animation: lychee-shadow 0.7s ease-in-out infinite alternate; margin-top: -8px; }
+    @keyframes lychee-shadow { 0% { transform: scaleX(1); opacity: 0.6; } 100% { transform: scaleX(0.5); opacity: 0.2; } }
+    .lychee-text { font-family: var(--font-body); font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: 0.3px; margin-top: 4px; }
+    .lychee-text em { font-style: normal; color: var(--accent); font-weight: 600; }
+ 
+    /* ══ HEART PILL ══ */
+    .heart-pill { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(19,19,26,0.92); border: 1px solid var(--border); border-radius: 999px; font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--muted); backdrop-filter: blur(12px); transition: border-color 0.2s; white-space: nowrap; user-select: none; }
+    .heart-pill:hover { border-color: #f87171; }
+ 
+    /* CHỮ "THẢ" TRƯỚC TIM */
+    .heart-label {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      color: #e53935;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    @media (max-width: 600px) {
+      .heart-label { font-size: 11px; }
+    }
+ 
+    .heart-icon-wrap { position: relative; width: 32px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .vn-flag { width: 32px; height: 28px; display: block; filter: drop-shadow(0 2px 6px rgba(229,57,53,0.55)); animation: heartPulse 1.8s ease-in-out infinite; }
+    @keyframes heartPulse {
+      0%   { transform: scale(1); }
+      14%  { transform: scale(1.12); }
+      28%  { transform: scale(1); }
+      42%  { transform: scale(1.07); }
+      56%  { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+    /* Vòng sáng tỏa ra */
+    .heart-ring {
+      display: block;
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(229,57,53,0.7);
+      width: 32px; height: 32px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0;
+      animation: ringPulse 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .heart-ring.ring2 { animation-delay: 0.8s; }
+    .heart-ring.ring3 { animation-delay: 1.6s; }
+    @keyframes ringPulse {
+      0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; border-color: rgba(229,57,53,0.8); }
+      100% { transform: translate(-50%, -50%) scale(3.2); opacity: 0;   border-color: rgba(229,57,53,0); }
+    }
+    .heart-pill.beat .vn-flag { animation: heartBeat 0.42s ease-out forwards, heartPulse 1.8s ease-in-out 0.42s infinite; }
+    @keyframes heartBeat { 0% { transform: scale(1); } 25% { transform: scale(1.4); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .heart-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: #f87171; transition: color 0.3s; }
+    .float-heart { position: fixed; pointer-events: none; z-index: 4000; animation: floatUp 1.4s ease-out forwards; font-size: 18px; }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--r0)); } 30% { opacity: 1; transform: translateY(-60px) scale(1.3) rotate(var(--r1)); } 70% { opacity: 0.7; transform: translateY(-130px) scale(1.1) rotate(var(--r2)); } 100% { opacity: 0; transform: translateY(-220px) scale(0.6) rotate(var(--r3)); } }
+  </style>
+</head>
+<body>
+ 
+<div class="lychee-loading" id="lychee-loading">
+  <div class="lychee-bounce">🌿</div>
+  <div class="lychee-shadow"></div>
+  <div class="lychee-text"><em>Em đang load ảnh với Pace 1.2</em> chờ em chút nha </div>
+</div>
+ 
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-top-badge">TÌM ẢNH GIẢI CHẠY</div>
+    <h1>BƯỚC CHÂN<br><em>DI SẢN</em> 2026</h1>
+    <div class="hero-sub-badge">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</div>
+    <div class="hero-date">Tháng 4, 2026 <span>•</span> THƯỢNG CÁT, HÀ NỘI</div>
+    <div class="search-container">
+      <div class="bib-row" style="position:relative;">
+        <div style="flex:1;position:relative;min-width:0;display:flex;align-items:center;">
+          <input class="bib-input" id="bib-input" type="text" inputmode="text"
+                 placeholder="Tìm ẢNH theo BIB hoặc Tên của bạn..." maxlength="50"
+                 oninput="onBibInputChange(this)"
+                 onkeydown="onBibInputKeyDown(event)"
+                 autocomplete="off">
+          <button class="bib-clear-btn" id="bib-clear-btn" onclick="clearBibInput()" title="Xóa" tabindex="-1">✕</button>
+        </div>
+        <button class="search-btn" id="search-btn-main" onclick="searchByBib()" title="Tìm kiếm"><span class="search-btn-icon">🔍</span></button>
+        <div class="autocomplete-dropdown" id="autocomplete-dropdown" style="left:0;right:0;"></div>
+      </div>
+    <div class="album-tabs-outer">
+    <div class="album-tabs-wrap">
+      <button class="album-tab-btn" id="tab-khai-mac"     onclick="openAlbumTab('khai-mac')">
+        <span class="tab-icon">🎪</span> KHAI MẠC / TRAO GIẢI
+      </button>
+      <button class="album-tab-btn" id="tab-start-finish" onclick="openAlbumTab('start-finish')">
+        <span class="tab-icon">🏁</span> START / FINISH
+      </button>
+      <button class="album-tab-btn" id="tab-kid-run"  onclick="openAlbumTab('kid-run')">
+        <span class="tab-icon">📸</span> KID RUN
+      </button>
+      <button class="album-tab-btn" id="tab-tong-hop"          onclick="openAlbumTab('tong-hop')">
+        <span class="tab-icon">🙌</span> TỔNG HỢP
+      </button>
+	  <button class="album-tab-btn" id="tab-btc"          onclick="openAlbumTab('btc')">
+        <span class="tab-icon">🏅</span> BAN TỔ CHỨC
+      </button>
+    </div>
+    </div>
+      <div class="status-bar" id="status-bar"></div>
+      <div class="progress-wrap" id="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="notice-banner" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+ 
+<div id="name-results-section">
+  <div class="name-results-header">
+    <div>
+      <div class="name-results-title" id="name-results-title">KẾT QUẢ TÌM KIẾM</div>
+      <div class="name-results-count" id="name-results-count"></div>
+    </div>
+    <button onclick="clearResults()" style="padding:10px 20px;background:linear-gradient(135deg,rgba(247,201,72,0.12),rgba(255,107,53,0.08));border:1.5px solid var(--accent);border-radius:10px;color:var(--accent);font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 0 10px rgba(247,201,72,0.1);display:inline-flex;align-items:center;gap:8px;" onmouseover="this.style.boxShadow='0 0 18px rgba(247,201,72,0.22)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='0 0 10px rgba(247,201,72,0.1)';this.style.transform=''"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg> TRANG CHỦ</button>
+  </div>
+  <div class="runner-card-grid" id="name-results-grid"></div>
+</div>
+ 
+<div id="viewer-section">
+  <div style="max-width:1100px;margin:0 auto;padding:0 20px;">
+    <div class="viewer-header">
+      <div>
+        <div id="viewer-bib" class="viewer-bib"></div>
+        <div class="runner-info-card" id="runner-info-card">
+          <div class="runner-info-name" id="runner-info-name"></div>
+          <span class="runner-info-sep"></span>
+          <div class="runner-info-club"><span class="runner-info-club-name" id="runner-info-club"></span></div>
+        </div>
+        <div id="viewer-subtitle" class="viewer-subtitle" style="margin-top:8px;"></div>
+      </div>
+      <div id="viewer-folder-links" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"></div>
+      <button onclick="clearResults()" style="padding:10px 20px;background:linear-gradient(135deg,rgba(247,201,72,0.12),rgba(255,107,53,0.08));border:1.5px solid var(--accent);border-radius:10px;color:var(--accent);font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 0 10px rgba(247,201,72,0.1);display:inline-flex;align-items:center;gap:8px;" onmouseover="this.style.boxShadow='0 0 18px rgba(247,201,72,0.22)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='0 0 10px rgba(247,201,72,0.1)';this.style.transform=''"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg> TRANG CHỦ</button>
+    </div>
+    <div class="result-grid" id="result-grid"></div>
+    <div class="pagination" id="viewer-pagination"></div>
+  </div>
+</div>
+ 
+<div id="album-section">
+  <div class="album-header">
+    <div class="album-header-left">
+      <div class="album-title" id="album-title"></div>
+      <div class="album-meta" id="album-meta"></div>
+    </div>
+    <button class="album-back-btn" onclick="closeAlbumTab()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg> TRANG CHỦ</button>
+  </div>
+  <div id="album-grid" class="album-grid"></div>
+  <div class="pagination" id="album-pagination"></div>
+</div>
+ 
+<div class="lightbox" id="lightbox" onclick="handleLightboxBackdropClick(event)">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <div class="lb-main" onclick="event.stopPropagation()">
+    <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)">‹</button>
+    <div style="position:relative;">
+      <div class="lb-spinner" id="lb-spinner">Đang tải ảnh...</div>
+      <img class="lb-img hidden" id="lb-img" src="" alt="" onload="onLbImgLoad()" onerror="onLbImgError()">
+    </div>
+    <button class="lb-nav" id="lb-next" onclick="lbNav(1)">›</button>
+  </div>
+  <div class="lb-info" onclick="event.stopPropagation()">
+    <div class="lb-bib-label" id="lb-bib-label"></div>
+    <div class="lb-runner-block" id="lb-runner-block">
+      <div class="lb-runner-name" id="lb-runner-name"></div>
+      <span class="lb-runner-sep"></span>
+      <div class="lb-runner-club" id="lb-runner-club"></div>
+    </div>
+    <div class="lb-counter" id="lb-counter"></div>
+    <a class="lb-folder-btn" id="lb-folder-btn" href="#" target="_blank">📁 Mở thư mục Google Drive</a>
+  </div>
+  <div class="lb-thumbs" id="lb-thumbs" onclick="event.stopPropagation()"></div>
+</div>
+ 
+<div class="section" id="browse-section">
+  <div class="section-title">ẢNH MỚI NHẤT <span class="count-badge" id="total-count">--</span></div>
+  <div class="photo-grid" id="main-grid"></div>
+  <div class="pagination" id="pagination"></div>
+</div>
+ 
+<footer style="border-top:1px solid var(--border);margin-top:60px;padding:40px 24px 32px;text-align:center;background:var(--surface);">
+  <div style="font-family:'Montserrat','Segoe UI',sans-serif;font-weight:800;font-size:clamp(14px,3vw,20px);letter-spacing:2px;color:var(--accent);margin-bottom:6px;">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</div>
+  <div style="font-family:'Montserrat','Segoe UI',sans-serif;font-weight:700;font-size:clamp(11px,2vw,15px);letter-spacing:1.5px;color:var(--accent2);margin-bottom:20px;">GIẢI CHẠY - BƯỚC CHÂN DI SẢN</div>
+  <a href="https://www.facebook.com/thuongcatrunners" target="_blank" style="display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-family:var(--font-body);font-size:14px;font-weight:500;transition:color 0.2s;" onmouseover="this.style.color='#4fc3f7'" onmouseout="this.style.color='var(--muted)'">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#4fc3f7"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.791-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+    THUONG CAT RUNNERS - TCR
+  </a>
+  <div style="margin-top:1px;font-family:var(--font-body);font-size:12px;letter-spacing:0.5px;">
+    <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank" style="color:gray;text-decoration:none;font-weight:600;transition:color 0.2s;" onmouseover="this.style.color='gray'" onmouseout="this.style.color=gray">© 2026 Làng Bên Sông</a>
+  </div>
+</footer>
+ 
+<!-- STATS WIDGET -->
+<div class="stats-widget" id="stats-widget">
+  <!-- HEART PILL: chữ "Thả" đỏ + tim + số đếm -->
+  <div class="heart-pill" id="heart-pill" title="Thả tim — cảm ơn bạn!" onclick="toggleHeart()" style="cursor:pointer;">
+    <span class="heart-label">Thả</span>
+    <div class="heart-icon-wrap" id="heart-icon-wrap">
+      <svg class="vn-flag" id="heart-icon" viewBox="0 0 32 28" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 24 C16 24 4 16 4 9 C4 5.7 6.7 3 10 3 C12.2 3 14.2 4.2 15.3 6 C15.6 6.5 16.4 6.5 16.7 6 C17.8 4.2 19.8 3 22 3 C25.3 3 28 5.7 28 9 C28 16 16 24 16 24Z" fill="#e53935"/>
+      </svg>
+      <span class="heart-ring ring1"></span>
+      <span class="heart-ring ring2"></span>
+      <span class="heart-ring ring3"></span>
+    </div>
+    <span class="heart-count" id="heart-count">--</span>
+    <span></span>
+  </div>
+  <div class="online-pill" id="online-pill" title="Đang xem trang lúc này">
+    <span class="online-dot"></span><span class="online-count" id="online-count">--</span><span>online</span>
+  </div>
+  <div class="visits-pill" id="visits-pill" title="Tổng lượt truy cập">
+    <span class="visits-dot"></span><span class="visits-count" id="visits-count">--</span><span>views</span>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<script>
+const CONFIG = {
+  jsonUrl:        'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json',
+  runnersUrl:     'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json',
+  folderTemplate: 'https://drive.google.com/drive/folders/1_z_YUXz1HzP8VEbjufSCeL6il8XEotdG',
+  // prefixes không cần nữa — BIB thuần 4 số
+};
+ 
+const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 600;
+let PHOTOS  = [];
+let RUNNERS = {};
+let browsePage = 1;
+let BROWSE_PHOTOS = [];
+ 
+function buildBrowseOrder() {
+  const priority = PHOTOS.filter(p =>
+    (p.folderUrl && p.folderUrl.toLowerCase().includes('an-tuong-ph')) ||
+    (p.tab && p.tab.toLowerCase().includes('an-tuong-ph')) ||
+    (p.folder && p.folder.toLowerCase().includes('an-tuong-ph'))
+  );
+  const rest = PHOTOS.filter(p =>
+    !(p.folderUrl && p.folderUrl.toLowerCase().includes('an-tuong-ph')) &&
+    !(p.tab && p.tab.toLowerCase().includes('an-tuong-ph')) &&
+    !(p.folder && p.folder.toLowerCase().includes('an-tuong-ph'))
+  );
+  BROWSE_PHOTOS = [...priority, ...rest];
+}
+const BROWSE_PAGE_SIZE = IS_MOBILE ? 24 : 50;
+let viewerAllList = [];
+let viewerPage    = 1;
+const VIEWER_PAGE_SIZE = 50;
+let viewerIndex   = 0;
+ 
+document.addEventListener('DOMContentLoaded', () => { fetchAll(); });
+ 
+async function fetchAll() {
+  document.getElementById('lychee-loading').classList.add('show');
+  showProgress(15);
+  try {
+    const [photosRes, runnersRes] = await Promise.all([
+      fetch(CONFIG.jsonUrl    + '?t=' + Date.now()),
+      CONFIG.runnersUrl ? fetch(CONFIG.runnersUrl + '?t=' + Date.now()).catch(() => null) : Promise.resolve(null)
+    ]);
+    if (!photosRes.ok) throw new Error('HTTP ' + photosRes.status);
+    PHOTOS = await photosRes.json();
+    showProgress(80);
+    if (runnersRes && runnersRes.ok) { RUNNERS = await runnersRes.json(); }
+    showProgress(100);
+    document.getElementById('total-count').textContent = PHOTOS.length.toLocaleString();
+    document.getElementById('lychee-loading').classList.remove('show');
+    setStatus('Đã tải ' + PHOTOS.length.toLocaleString() + ' ảnh', 'success');
+    setTimeout(() => { setStatus(''); hideProgress(); }, 2000);
+    browsePage = 1;
+    buildBrowseOrder();
+    renderBrowseGrid();
+    updateAlbumTabCounts();
+  } catch(e) {
+    document.getElementById('lychee-loading').classList.remove('show');
+    setStatus('Lỗi tải dữ liệu: ' + e.message, 'error');
+    hideProgress();
+    loadDemoData();
+  }
+}
+ 
+function loadDemoData() {
+  PHOTOS = Array.from({length: 148}, (_, i) => {
+    const num = String(i + 1).padStart(4, '0');
+    const prefix = i % 3 === 0 ? 'F' : 'M';
+    const bib = prefix + num;
+    const tabs = ['khai-mac', 'start-finish', 'khoanh-khac'];
+    return { id: 'demo_' + i, bib, thumb: 'https://picsum.photos/seed/' + bib + '/300/200', full: 'https://picsum.photos/seed/' + bib + '/900/600', folderUrl: '', drive: 1, tab: tabs[i % 3] };
+  });
+  RUNNERS = { 'M0001': { name: 'NGUYỄN VĂN A', club: 'TCR - THUONG CAT RUNNERS' }, 'F0002': { name: 'TRẦN THỊ B', club: 'RUN4SELF' } };
+  document.getElementById('total-count').textContent = PHOTOS.length + ' (demo)';
+  browsePage = 1;
+  buildBrowseOrder();
+  renderBrowseGrid();
+  updateAlbumTabCounts();
+}
+ 
+function lookupRunner(bib) {
+  if (!bib || !Object.keys(RUNNERS).length) return null;
+  const digits = bib.toString().replace(/[^0-9]/g, "");
+  const key4   = digits.padStart(4, "0");
+  const keyRaw = digits.replace(/^0+/, '') || "0";
+  return RUNNERS[bib] || RUNNERS[key4] || RUNNERS[digits] || RUNNERS[keyRaw] || null;
+}
+ 
+let acFocusIdx = -1;
+ 
+// ── BIB: chỉ cho phép nhập đúng 4 chữ số ──
+function isLikelyBib(raw) { return /^\d{1,4}$/.test(raw.trim()); }
+function isExactBib(raw)  { return /^\d{4}$/.test(raw.trim()); }
+ 
+// ── Nickname dictionary: từ khoá → tên chính thức (không dấu, viết hoa) ──
+// Key là từ khoá nickname (không dấu, hoa), value là mảng từ có thể là tên chính
+// Hệ thống tự học: nếu query có dạng "Tên + mô tả" thì bóc tách tên để tìm
+function extractNameFromNickQuery(rawQ) {
+  // Bóc tách: nếu query gồm nhiều từ, thử từng từ riêng lẻ xem có phải tên không
+  // Ưu tiên: từ đầu tiên viết hoa → có thể là tên chính
+  const words = rawQ.trim().split(/\s+/);
+  // Trả về mảng "ứng viên tên" theo thứ tự ưu tiên: từ đầu, từ cuối, toàn bộ
+  const candidates = [];
+  if (words.length > 1) {
+    candidates.push(words[0]);           // "Tuấn" trong "Tuấn đi bộ"
+    candidates.push(words[words.length - 1]); // từ cuối
+  }
+  candidates.push(rawQ.trim());          // toàn bộ query (fallback)
+  return candidates;
+}
+ 
+// Tính điểm ưu tiên cho 1 kết quả với query
+function scoreRunner(info, bib, q, qRaw) {
+  const nameNorm  = removeVietnameseTones((info.name || '').toUpperCase());
+  const clubNorm  = removeVietnameseTones((info.club || '').toUpperCase());
+  const nameWords = nameNorm.split(/\s+/);
+  const lastName  = nameWords[nameWords.length - 1]; // tên cuối = tên gọi VN
+ 
+  let score = 0;
+  let matched = false;
+ 
+  // === Ưu tiên 1: Khớp chính xác tên cuối ===
+  if (lastName === q) { score = 100; matched = true; }
+  // === Ưu tiên 2: Tên cuối bắt đầu bằng query ===
+  else if (lastName.startsWith(q)) { score = 80; matched = true; }
+  // === Ưu tiên 3: Tên cuối chứa query ===
+  else if (lastName.includes(q)) { score = 60; matched = true; }
+  // === Ưu tiên 4: Bất kỳ từ nào trong tên khớp chính xác ===
+  else if (nameWords.some(w => w === q)) { score = 50; matched = true; }
+  // === Ưu tiên 5: Tên đầy đủ bắt đầu bằng query ===
+  else if (nameNorm.startsWith(q)) { score = 40; matched = true; }
+  // === Ưu tiên 6: Tên đầy đủ chứa query ===
+  else if (nameNorm.includes(q)) { score = 20; matched = true; }
+  // === Ưu tiên 7: Nickname — query gồm nhiều từ, từ đầu khớp tên cuối ===
+  else {
+    const nickCandidates = extractNameFromNickQuery(removeVietnameseTones(qRaw.toUpperCase()));
+    for (const cand of nickCandidates) {
+      if (cand.length < 2) continue;
+      if (lastName === cand) { score = 35; matched = true; break; }
+      if (lastName.startsWith(cand)) { score = 25; matched = true; break; }
+      if (nameWords.some(w => w === cand)) { score = 15; matched = true; break; }
+    }
+  }
+  // Thưởng thêm nếu club khớp
+  if (!matched && clubNorm.includes(q)) { score = 5; matched = true; }
+ 
+  return { matched, score };
+}
+ 
+function searchRunnersByName(query) {
+  if (!query || query.length < 2) return [];
+  const qRaw = query.trim();
+  const q    = removeVietnameseTones(qRaw.toUpperCase());
+  const results = [];
+ 
+  for (const [bib, info] of Object.entries(RUNNERS)) {
+    const { matched, score } = scoreRunner(info, bib, q, qRaw);
+    if (!matched) continue;
+    const bibPhotos  = PHOTOS.filter(p => p.bib && p.bib === bib);
+    const photoCount = bibPhotos.length;
+    const randomPhoto = bibPhotos.length ? bibPhotos[Math.floor(Math.random() * bibPhotos.length)] : null;
+    results.push({ bib, name: info.name || '', club: info.club || '', photoCount, thumb: randomPhoto ? randomPhoto.thumb : null, _score: score });
+  }
+ 
+  // Sắp xếp: score cao nhất lên đầu, cùng score thì theo bib
+  results.sort((a, b) => (b._score - a._score) || a.bib.localeCompare(b.bib));
+  return results;
+}
+ 
+function removeVietnameseTones(str) {
+  return str
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/gi, 'A')
+    .replace(/[èéẹẻẽêềếệểễ]/gi, 'E')
+    .replace(/[ìíịỉĩ]/gi, 'I')
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/gi, 'O')
+    .replace(/[ùúụủũưừứựửữ]/gi, 'U')
+    .replace(/[ỳýỵỷỹ]/gi, 'Y')
+    .replace(/[đ]/gi, 'D');
+}
+ 
+function toggleClearBtn(val) {
+  const btn = document.getElementById('bib-clear-btn');
+  const inp = document.getElementById('bib-input');
+  if (val) { btn.classList.add('visible'); inp.classList.add('has-value'); }
+  else { btn.classList.remove('visible'); inp.classList.remove('has-value'); }
+}
+ 
+function clearBibInput() {
+  const inp = document.getElementById('bib-input');
+  inp.value = ''; inp.focus(); toggleClearBtn(''); closeAutocomplete();
+}
+ 
+function onBibInputChange(el) {
+  let raw = el.value;
+  // Nếu đang nhập thuần số: chặn không cho quá 4 ký tự
+  if (/^\d+$/.test(raw)) {
+    if (raw.length > 4) { raw = raw.slice(0, 4); el.value = raw; }
+  }
+  acFocusIdx = -1;
+  toggleClearBtn(raw);
+  if (!raw.trim()) { closeAutocomplete(); return; }
+  // Nếu là số thì không gợi ý tên, chỉ chờ nhấn tìm
+  if (/^\d+$/.test(raw.trim())) { closeAutocomplete(); return; }
+  const results = searchRunnersByName(raw);
+  renderAutocomplete(results, raw);
+}
+ 
+function onBibInputKeyDown(e) {
+  const dd = document.getElementById('autocomplete-dropdown');
+  const items = dd.querySelectorAll('.ac-item');
+  if (dd.classList.contains('open') && items.length) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); acFocusIdx = Math.min(acFocusIdx + 1, items.length - 1); updateAcFocus(items); return; }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); acFocusIdx = Math.max(acFocusIdx - 1, 0); updateAcFocus(items); return; }
+    if (e.key === 'Enter') { if (acFocusIdx >= 0 && items[acFocusIdx]) { items[acFocusIdx].click(); return; } }
+    if (e.key === 'Escape') { closeAutocomplete(); return; }
+  }
+  if (e.key === 'Enter') searchByBib();
+}
+ 
+function updateAcFocus(items) {
+  items.forEach((el, i) => el.classList.toggle('focused', i === acFocusIdx));
+  if (items[acFocusIdx]) items[acFocusIdx].scrollIntoView({ block: 'nearest' });
+}
+ 
+function renderAutocomplete(results, query) {
+  const dd = document.getElementById('autocomplete-dropdown');
+  if (!results.length) { dd.innerHTML = '<div class="ac-empty">Không tìm thấy vận động viên</div>'; dd.classList.add('open'); return; }
+  const showMax = Math.min(results.length, 8);
+  dd.innerHTML = results.slice(0, showMax).map(r => {
+    const clubText = (r.club && r.club.trim() && r.club.toLowerCase() !== 'nan') ? r.club : '';
+    const countBadge = r.photoCount > 0 ? '<span class="ac-count">📸 ' + r.photoCount + '</span>' : '';
+    const nameHtml = highlightMatch(r.name, query);
+    return '<div class="ac-item" onclick="selectRunnerFromAc(\'' + r.bib + '\')" data-bib="' + r.bib + '">' +
+      '<span class="ac-bib">' + r.bib + '</span><span class="ac-name">' + nameHtml + '</span>' +
+      (clubText ? '<span class="ac-club">' + clubText + '</span>' : '') + countBadge + '</div>';
+  }).join('') +
+  (results.length > showMax ? '<div class="ac-empty" style="cursor:pointer;color:var(--accent);" onclick="document.getElementById(\'search-btn-main\').click()">▼ Xem thêm ' + (results.length - showMax) + ' kết quả...</div>' : '');
+  dd.classList.add('open');
+}
+ 
+function closeAutocomplete() { const dd = document.getElementById('autocomplete-dropdown'); dd.classList.remove('open'); dd.innerHTML = ''; acFocusIdx = -1; }
+ 
+function selectRunnerFromAc(bib) {
+  const inp = document.getElementById('bib-input');
+  inp.value = bib; toggleClearBtn(bib); closeAutocomplete(); searchByBib();
+}
+ 
+document.addEventListener('click', (e) => { if (!e.target.closest('.bib-row')) closeAutocomplete(); });
+ 
+function highlightMatch(text, query) {
+  const q = removeVietnameseTones(query.toUpperCase().trim());
+  const textNorm = removeVietnameseTones(text.toUpperCase());
+  const idx = textNorm.indexOf(q);
+  if (idx < 0) return text;
+  return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + q.length) + '</mark>' + text.slice(idx + q.length);
+}
+ 
+function rcImgError(img) {
+  img.style.display = 'none';
+  const wrap = img.parentElement;
+  const placeholder = document.createElement('div');
+  placeholder.className = 'rc-no-photo';
+  placeholder.textContent = '\u{1F464}';
+  wrap.insertBefore(placeholder, wrap.firstChild);
+}
+ 
+function showNameResults(results, query) {
+  closeAutocomplete();
+  document.getElementById('viewer-section').style.display   = 'none';
+  document.getElementById('browse-section').style.display   = 'none';
+  document.getElementById('album-section').style.display    = 'none';
+  const sec = document.getElementById('name-results-section');
+  sec.style.display = 'block';
+  document.getElementById('name-results-title').innerHTML = 'KẾT QUẢ TÌM KIẾM: <em>"' + query + '"</em>';
+  document.getElementById('name-results-count').textContent = 'Tìm thấy ' + results.length + ' vận động viên — chọn để xem ảnh';
+  const grid = document.getElementById('name-results-grid');
+  grid.innerHTML = results.map(r => {
+    const clubText = (r.club && r.club.trim() && r.club.toLowerCase() !== 'nan') ? r.club : '';
+    const nameHtml = highlightMatch(r.name, query);
+    const countBadge = r.photoCount > 0 ? '<div class="rc-photo-count">\u{1F4F8} ' + r.photoCount + '</div>' : '';
+    const thumbInner = r.thumb ? '<img src="' + r.thumb + '" alt="" loading="lazy" onerror="rcImgError(this)">' : '<div class="rc-no-photo">\u{1F464}</div>';
+    return '<div class="runner-card" onclick="selectRunnerFromAc(\'' + r.bib + '\')">' +
+      '<div class="runner-card-thumb">' + thumbInner + countBadge + '</div>' +
+      '<div class="runner-card-body"><div class="runner-card-bib">' + r.bib + '</div>' +
+      '<div class="runner-card-name">' + nameHtml + '</div>' +
+      (clubText ? '<div class="runner-card-club">' + clubText + '</div>' : '') + '</div></div>';
+  }).join('');
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+ 
+function searchByBib() {
+  closeAutocomplete();
+  const raw = document.getElementById('bib-input').value.trim();
+  if (!raw) { showToast('Vui lòng nhập số BIB hoặc tên VĐV', 'error'); return; }
+ 
+  // ── Tìm theo BIB (thuần số) ──
+  if (/^\d+$/.test(raw)) {
+    if (raw.length !== 4) {
+      showToast('Số BIB phải đúng 4 chữ số (ví dụ: 0044)', 'error');
+      return;
+    }
+    document.getElementById('name-results-section').style.display = 'none';
+    const bib4 = raw; // đã đúng 4 số
+    setStatus('Đang tìm BIB ' + bib4 + '...', 'loading');
+    const matches = PHOTOS.filter(p => p.bib === bib4);
+    if (matches.length === 0) { setStatus('', ''); showViewer([], bib4, bib4); return; }
+    setStatus('✓ Tìm thấy ' + matches.length + ' ảnh', 'success');
+    setTimeout(() => setStatus('', ''), 2500);
+    showViewer(matches, bib4, bib4);
+    return;
+  }
+ 
+  // ── Tìm theo tên / nickname ──
+  const found = searchRunnersByName(raw);
+  if (found.length === 0) { showToast('Không tìm thấy vận động viên "' + raw + '"', 'error'); return; }
+  if (found.length === 1) { selectRunnerFromAc(found[0].bib); return; }
+  showNameResults(found, raw);
+}
+ 
+function showViewer(list, label, digits) {
+  viewerAllList = list; viewerPage = 1;
+  const section = document.getElementById('viewer-section');
+  section.style.display = 'block';
+  document.getElementById('browse-section').style.display  = 'none';
+  document.getElementById('album-section').style.display   = 'none';
+  document.getElementById('viewer-bib').textContent = 'BIB ' + label;
+  const card   = document.getElementById('runner-info-card');
+  const nameEl = document.getElementById('runner-info-name');
+  const clubEl = document.getElementById('runner-info-club');
+  const runner = lookupRunner(digits || '');
+  if (runner && (runner.name || runner.club)) {
+    nameEl.textContent = runner.name || '';
+    clubEl.textContent = (runner.club && runner.club.trim() && runner.club.toLowerCase() !== 'nan') ? runner.club : 'non team';
+    card.classList.add('visible');
+  } else { card.classList.remove('visible'); }
+  if (list.length === 0) {
+    document.getElementById('viewer-subtitle').textContent = 'Không tìm thấy ảnh nào trong hệ thống';
+    document.getElementById('result-grid').innerHTML = '<div style="color:var(--muted);padding:40px 0;font-size:14px;grid-column:1/-1;text-align:center;">BIB <strong style="color:var(--accent)">' + label + '</strong> chưa có ảnh trong hệ thống</div>';
+    document.getElementById('viewer-folder-links').innerHTML = '';
+    document.getElementById('viewer-pagination').innerHTML  = '';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
+  }
+  const seen = new Set();
+  const linksHtml = list.filter(p => { const url = p.folderUrl; if (!url || seen.has(url)) return false; seen.add(url); return true; })
+    .slice(0, 4).map(p => '<a class="folder-link-btn" href="' + p.folderUrl + '" target="_blank">📁 TẢI TẤT CẢ ẢNH ' + p.bib + '</a>').join('');
+  document.getElementById('viewer-folder-links').innerHTML = linksHtml;
+  renderViewerPage();
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+ 
+function renderViewerPage() {
+  const total = viewerAllList.length;
+  const totalPages = Math.ceil(total / VIEWER_PAGE_SIZE);
+  const start = (viewerPage - 1) * VIEWER_PAGE_SIZE;
+  const pageItems = viewerAllList.slice(start, start + VIEWER_PAGE_SIZE);
+  document.getElementById('viewer-subtitle').textContent = total + ' ảnh — Trang ' + viewerPage + '/' + totalPages + ' — click để xem lớn';
+  const grid = document.getElementById('result-grid');
+  grid.innerHTML = pageItems.map((photo, i) =>
+    '<div class="result-card" onclick="openLightboxViewer(' + (start + i) + ')" title="Ảnh ' + (start+i+1) + '">' +
+    '<img src="' + photo.thumb + '" alt="" loading="lazy" onerror="this.src=\'https://placehold.co/300x200/1c1c27/7070a0?text=?\'">' +
+    (photo.bib ? '<div class="bib-tag">' + photo.bib + '</div>' : '') + '</div>'
+  ).join('');
+  renderViewerPagination(total);
+}
+ 
+function renderViewerPagination(total) {
+  const totalPages = Math.ceil(total / VIEWER_PAGE_SIZE);
+  const el = document.getElementById('viewer-pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = buildPaginationHTML(viewerPage, totalPages, 'goViewerPage');
+}
+ 
+function goViewerPage(p) { viewerPage = p; renderViewerPage(); document.getElementById('viewer-section').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function jumpViewerPage() {
+  const input = document.getElementById('viewer-jump-input');
+  const totalPages = Math.ceil(viewerAllList.length / VIEWER_PAGE_SIZE);
+  const p = parseInt(input.value);
+  if (!p || p < 1 || p > totalPages) { showToast('Trang không hợp lệ (1–' + totalPages + ')', 'error'); return; }
+  input.value = ''; goViewerPage(p);
+}
+ 
+function openLightboxViewer(globalIdx) {
+  viewerIndex = globalIdx;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderLightboxImage(); buildLbThumbs();
+  document.addEventListener('keydown', lbKeyHandler);
+}
+ 
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; document.removeEventListener('keydown', lbKeyHandler); }
+function handleLightboxBackdropClick(e) { if (e.target === document.getElementById('lightbox')) closeLightbox(); }
+function lbNav(dir) { viewerIndex = (viewerIndex + dir + viewerAllList.length) % viewerAllList.length; renderLightboxImage(); syncLbThumbs(); }
+ 
+function renderLightboxImage() {
+  const list  = viewerAllList.length ? viewerAllList : PHOTOS;
+  const photo = list[viewerIndex];
+  if (!photo) return;
+  const img     = document.getElementById('lb-img');
+  const spinner = document.getElementById('lb-spinner');
+  img.classList.add('hidden'); spinner.style.display = 'flex'; spinner.textContent = 'Đang tải ảnh...';
+  let displayUrl = photo.thumb;
+  if (displayUrl && displayUrl.includes('drive.google.com/thumbnail')) displayUrl = displayUrl.replace(/sz=w\d+/, 'sz=w1200');
+  else if (photo.full && !photo.full.includes('export=view')) displayUrl = photo.full;
+  img.src = displayUrl;
+  const bibLabel = photo.bib ? 'BIB ' + photo.bib : (photo.tab || '');
+  document.getElementById('lb-bib-label').textContent = bibLabel;
+  const runnerBlock = document.getElementById('lb-runner-block');
+  const runnerNameEl = document.getElementById('lb-runner-name');
+  const runnerClubEl = document.getElementById('lb-runner-club');
+  const runner = photo.bib ? lookupRunner(photo.bib) : null;
+  if (runner && (runner.name || runner.club)) {
+    runnerNameEl.textContent = runner.name || '';
+    runnerClubEl.textContent = (runner.club && runner.club.trim() && runner.club.toLowerCase() !== 'nan') ? runner.club : 'non team';
+    runnerBlock.classList.add('visible');
+  } else { runnerBlock.classList.remove('visible'); }
+  document.getElementById('lb-counter').textContent = (viewerIndex + 1) + ' / ' + list.length;
+  const folderBtn = document.getElementById('lb-folder-btn');
+  if (photo.folderUrl) { folderBtn.href = photo.folderUrl; folderBtn.style.display = ''; }
+  else { folderBtn.style.display = 'none'; }
+}
+ 
+function onLbImgLoad()  { document.getElementById('lb-img').classList.remove('hidden'); document.getElementById('lb-spinner').style.display = 'none'; }
+function onLbImgError() { document.getElementById('lb-spinner').textContent = 'Không thể tải ảnh này'; }
+ 
+function buildLbThumbs() {
+  const list  = viewerAllList.length ? viewerAllList : PHOTOS;
+  const strip = document.getElementById('lb-thumbs');
+  strip.innerHTML = list.map((photo, i) =>
+    '<div class="lb-thumb ' + (i === viewerIndex ? 'active' : '') + '" onclick="lbGoTo(' + i + ')">' +
+    '<img src="' + photo.thumb + '" alt="" loading="lazy" onerror="this.src=\'https://placehold.co/72x50/1c1c27/7070a0?text=?\'"></div>'
+  ).join('');
+  syncLbThumbs();
+}
+function syncLbThumbs() {
+  const thumbs = document.querySelectorAll('.lb-thumb');
+  thumbs.forEach((el, i) => el.classList.toggle('active', i === viewerIndex));
+  const active = thumbs[viewerIndex];
+  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+function lbGoTo(idx) { viewerIndex = idx; renderLightboxImage(); syncLbThumbs(); }
+function lbKeyHandler(e) { if (e.key==='Escape') closeLightbox(); if (e.key==='ArrowLeft') lbNav(-1); if (e.key==='ArrowRight') lbNav(1); }
+ 
+function clearResults() {
+  document.getElementById('viewer-section').style.display = 'none';
+  document.getElementById('name-results-section').style.display = 'none';
+  document.getElementById('browse-section').style.display = '';
+  document.getElementById('bib-input').value = '';
+  toggleClearBtn(''); closeAutocomplete();
+  document.getElementById('runner-info-card').classList.remove('visible');
+  viewerAllList = []; setStatus('', '');
+  document.getElementById('browse-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+ 
+function renderBrowseGrid() {
+  const grid  = document.getElementById('main-grid');
+  const list  = BROWSE_PHOTOS.length ? BROWSE_PHOTOS : PHOTOS;
+  const total = list.length;
+  const start = (browsePage - 1) * BROWSE_PAGE_SIZE;
+  const page  = list.slice(start, start + BROWSE_PAGE_SIZE);
+  if (total === 0) { grid.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;">Chưa có dữ liệu ảnh</div>'; document.getElementById('pagination').innerHTML = ''; return; }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const card = entry.target;
+      if (card.dataset.loaded) return;
+      card.dataset.loaded = '1';
+      const photo = page[parseInt(card.dataset.idx)];
+      if (!photo) return;
+      card.classList.remove('skeleton');
+      card.innerHTML = '<img src="' + photo.thumb + '" alt="" onerror="this.src=\'https://placehold.co/300x200/1c1c27/7070a0?text=?\'">' +
+        (photo.bib ? '<div class="bib-tag">' + photo.bib + '</div>' : '');
+      card.onclick = () => {
+        viewerAllList = list; viewerIndex = start + parseInt(card.dataset.idx);
+        document.getElementById('lightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        renderLightboxImage(); buildLbThumbs();
+        document.addEventListener('keydown', lbKeyHandler);
+      };
+      observer.unobserve(card);
+    });
+  }, { rootMargin: '120px' });
+  grid.innerHTML = page.map((_, i) => '<div class="photo-card skeleton" data-idx="' + i + '"></div>').join('');
+  grid.querySelectorAll('.photo-card').forEach(card => observer.observe(card));
+  renderBrowsePagination(total);
+}
+ 
+function renderBrowsePagination(total) {
+  const totalPages = Math.ceil(total / BROWSE_PAGE_SIZE);
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = buildPaginationHTML(browsePage, totalPages, 'goBrowsePage');
+}
+function goBrowsePage(p) { browsePage = p; renderBrowseGrid(); document.getElementById('browse-section').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function jumpBrowsePage() {
+  const input = document.getElementById('browse-jump-input');
+  const totalPages = Math.ceil(PHOTOS.length / BROWSE_PAGE_SIZE);
+  const p = parseInt(input.value);
+  if (!p || p < 1 || p > totalPages) { showToast('Trang không hợp lệ (1–' + totalPages + ')', 'error'); return; }
+  input.value = ''; goBrowsePage(p);
+}
+ 
+function buildPaginationHTML(cur, total, gofn) {
+  const jumpId = gofn === 'goBrowsePage' ? 'browse-jump-input' : (gofn === 'goAlbumPage' ? 'album-jump-input' : 'viewer-jump-input');
+  const jumpFn = gofn === 'goBrowsePage' ? 'jumpBrowsePage' : (gofn === 'goAlbumPage' ? 'jumpAlbumPage' : 'jumpViewerPage');
+  let html = '<button class="page-btn" ' + (cur===1?'disabled':'onclick="'+gofn+'('+(cur-1)+')"') + '>‹</button>';
+  getPaginationRange(cur, total).forEach(p => {
+    if (p === '...') html += '<button class="page-btn" disabled>…</button>';
+    else html += '<button class="page-btn ' + (p===cur?'active':'') + '" onclick="' + gofn + '(' + p + ')">' + p + '</button>';
+  });
+  html += '<button class="page-btn" ' + (cur===total?'disabled':'onclick="'+gofn+'('+(cur+1)+')"') + '>›</button>';
+  html += '<div class="page-divider"></div><div class="page-jump">';
+  html += '<span class="page-jump-label">Đến trang</span>';
+  html += '<input class="page-jump-input" id="' + jumpId + '" type="number" min="1" max="' + total + '" placeholder="' + cur + '" onkeydown="if(event.key===\'Enter\') ' + jumpFn + '()">';
+  html += '<button class="page-jump-btn" onclick="' + jumpFn + '()">Đi ›</button></div>';
+  return html;
+}
+function getPaginationRange(cur, total) {
+  if (total <= 7) return Array.from({length:total},(_,i)=>i+1);
+  if (cur <= 4)   return [1,2,3,4,5,'...',total];
+  if (cur >= total-3) return [1,'...',total-4,total-3,total-2,total-1,total];
+  return [1,'...',cur-1,cur,cur+1,'...',total];
+}
+ 
+function setStatus(msg, type) { const el = document.getElementById('status-bar'); el.textContent = msg; el.className = 'status-bar' + (type ? ' ' + type : ''); }
+function showProgress(pct) { document.getElementById('progress-wrap').classList.add('active'); document.getElementById('progress-fill').style.width = pct + '%'; }
+function hideProgress()    { document.getElementById('progress-wrap').classList.remove('active'); document.getElementById('progress-fill').style.width = '0%'; }
+function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show' + (type ? ' ' + type : ''); setTimeout(() => t.className = 'toast', 3000); }
+ 
+const ALBUM_DEFS = [
+  { key: 'khai-mac',     label: 'KHAI MẠC / TRAO GIẢI',      icon: '🎪' },
+  { key: 'start-finish', label: 'START / FINISH', icon: '🏁' },
+  { key: 'kid-run',  label: 'KID RUN',   icon: '📸' },
+  { key: 'tong-hop', label: 'TỔNG HỢP',    icon: '🙌' },
+  { key: 'btc', label: 'BAN TỔ CHỨC',    icon: '🏅' },
+];
+ 
+const ALBUM_PAGE_SIZE = 50;
+let activeAlbumKey   = null;
+let albumCurrentList = [];
+let albumPage        = 1;
+ 
+function updateAlbumTabCounts() {
+  ALBUM_DEFS.forEach(def => {
+    const count = PHOTOS.filter(p => p.tab === def.key).length;
+    const el = document.getElementById('tc-' + def.key);
+    if (!el) return;
+    const firstNode = el.childNodes[0];
+    if (firstNode && firstNode.nodeType === 3) { firstNode.textContent = count > 0 ? count.toLocaleString() : '0'; }
+    else { el.insertBefore(document.createTextNode(count > 0 ? count.toLocaleString() : '0'), el.firstChild); }
+  });
+}
+function openAlbumTab(key) {
+  ALBUM_DEFS.forEach(def => { const btn = document.getElementById('tab-' + def.key); if (btn) btn.classList.toggle('active', def.key === key); });
+  trackTabClick(key);
+  activeAlbumKey   = key;
+  albumCurrentList = PHOTOS.filter(p => p.tab === key);
+  albumPage = 1;
+  const def = ALBUM_DEFS.find(d => d.key === key);
+  document.getElementById('browse-section').style.display  = 'none';
+  document.getElementById('viewer-section').style.display  = 'none';
+  document.getElementById('album-section').style.display   = 'block';
+  document.getElementById('album-title').textContent = def ? def.icon + ' ' + def.label : key.toUpperCase();
+  renderAlbumPage();
+  document.getElementById('album-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function closeAlbumTab() {
+  ALBUM_DEFS.forEach(def => { const btn = document.getElementById('tab-' + def.key); if (btn) btn.classList.remove('active'); });
+  activeAlbumKey = null; albumCurrentList = [];
+  document.getElementById('album-section').style.display  = 'none';
+  document.getElementById('browse-section').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function renderAlbumPage() {
+  const total      = albumCurrentList.length;
+  const totalPages = Math.ceil(total / ALBUM_PAGE_SIZE) || 1;
+  const start      = (albumPage - 1) * ALBUM_PAGE_SIZE;
+  const pageItems  = albumCurrentList.slice(start, start + ALBUM_PAGE_SIZE);
+  document.getElementById('album-meta').textContent = total.toLocaleString() + ' ảnh — Trang ' + albumPage + '/' + totalPages + ' — click để xem lớn';
+  const grid = document.getElementById('album-grid');
+  if (total === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);padding:60px 0;font-size:14px;grid-column:1/-1;text-align:center;">Album này chưa có ảnh. Ảnh sẽ sớm được cập nhật!</div>';
+    document.getElementById('album-pagination').innerHTML = ''; return;
+  }
+  grid.innerHTML = pageItems.map((photo, i) =>
+    '<div class="album-card" onclick="openLightboxAlbum(' + (start + i) + ')">' +
+    '<img src="' + photo.thumb + '" alt="" loading="lazy" onerror="this.src=\'https://placehold.co/300x200/1c1c27/7070a0?text=?\'">' +
+    (photo.bib ? '<div class="bib-tag">' + photo.bib + '</div>' : '') + '</div>'
+  ).join('');
+  renderAlbumPagination(total);
+}
+function renderAlbumPagination(total) {
+  const totalPages = Math.ceil(total / ALBUM_PAGE_SIZE);
+  const el = document.getElementById('album-pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = buildPaginationHTML(albumPage, totalPages, 'goAlbumPage');
+}
+function goAlbumPage(p) { albumPage = p; renderAlbumPage(); document.getElementById('album-section').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function jumpAlbumPage() {
+  const input = document.getElementById('album-jump-input');
+  const totalPages = Math.ceil(albumCurrentList.length / ALBUM_PAGE_SIZE);
+  const p = parseInt(input.value);
+  if (!p || p < 1 || p > totalPages) { showToast('Trang không hợp lệ (1–' + totalPages + ')', 'error'); return; }
+  input.value = ''; goAlbumPage(p);
+}
+function openLightboxAlbum(globalIdx) {
+  viewerAllList = albumCurrentList; viewerIndex = globalIdx;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderLightboxImage(); buildLbThumbs();
+  document.addEventListener('keydown', lbKeyHandler);
+}
+ 
+let _tabDb = null;
+function trackTabClick(key) { if (!_tabDb) return; _tabDb.ref('tab_clicks/' + key).transaction(cur => (cur || 0) + 1); }
+function initTabTracking(db) {
+  _tabDb = db;
+  const fmtClicks = n => { if (!n) return '0'; if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k'; return n.toLocaleString('vi-VN'); };
+  ['khai-mac','start-finish','khoanh-khac','btc','tong-hop','flycam'].forEach(key => {
+    db.ref('tab_clicks/' + key).on('value', snap => { const el = document.getElementById('tk-' + key); if (el) el.textContent = fmtClicks(snap.val() || 0); });
+  });
+}
+ 
+(function () {
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9kOdlwT6jEtX3QdNZyq8h7khuNoammS8",
+    authDomain: "bcds2026-9c6a6.firebaseapp.com",
+    databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bcds2026-9c6a6",
+    storageBucket: "bcds2026-9c6a6.firebasestorage.app",
+    messagingSenderId: "354115933539",
+    appId: "1:354115933539:web:f4c49fb913d494f92fef56",
+    measurementId: "G-DFQEFSMHTH"
+  };
+  const s1 = document.createElement('script');
+  s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js';
+  s1.onload = () => {
+    const s2 = document.createElement('script');
+    s2.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js';
+    s2.onload = () => initFirebase(firebaseConfig);
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s1);
+})();
+ 
+function initFirebase(config) {
+  try {
+    firebase.initializeApp(config);
+    const db = firebase.database();
+    const connRef   = db.ref('.info/connected');
+    const onlineRef = db.ref('online_users');
+    const visitsRef = db.ref('total_visits');
+    const myRef = onlineRef.push();
+    connRef.on('value', snap => { if (!snap.val()) return; myRef.onDisconnect().remove(); myRef.set({ t: Date.now() }); });
+    onlineRef.on('value', snap => { const el = document.getElementById('online-count'); if (el) el.textContent = snap.numChildren(); });
+    visitsRef.transaction(cur => (cur || 0) + 1);
+    visitsRef.on('value', snap => { const total = snap.val() || 0; const el = document.getElementById('visits-count'); if (el) el.textContent = total.toLocaleString('vi-VN'); });
+    initTabTracking(db);
+    initHeartWidget(db);
+  } catch (e) {
+    console.warn('Firebase error:', e);
+    const w = document.getElementById('stats-widget');
+    if (w) w.style.display = 'none';
+  }
+}
+ 
+function initHeartWidget(db) {
+  const pill    = document.getElementById('heart-pill');
+  const icon    = document.getElementById('heart-icon');
+  const countEl = document.getElementById('heart-count');
+  const heartsRef = db.ref('total_hearts');
+  function fmtCount(n) { if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k'; return n.toLocaleString('vi-VN'); }
+  function updateUI(count) { countEl.textContent = fmtCount(count); }
+  function spawnFloatingHeart() {
+    const rect = pill.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2; const cy = rect.top;
+    const x = cx + (Math.random() - 0.5) * 60;
+    const el = document.createElement('div');
+    el.className = 'float-heart';
+    el.textContent = ['❤️', '🩷', '💗', '💖', '💕'][Math.floor(Math.random() * 5)];
+    el.style.left = x + 'px'; el.style.top = cy + 'px';
+    el.style.fontSize = (14 + Math.random() * 14) + 'px';
+    el.style.setProperty('--r0', (Math.random()*20-10) + 'deg');
+    el.style.setProperty('--r1', (Math.random()*30-15) + 'deg');
+    el.style.setProperty('--r2', (Math.random()*20-10) + 'deg');
+    el.style.setProperty('--r3', (Math.random()*30-15) + 'deg');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+  }
+  window.toggleHeart = function () {
+    const wrap = document.getElementById('heart-icon-wrap');
+    countEl.classList.add('active');
+    if (wrap) wrap.classList.add('loved');
+    pill.classList.add('beat');
+    pill.addEventListener('animationend', () => pill.classList.remove('beat'), { once: true });
+    const count = 5 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) setTimeout(spawnFloatingHeart, i * 90);
+    heartsRef.transaction(cur => (cur || 0) + 1, (err, committed, snap) => { if (!err && snap) updateUI(snap.val() || 0); });
+    const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, '')) || 0;
+    updateUI(cur + 1);
+  };
+  heartsRef.on('value', snap => updateUI(snap.val() || 0));
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
