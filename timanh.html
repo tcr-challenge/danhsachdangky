@@ -1,456 +1,3 @@
-
-Claude finished the response
-
-Code_Web.html
-html
-
-a có code này hiển thị được bib, tên và ảnh từ các drive, file json nhưng chức năng tìm kiếm nhấn tìm bib hoặc tên thì lại không ra được kết quả, mặc dù khi nhập bib hoặc tên vào ô tìm kiếm nó vẫn gợi ý ra đúng số bib của vận động viên
-
-1:57 PM
-
-Viewed 3 files
-Viewed 3 files
-Tôi đã tìm ra lỗi. Có 2 bug trong code:
-
-Bug 1 — Dòng 543: Regex sai trong isLikelyBib()
-
-js
-function isLikelyBib(raw) { return /^d+$/.test(raw.trim()); }
-Viết ^d+$ thay vì ^\d+$ (thiếu dấu \). Vì vậy hàm này luôn trả về false — kể cả khi nhập số BIB thuần túy như 1234, nó cũng bị coi là tìm theo tên, dẫn đến searchRunnersByName('1234') và không ra kết quả.
-
-Bug 2 — Hàm lookupRunner() dùng sai key
-
-js
-function lookupRunner(bib) {
-  const key = bib.toString().replace(/[^0-9]/g, "").padStart(4, "0");
-  return RUNNERS[key] || null;  // ← key kiểu "0012"
-}
-Nhưng trong RUNNERS, key được lưu dạng số BIB thực tế (ví dụ "12", "0012", "M0012"...) tùy theo file runners.json. Đồng thời khi tìm ảnh theo BIB, code dùng p.bib === bib4 (bib4 là 4 chữ số), nhưng searchRunnersByName lại so sánh p.bib === bib (key gốc từ RUNNERS). Nếu format không khớp thì photoCount luôn bằng 0.
-
-Đây là file đã sửa 2 lỗi trên:
-
-
-Ran a command, edited a file
-Ran a command, edited a file
-Bây giờ sửa lookupRunner để thử nhiều dạng key khác nhau, phòng trường hợp file runners.json lưu BIB theo format khác nhau:
-
-
-Ran 4 commands, viewed 2 files, edited a file
-Ran 4 commands, viewed 2 files, edited a file
-Đã tìm ra và sửa 2 bug:
-
-Bug 1 — Lỗi chính gây mất tìm kiếm (dòng 543)
-js
-// ❌ Lỗi: thiếu dấu \ trước d
-function isLikelyBib(raw) { return /^d+$/.test(raw.trim()); }
-
-// ✅ Đúng
-function isLikelyBib(raw) { return /^\d+$/.test(raw.trim()); }
-Vì thiếu \, regex ^d+$ chỉ khớp với chuỗi toàn chữ "d" (ví dụ "ddd"), không bao giờ khớp số. Kết quả: kể cả nhập BIB số như 1234 cũng bị xử lý như tìm tên → searchRunnersByName('1234') → không ra kết quả.
-
-Bug 2 — lookupRunner() có thể miss key
-js
-// ❌ Chỉ thử đúng 1 format "0012"
-return RUNNERS[key] || null;
-
-// ✅ Thử lần lượt: key gốc → "0012" → "12" → ...
-return RUNNERS[bib] || RUNNERS[key4] || RUNNERS[digits] || RUNNERS[keyRaw] || null;
-Phòng trường hợp file runners.json lưu key theo format khác nhau (có thể là "12", "0012", hay chính xác BIB gốc).
-
-
-Code web fixed
-Code · HTML 
-1780988427002_image.png
-Thay thế phần header theo style này cho anh.
-1 - có một banner phía trên
-2- phong cách chữ và màu sắc như hình
-3 - Ô tìm kiếm như hình
-
-2:01 PM
-
-Viewed 2 files
-Viewed 2 files
-Đã nắm được toàn bộ cấu trúc. Bây giờ mình sẽ làm lại header theo đúng style trong ảnh:
-
-
-Ran 2 commands, viewed a file
-Ran 2 commands, viewed a file
-Cấu trúc đúng. Giờ copy ra output:
-
-
-Ran a command, read a file
-Ran a command, read a file
-Đã xong! Những thay đổi trong file Code_Web_v2.html:
-
-Header mới theo style ảnh:
-
-Banner trên cùng — badge vàng "TÌM ẢNH GIẢI CHẠY" nổi bật
-Chữ lớn — "PHÚC HÒA CITY TRAIL 2026" kiểu chữ Montserrat đậm, chữ vàng xen trắng
-Badge phụ — "GIẢI VIỆT DÃ XÃ PHÚC HÒA MỞ RỘNG" nền vàng bên dưới
-Ngày/địa điểm — nhỏ hơn, màu mờ, có dấu chấm phân cách
-Nền hero — tối gradient có ảnh mờ phía sau như trong mẫu
-Ô tìm kiếm mới:
-
-Nền trắng bo tròn (pill shape) giống ảnh mẫu
-Chữ placeholder màu xám nhạt
-Nút tìm kiếm đỏ tròn với icon 🔍 ở phải
-Dropdown gợi ý cũng chuyển sang nền trắng cho đồng bộ
-Bonus: Đã tích hợp luôn cả 2 bug fix từ lần trước (regex BIB + lookupRunner).
-
-
-Code web v2
-Code · HTML 
-
-Code_Web.html
-html
-
-anh muốn code tìm theo dạng:
-1- nếu tìm tìm theo số bib thì chỉ được nhập đúng 4 số, không được nhập hơn
-2- nếu tìm theo tên vận động viên sẽ ưu tiên tìm theo tên cuối cùng, ví dụ: Nguyễn Văn Tuấn, Trần Thị Hoa - nhập Hoa, Tuấn thì sẽ lấy tên của họ thay vì tìm tất cả chữ có tên trùng. 
-3- Tìm theo nick name: ví dụ: Tuấn đi bộ, Tuấn tiền lẻ, Sơn ironman thì sẽ tìm kiếm lọc thông minh ra tên chính thức là : Tuần, Sơn
-
-2:15 PM
-
-View the search-related JS functions
-View the search-related JS functions
-Đã hiểu toàn bộ logic. Bây giờ sửa 3 yêu cầu:
-
-
-Ran 2 commands
-Ran 2 commands
-Tất cả đều vào đúng chỗ. Copy ra output:
-
-
-Ran a command, read a file
-Ran a command, read a file
-Đã cập nhật xong! Đây là chi tiết 3 thay đổi:
-
-1. BIB chỉ nhập đúng 4 số
-
-Khi gõ số, ô input tự động chặn lại ở ký tự thứ 4, không gõ thêm được
-Khi nhấn Tìm mà số chưa đủ 4 chữ số → hiện toast lỗi: "Số BIB phải đúng 4 chữ số (ví dụ: 0044)"
-2. Ưu tiên tìm theo tên cuối (tên gọi kiểu Việt Nam)
-
-Hệ thống tính điểm theo thứ tự ưu tiên:
-
-Điểm	Điều kiện
-100	Tên cuối khớp chính xác (nhập "Hoa" → "Trần Thị Hoa")
-80	Tên cuối bắt đầu bằng query
-60	Tên cuối chứa query
-50	Bất kỳ từ nào trong tên khớp chính xác
-40	Tên đầy đủ bắt đầu bằng query
-20	Tên đầy đủ chứa query
-→ Nhập "Hoa" sẽ ưu tiên "Trần Thị Hoa" lên đầu thay vì lẫn lộn mọi tên có chữ "Hoa"
-
-3. Tìm theo nickname thông minh
-
-Khi nhập nhiều từ như "Tuấn đi bộ" hay "Sơn ironman":
-
-Hệ thống tự bóc tách từ đầu tiên ("Tuấn", "Sơn") làm ứng viên tên chính
-Tìm kiếm tên cuối của VĐV khớp với từ đó
-Điểm 35 nếu tên cuối khớp chính xác nickname candidate
-
-Code web search
-Code · HTML 
-anh thay ảnh banner header chỗ nào
-
-2:18 PM
-Trong code, ảnh nền hero được set bằng CSS background-image ở dòng này:
-
-css
-.hero-bg::before { 
-  content: ''; 
-  position: absolute; 
-  inset: 0; 
-  background: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=60') center/cover no-repeat; 
-  opacity: 0.12; 
-}
-Anh chỉ cần thay URL trong url('...') thành link ảnh của anh là xong. Ví dụ:
-
-css
-background: url('https://link-anh-cua-ban.jpg') center/cover no-repeat;
-Một số cách lấy link ảnh:
-
-Upload lên Google Drive → chuột phải → "Lấy link" → chuyển sang dạng https://drive.google.com/uc?id=FILE_ID
-Upload lên Imgur hoặc imgbb.com → copy direct link
-Nếu ảnh đã trên web thì copy thẳng URL ảnh
-Lưu ý: opacity: 0.12 đang để rất mờ để chữ dễ đọc. Nếu ảnh anh đã tối sẵn thì có thể tăng lên 0.25 – 0.4 để ảnh hiện rõ hơn.
-
-
-credentials.json
-1 line
-
-json
-
-
-token.json
-1 line
-
-json
-
-2 file này là của web trước repo trên github, a tạo một repo khác tên là buochandisan2026 - thì thay như nào
-
-2:24 PM
-2 file này chứa OAuth credentials để truy cập Google Drive — chúng không liên quan đến GitHub repo URL.
-
-Thứ anh cần thay là trong file HTML, chỗ CONFIG:
-
-javascript
-const CONFIG = {
-  jsonUrl:        'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json',
-  runnersUrl:     'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json',
-  folderTemplate: 'https://drive.google.com/drive/folders/...',
-};
-Anh chỉ cần thay tên repo trong 2 URL đó. Cấu trúc là:
-
-https://raw.githubusercontent.com/[TÊN_TÀI_KHOẢN]/[TÊN_REPO]/main/photos.json
-Ví dụ nếu repo mới tên buochandisan2026 thuộc account tcr-challenge:
-
-https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json
-https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json
-Lưu ý quan trọng: 2 file credentials.json và token.json anh vừa upload chứa client secret và refresh token thật của Google OAuth. Anh nên revoke và tạo lại credentials tại console.cloud.google.com vì đã lộ ra ngoài.
-
-tất cả repo a tạo trên github dùng chung 2 file này được k
-
-2:25 PM
-Được, 2 file này là credentials của Google Cloud Project phuchoacitytrail — không liên quan gì đến GitHub repo.
-
-Nghĩa là:
-
-Bao nhiêu repo GitHub cũng dùng chung 1 bộ credentials này
-Miễn là script Python dùng cùng 1 Google Drive account để lấy ảnh
-Tuy nhiên nhắc lại: client_secret và refresh_token trong 2 file này đang lộ ra ngoài do upload lên đây. Nếu ai có 2 file này họ có thể truy cập Google Drive của anh.
-
-Anh nên làm ngay:
-
-Vào console.cloud.google.com → chọn project phuchoacitytrail
-APIs & Services → Credentials → xóa OAuth client cũ → tạo lại cái mới
-Tải credentials.json mới về và chạy lại token.json
-
-Code_Web.html
-html
-
-
-generate_index.py
-307 lines
-
-py
-
-trong này của anh chỉ có 5 id folder drive của giải chaytj mới, sao web vẫn load được ảnh từ drive của giải cũ nhỉ
-
-2:28 PM
-Vì trong file HTML, CONFIG.jsonUrl trỏ đến file photos.json trên GitHub repo cũ:
-
-javascript
-const CONFIG = {
-  jsonUrl:    'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json',
-  runnersUrl: 'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/runners.json',
-Web không đọc trực tiếp từ Google Drive — nó chỉ đọc file photos.json trên GitHub. File photos.json đó được tạo ra bởi script generate_index.py và chứa sẵn các link ảnh Drive.
-
-Tóm lại luồng là:
-
-generate_index.py  →  quét 5 folder Drive mới  →  tạo photos.json  →  push lên GitHub
-                                                                              ↓
-                                                              Web đọc photos.json từ GitHub
-Vậy tại sao vẫn thấy ảnh cũ? Vì photos.json trên repo buochandisan2026 hiện tại vẫn chứa data của giải cũ — chưa chạy lại generate_index.py với 5 folder Drive mới để ghi đè.
-
-Anh cần:
-
-Chạy generate_index.py với 5 folder ID mới → nó tạo photos.json mới
-Push file đó lên GitHub repo buochandisan2026
-Web sẽ tự động hiển thị đúng ảnh của giải mới
-anh muons đăng ký lại phần thống kê online trên firebase
-
-2:46 PM
-Trong file HTML, phần Firebase config ở cuối:
-
-javascript
-const firebaseConfig = {
-    apiKey: "AIzaSyBMMZU9dWuzWgzpjSyNL5xB9v-QEh95sdw",
-    authDomain: "phuchoatrail2026.firebaseapp.com",
-    databaseURL: "https://phuchoatrail2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "phuchoatrail2026",
-    storageBucket: "phuchoatrail2026.firebasestorage.app",
-    messagingSenderId: "665306842437",
-    appId: "1:665306842437:web:9ffc0f64e15bb01b542a2c",
-};
-Đây đang dùng project phuchoatrail2026 của giải cũ. Để tạo project mới cho giải Bước Chân Di Sản 2026:
-
-Bước 1 — Tạo Firebase project mới
-
-Vào console.firebase.google.com
-Add project → đặt tên ví dụ buochandisan2026
-Tắt Google Analytics nếu không cần → Create project
-Bước 2 — Bật Realtime Database
-
-Vào Build → Realtime Database → Create database
-Chọn region asia-southeast1 (Singapore)
-Chọn Start in test mode → Enable
-Bước 3 — Lấy config mới
-
-Vào Project Settings (icon bánh răng)
-Kéo xuống Your apps → Add app → Web (</>)
-Đặt tên app → Register
-Copy toàn bộ firebaseConfig mới
-Bước 4 — Thay vào HTML Tìm đoạn const firebaseConfig = { trong file HTML, thay bằng config vừa copy.
-
-Anh làm xong bước 3 thì paste config vào đây, mình thay vào file HTML luôn cho anh.
-
-1780991297704_image.png
-2:48 PM
-Anh đã tạo project BCDS2026 rồi. Giờ cần thêm Web app để lấy config. Làm theo các bước sau:
-
-Bước 1 — Thêm Web app
-
-Click icon </> (Web) trong phần "Your apps" như trong ảnh → đặt tên app (ví dụ bcds2026-web) → Register app
-
-Bước 2 — Bật Realtime Database (nếu chưa làm)
-
-Ở menu trái click Realtime Database → Create database → asia-southeast1 → Start in test mode → Enable
-
-Bước 3 — Sau khi Register app
-
-Firebase sẽ hiện ra đoạn config dạng:
-
-javascript
-const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "bcds2026-9c6a6.firebaseapp.com",
-  databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "bcds2026-9c6a6",
-  ...
-};
-Paste config đó vào đây, mình sẽ thay vào file HTML và cập nhật luôn cho anh.
-
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD9kOdlwT6jEtX3QdNZyq8h7khuNoammS8",
-  authDomain: "bcds2026-9c6a6.firebaseapp.com",
-  databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "bcds2026-9c6a6",
-  storageBucket: "bcds2026-9c6a6.firebasestorage.app",
-  messagingSenderId: "354115933539",
-  appId: "1:354115933539:web:f4c49fb913d494f92fef56",
-  measurementId: "G-DFQEFSMHTH"
-};
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-Show more
-2:53 PM
-
-Ran 3 commands, read a file
-Ran 3 commands, read a file
-Đã thay xong! Firebase giờ trỏ về project BCDS2026 mới.
-
-Thống kê online, lượt xem, thả tim sẽ đếm riêng hoàn toàn, không lẫn với giải cũ nữa.
-
-Lưu ý thêm: Anh nhớ vào Firebase → Realtime Database → Rules và đặt rules cho phép đọc/ghi:
-
-json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
-Nếu không thì thống kê sẽ không cập nhật được.
-
-
-Code web firebase
-Code · HTML 
-cho icon trái tim khi nhấn bay lên mượt mà nhẹ nhàng không bị giật cục, và bay lên cao nữa
-
-2:55 PM
-
-Viewed 2 files, ran 2 commands, read a file
-Viewed 2 files, ran 2 commands, read a file
-Đã cập nhật! Những gì thay đổi:
-
-Animation bay lên:
-
-Bay cao gấp đôi — từ 460px thay vì 220px cũ
-Xuất hiện mượt với fade-in nhẹ lúc đầu thay vì pop đột ngột
-Dùng cubic-bezier thay ease-out — cảm giác nhẹ nhàng hơn hẳn
-Mỗi tim có duration ngẫu nhiên 1.8s–2.6s → không đồng loạt, trông tự nhiên
-4 kiểu easing khác nhau ngẫu nhiên cho mỗi tim
-Spawn tim:
-
-Tăng từ 5–7 lên 7–10 tim mỗi lần nhấn
-Phân tán theo hình quạt đều thay vì random hoàn toàn → trông đẹp hơn
-Delay giữa các tim ngắn hơn (60ms) + thêm jitter nhỏ → không giật cục
-Thêm 2 icon mới: 🤍 💓
-
-Code web heart
-Code · HTML 
-
-Code_Web.html
-html
-
-Sửa cho anh, mỗi trang hiển thị 24 ảnh, 4 ảnh một hàng
-
-3:05 PM
-
-Ran 4 commands, read a file
-Ran 4 commands, read a file
-Đã sửa xong! Tóm tắt thay đổi:
-
-Desktop	Mobile
-Số ảnh/trang	24	12
-Số cột	4 cột	2 cột
-Áp dụng cho cả 3 grid: trang chủ (browse), kết quả BIB, và album tab.
-
-
-Code web grid
-Code · HTML 
-// Import the functions you need from the SDKs you need import { initializeApp } from "firebase/app"; import { getAnalytics } from "firebase/analytics"; // TODO: Add SDKs for Firebase products that you want to use // https://firebase.google.com/docs/web/setup#available-libraries // Your web app's Firebase configuration // For Firebase JS SDK v7.20.0 and later, measurementId is optional const firebaseConfig = { apiKey: "AIzaSyD9kOdlwT6jEtX3QdNZyq8h7khuNoammS8", authDomain: "bcds2026-9c6a6.firebaseapp.com", databaseURL: "https://bcds2026-9c6a6-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "bcds2026-9c6a6", storageBucket: "bcds2026-9c6a6.firebasestorage.app", messagingSenderId: "354115933539", appId: "1:354115933539:web:f4c49fb913d494f92fef56", measurementId: "G-DFQEFSMHTH" }; // Initialize Firebase const app = initializeApp(firebaseConfig); const analytics = getAnalytics(app);
-
-Cập nhật code thống kê firebass mưới
-
-Show more
-3:06 PM
-
-Ran 3 commands, read a file
-Ran 3 commands, read a file
-Đã cập nhật xong! Firebase giờ trỏ về project BCDS2026 mới (bcds2026-9c6a6). Thống kê online, lượt xem và thả tim sẽ đếm riêng cho giải này.
-
-
-Code web fb2
-Code · HTML 
-1780992413017_image.png
-realtime này ok chưa
-
-3:07 PM
-Rules hiện tại đang ở test mode — cho phép đọc/ghi đến ngày 9/7/2026 thì hết hạn. Hoàn toàn dùng được cho web.
-
-Nếu anh muốn không bị hết hạn, thay rules thành:
-
-json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
-Paste vào ô rules rồi nhấn Publish là xong.
-
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-
-
-raw
-Code web fb2 · HTML
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -610,7 +157,7 @@ Code web fb2 · HTML
     .toast.show { transform: none; opacity: 1; }
     .toast.success { border-color: var(--success); color: var(--success); }
     .toast.error { border-color: #f87171; color: #f87171; }
- 
+
     /* ══ STATS WIDGET ══ */
     .stats-widget { position: fixed; bottom: 24px; left: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 6px; user-select: none; }
     .online-pill, .visits-pill { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(19,19,26,0.92); border: 1px solid var(--border); border-radius: 999px; font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--muted); backdrop-filter: blur(12px); transition: border-color 0.2s; cursor: default; white-space: nowrap; }
@@ -621,7 +168,7 @@ Code web fb2 · HTML
     @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.75); } }
     .online-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: var(--success); }
     .visits-count { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: var(--accent); }
- 
+
     @media (max-width: 600px) {
       body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
       .toast { bottom: calc(70px + env(safe-area-inset-bottom)); right: 12px; }
@@ -635,7 +182,7 @@ Code web fb2 · HTML
       .online-count, .visits-count { font-size: 12px; }
       .online-dot, .visits-dot { width: 6px; height: 6px; }
     }
- 
+
     /* ══ ALBUM TABS ══ */
     .album-tabs-outer { max-width: 700px; margin: 10px auto 0; border-radius: 0; overflow: hidden; }
     .album-tabs-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -660,7 +207,7 @@ Code web fb2 · HTML
     .album-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
     .album-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .album-card .bib-tag { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 11px; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; }
- 
+
     @media (max-width: 600px) {
       :root { --thumb-w: 140px; }
       header { padding: 10px 12px; }
@@ -677,7 +224,7 @@ Code web fb2 · HTML
       .album-title { font-size: 20px; }
       .lb-runner-name { font-size: 14px; }
     }
- 
+
     /* LYCHEE LOADING */
     .lychee-loading { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(10,10,15,0.88); backdrop-filter: blur(10px); flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
     .lychee-loading.show { display: flex; }
@@ -687,11 +234,11 @@ Code web fb2 · HTML
     @keyframes lychee-shadow { 0% { transform: scaleX(1); opacity: 0.6; } 100% { transform: scaleX(0.5); opacity: 0.2; } }
     .lychee-text { font-family: var(--font-body); font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: 0.3px; margin-top: 4px; }
     .lychee-text em { font-style: normal; color: var(--accent); font-weight: 600; }
- 
+
     /* ══ HEART PILL ══ */
     .heart-pill { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(19,19,26,0.92); border: 1px solid var(--border); border-radius: 999px; font-family: var(--font-body); font-size: 12px; font-weight: 500; color: var(--muted); backdrop-filter: blur(12px); transition: border-color 0.2s; white-space: nowrap; user-select: none; }
     .heart-pill:hover { border-color: #f87171; }
- 
+
     /* CHỮ "THẢ" TRƯỚC TIM */
     .heart-label {
       font-family: var(--font-display);
@@ -705,7 +252,7 @@ Code web fb2 · HTML
     @media (max-width: 600px) {
       .heart-label { font-size: 11px; }
     }
- 
+
     .heart-icon-wrap { position: relative; width: 32px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .vn-flag { width: 32px; height: 28px; display: block; filter: drop-shadow(0 2px 6px rgba(229,57,53,0.55)); animation: heartPulse 1.8s ease-in-out infinite; }
     @keyframes heartPulse {
@@ -743,13 +290,13 @@ Code web fb2 · HTML
   </style>
 </head>
 <body>
- 
+
 <div class="lychee-loading" id="lychee-loading">
   <div class="lychee-bounce">🌿</div>
   <div class="lychee-shadow"></div>
   <div class="lychee-text"><em>Em đang load ảnh với Pace 1.2</em> chờ em chút nha </div>
 </div>
- 
+
 <div class="hero">
   <div class="hero-bg"></div>
   <div class="hero-content">
@@ -795,7 +342,7 @@ Code web fb2 · HTML
     </div>
   </div>
 </div>
- 
+
 <div id="name-results-section">
   <div class="name-results-header">
     <div>
@@ -806,7 +353,7 @@ Code web fb2 · HTML
   </div>
   <div class="runner-card-grid" id="name-results-grid"></div>
 </div>
- 
+
 <div id="viewer-section">
   <div style="max-width:1100px;margin:0 auto;padding:0 20px;">
     <div class="viewer-header">
@@ -826,7 +373,7 @@ Code web fb2 · HTML
     <div class="pagination" id="viewer-pagination"></div>
   </div>
 </div>
- 
+
 <div id="album-section">
   <div class="album-header">
     <div class="album-header-left">
@@ -838,7 +385,7 @@ Code web fb2 · HTML
   <div id="album-grid" class="album-grid"></div>
   <div class="pagination" id="album-pagination"></div>
 </div>
- 
+
 <div class="lightbox" id="lightbox" onclick="handleLightboxBackdropClick(event)">
   <button class="lb-close" onclick="closeLightbox()">✕</button>
   <div class="lb-main" onclick="event.stopPropagation()">
@@ -861,13 +408,13 @@ Code web fb2 · HTML
   </div>
   <div class="lb-thumbs" id="lb-thumbs" onclick="event.stopPropagation()"></div>
 </div>
- 
+
 <div class="section" id="browse-section">
   <div class="section-title">ẢNH MỚI NHẤT <span class="count-badge" id="total-count">--</span></div>
   <div class="photo-grid" id="main-grid"></div>
   <div class="pagination" id="pagination"></div>
 </div>
- 
+
 <footer style="border-top:1px solid var(--border);margin-top:60px;padding:40px 24px 32px;text-align:center;background:var(--surface);">
   <div style="font-family:'Montserrat','Segoe UI',sans-serif;font-weight:800;font-size:clamp(14px,3vw,20px);letter-spacing:2px;color:var(--accent);margin-bottom:6px;">LỄ HỘI TRUYỀN THỐNG ĐÌNH LÀNG THƯỢNG CÁT 2026</div>
   <div style="font-family:'Montserrat','Segoe UI',sans-serif;font-weight:700;font-size:clamp(11px,2vw,15px);letter-spacing:1.5px;color:var(--accent2);margin-bottom:20px;">GIẢI CHẠY - BƯỚC CHÂN DI SẢN</div>
@@ -879,7 +426,7 @@ Code web fb2 · HTML
     <a href="https://web.facebook.com/thuongcatbactuliemhanoi" target="_blank" style="color:gray;text-decoration:none;font-weight:600;transition:color 0.2s;" onmouseover="this.style.color='gray'" onmouseout="this.style.color=gray">© 2026 Làng Bên Sông</a>
   </div>
 </footer>
- 
+
 <!-- STATS WIDGET -->
 <div class="stats-widget" id="stats-widget">
   <!-- HEART PILL: chữ "Thả" đỏ + tim + số đếm -->
@@ -903,9 +450,9 @@ Code web fb2 · HTML
     <span class="visits-dot"></span><span class="visits-count" id="visits-count">--</span><span>views</span>
   </div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
- 
+
 <script>
 const CONFIG = {
   jsonUrl:        'https://raw.githubusercontent.com/tcr-challenge/buochandisan2026/main/photos.json',
@@ -913,13 +460,13 @@ const CONFIG = {
   folderTemplate: 'https://drive.google.com/drive/folders/1_z_YUXz1HzP8VEbjufSCeL6il8XEotdG',
   // prefixes không cần nữa — BIB thuần 4 số
 };
- 
+
 const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 600;
 let PHOTOS  = [];
 let RUNNERS = {};
 let browsePage = 1;
 let BROWSE_PHOTOS = [];
- 
+
 function buildBrowseOrder() {
   const priority = PHOTOS.filter(p =>
     (p.folderUrl && p.folderUrl.toLowerCase().includes('an-tuong-ph')) ||
@@ -938,9 +485,9 @@ let viewerAllList = [];
 let viewerPage    = 1;
 const VIEWER_PAGE_SIZE = 50;
 let viewerIndex   = 0;
- 
+
 document.addEventListener('DOMContentLoaded', () => { fetchAll(); });
- 
+
 async function fetchAll() {
   document.getElementById('lychee-loading').classList.add('show');
   showProgress(15);
@@ -969,7 +516,7 @@ async function fetchAll() {
     loadDemoData();
   }
 }
- 
+
 function loadDemoData() {
   PHOTOS = Array.from({length: 148}, (_, i) => {
     const num = String(i + 1).padStart(4, '0');
@@ -985,7 +532,7 @@ function loadDemoData() {
   renderBrowseGrid();
   updateAlbumTabCounts();
 }
- 
+
 function lookupRunner(bib) {
   if (!bib || !Object.keys(RUNNERS).length) return null;
   const digits = bib.toString().replace(/[^0-9]/g, "");
@@ -993,13 +540,13 @@ function lookupRunner(bib) {
   const keyRaw = digits.replace(/^0+/, '') || "0";
   return RUNNERS[bib] || RUNNERS[key4] || RUNNERS[digits] || RUNNERS[keyRaw] || null;
 }
- 
+
 let acFocusIdx = -1;
- 
+
 // ── BIB: chỉ cho phép nhập đúng 4 chữ số ──
 function isLikelyBib(raw) { return /^\d{1,4}$/.test(raw.trim()); }
 function isExactBib(raw)  { return /^\d{4}$/.test(raw.trim()); }
- 
+
 // ── Nickname dictionary: từ khoá → tên chính thức (không dấu, viết hoa) ──
 // Key là từ khoá nickname (không dấu, hoa), value là mảng từ có thể là tên chính
 // Hệ thống tự học: nếu query có dạng "Tên + mô tả" thì bóc tách tên để tìm
@@ -1016,17 +563,17 @@ function extractNameFromNickQuery(rawQ) {
   candidates.push(rawQ.trim());          // toàn bộ query (fallback)
   return candidates;
 }
- 
+
 // Tính điểm ưu tiên cho 1 kết quả với query
 function scoreRunner(info, bib, q, qRaw) {
   const nameNorm  = removeVietnameseTones((info.name || '').toUpperCase());
   const clubNorm  = removeVietnameseTones((info.club || '').toUpperCase());
   const nameWords = nameNorm.split(/\s+/);
   const lastName  = nameWords[nameWords.length - 1]; // tên cuối = tên gọi VN
- 
+
   let score = 0;
   let matched = false;
- 
+
   // === Ưu tiên 1: Khớp chính xác tên cuối ===
   if (lastName === q) { score = 100; matched = true; }
   // === Ưu tiên 2: Tên cuối bắt đầu bằng query ===
@@ -1051,16 +598,16 @@ function scoreRunner(info, bib, q, qRaw) {
   }
   // Thưởng thêm nếu club khớp
   if (!matched && clubNorm.includes(q)) { score = 5; matched = true; }
- 
+
   return { matched, score };
 }
- 
+
 function searchRunnersByName(query) {
   if (!query || query.length < 2) return [];
   const qRaw = query.trim();
   const q    = removeVietnameseTones(qRaw.toUpperCase());
   const results = [];
- 
+
   for (const [bib, info] of Object.entries(RUNNERS)) {
     const { matched, score } = scoreRunner(info, bib, q, qRaw);
     if (!matched) continue;
@@ -1069,12 +616,12 @@ function searchRunnersByName(query) {
     const randomPhoto = bibPhotos.length ? bibPhotos[Math.floor(Math.random() * bibPhotos.length)] : null;
     results.push({ bib, name: info.name || '', club: info.club || '', photoCount, thumb: randomPhoto ? randomPhoto.thumb : null, _score: score });
   }
- 
+
   // Sắp xếp: score cao nhất lên đầu, cùng score thì theo bib
   results.sort((a, b) => (b._score - a._score) || a.bib.localeCompare(b.bib));
   return results;
 }
- 
+
 function removeVietnameseTones(str) {
   return str
     .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/gi, 'A')
@@ -1085,19 +632,19 @@ function removeVietnameseTones(str) {
     .replace(/[ỳýỵỷỹ]/gi, 'Y')
     .replace(/[đ]/gi, 'D');
 }
- 
+
 function toggleClearBtn(val) {
   const btn = document.getElementById('bib-clear-btn');
   const inp = document.getElementById('bib-input');
   if (val) { btn.classList.add('visible'); inp.classList.add('has-value'); }
   else { btn.classList.remove('visible'); inp.classList.remove('has-value'); }
 }
- 
+
 function clearBibInput() {
   const inp = document.getElementById('bib-input');
   inp.value = ''; inp.focus(); toggleClearBtn(''); closeAutocomplete();
 }
- 
+
 function onBibInputChange(el) {
   let raw = el.value;
   // Nếu đang nhập thuần số: chặn không cho quá 4 ký tự
@@ -1112,7 +659,7 @@ function onBibInputChange(el) {
   const results = searchRunnersByName(raw);
   renderAutocomplete(results, raw);
 }
- 
+
 function onBibInputKeyDown(e) {
   const dd = document.getElementById('autocomplete-dropdown');
   const items = dd.querySelectorAll('.ac-item');
@@ -1124,12 +671,12 @@ function onBibInputKeyDown(e) {
   }
   if (e.key === 'Enter') searchByBib();
 }
- 
+
 function updateAcFocus(items) {
   items.forEach((el, i) => el.classList.toggle('focused', i === acFocusIdx));
   if (items[acFocusIdx]) items[acFocusIdx].scrollIntoView({ block: 'nearest' });
 }
- 
+
 function renderAutocomplete(results, query) {
   const dd = document.getElementById('autocomplete-dropdown');
   if (!results.length) { dd.innerHTML = '<div class="ac-empty">Không tìm thấy vận động viên</div>'; dd.classList.add('open'); return; }
@@ -1145,16 +692,16 @@ function renderAutocomplete(results, query) {
   (results.length > showMax ? '<div class="ac-empty" style="cursor:pointer;color:var(--accent);" onclick="document.getElementById(\'search-btn-main\').click()">▼ Xem thêm ' + (results.length - showMax) + ' kết quả...</div>' : '');
   dd.classList.add('open');
 }
- 
+
 function closeAutocomplete() { const dd = document.getElementById('autocomplete-dropdown'); dd.classList.remove('open'); dd.innerHTML = ''; acFocusIdx = -1; }
- 
+
 function selectRunnerFromAc(bib) {
   const inp = document.getElementById('bib-input');
   inp.value = bib; toggleClearBtn(bib); closeAutocomplete(); searchByBib();
 }
- 
+
 document.addEventListener('click', (e) => { if (!e.target.closest('.bib-row')) closeAutocomplete(); });
- 
+
 function highlightMatch(text, query) {
   const q = removeVietnameseTones(query.toUpperCase().trim());
   const textNorm = removeVietnameseTones(text.toUpperCase());
@@ -1162,7 +709,7 @@ function highlightMatch(text, query) {
   if (idx < 0) return text;
   return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + q.length) + '</mark>' + text.slice(idx + q.length);
 }
- 
+
 function rcImgError(img) {
   img.style.display = 'none';
   const wrap = img.parentElement;
@@ -1171,7 +718,7 @@ function rcImgError(img) {
   placeholder.textContent = '\u{1F464}';
   wrap.insertBefore(placeholder, wrap.firstChild);
 }
- 
+
 function showNameResults(results, query) {
   closeAutocomplete();
   document.getElementById('viewer-section').style.display   = 'none';
@@ -1195,12 +742,12 @@ function showNameResults(results, query) {
   }).join('');
   sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
- 
+
 function searchByBib() {
   closeAutocomplete();
   const raw = document.getElementById('bib-input').value.trim();
   if (!raw) { showToast('Vui lòng nhập số BIB hoặc tên VĐV', 'error'); return; }
- 
+
   // ── Tìm theo BIB (thuần số) ──
   if (/^\d+$/.test(raw)) {
     if (raw.length !== 4) {
@@ -1217,14 +764,14 @@ function searchByBib() {
     showViewer(matches, bib4, bib4);
     return;
   }
- 
+
   // ── Tìm theo tên / nickname ──
   const found = searchRunnersByName(raw);
   if (found.length === 0) { showToast('Không tìm thấy vận động viên "' + raw + '"', 'error'); return; }
   if (found.length === 1) { selectRunnerFromAc(found[0].bib); return; }
   showNameResults(found, raw);
 }
- 
+
 function showViewer(list, label, digits) {
   viewerAllList = list; viewerPage = 1;
   const section = document.getElementById('viewer-section');
@@ -1255,7 +802,7 @@ function showViewer(list, label, digits) {
   renderViewerPage();
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
- 
+
 function renderViewerPage() {
   const total = viewerAllList.length;
   const totalPages = Math.ceil(total / VIEWER_PAGE_SIZE);
@@ -1270,14 +817,14 @@ function renderViewerPage() {
   ).join('');
   renderViewerPagination(total);
 }
- 
+
 function renderViewerPagination(total) {
   const totalPages = Math.ceil(total / VIEWER_PAGE_SIZE);
   const el = document.getElementById('viewer-pagination');
   if (totalPages <= 1) { el.innerHTML = ''; return; }
   el.innerHTML = buildPaginationHTML(viewerPage, totalPages, 'goViewerPage');
 }
- 
+
 function goViewerPage(p) { viewerPage = p; renderViewerPage(); document.getElementById('viewer-section').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function jumpViewerPage() {
   const input = document.getElementById('viewer-jump-input');
@@ -1286,7 +833,7 @@ function jumpViewerPage() {
   if (!p || p < 1 || p > totalPages) { showToast('Trang không hợp lệ (1–' + totalPages + ')', 'error'); return; }
   input.value = ''; goViewerPage(p);
 }
- 
+
 function openLightboxViewer(globalIdx) {
   viewerIndex = globalIdx;
   document.getElementById('lightbox').classList.add('open');
@@ -1294,11 +841,11 @@ function openLightboxViewer(globalIdx) {
   renderLightboxImage(); buildLbThumbs();
   document.addEventListener('keydown', lbKeyHandler);
 }
- 
+
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; document.removeEventListener('keydown', lbKeyHandler); }
 function handleLightboxBackdropClick(e) { if (e.target === document.getElementById('lightbox')) closeLightbox(); }
 function lbNav(dir) { viewerIndex = (viewerIndex + dir + viewerAllList.length) % viewerAllList.length; renderLightboxImage(); syncLbThumbs(); }
- 
+
 function renderLightboxImage() {
   const list  = viewerAllList.length ? viewerAllList : PHOTOS;
   const photo = list[viewerIndex];
@@ -1326,10 +873,10 @@ function renderLightboxImage() {
   if (photo.folderUrl) { folderBtn.href = photo.folderUrl; folderBtn.style.display = ''; }
   else { folderBtn.style.display = 'none'; }
 }
- 
+
 function onLbImgLoad()  { document.getElementById('lb-img').classList.remove('hidden'); document.getElementById('lb-spinner').style.display = 'none'; }
 function onLbImgError() { document.getElementById('lb-spinner').textContent = 'Không thể tải ảnh này'; }
- 
+
 function buildLbThumbs() {
   const list  = viewerAllList.length ? viewerAllList : PHOTOS;
   const strip = document.getElementById('lb-thumbs');
@@ -1347,7 +894,7 @@ function syncLbThumbs() {
 }
 function lbGoTo(idx) { viewerIndex = idx; renderLightboxImage(); syncLbThumbs(); }
 function lbKeyHandler(e) { if (e.key==='Escape') closeLightbox(); if (e.key==='ArrowLeft') lbNav(-1); if (e.key==='ArrowRight') lbNav(1); }
- 
+
 function clearResults() {
   document.getElementById('viewer-section').style.display = 'none';
   document.getElementById('name-results-section').style.display = 'none';
@@ -1358,7 +905,7 @@ function clearResults() {
   viewerAllList = []; setStatus('', '');
   document.getElementById('browse-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
- 
+
 function renderBrowseGrid() {
   const grid  = document.getElementById('main-grid');
   const list  = BROWSE_PHOTOS.length ? BROWSE_PHOTOS : PHOTOS;
@@ -1391,7 +938,7 @@ function renderBrowseGrid() {
   grid.querySelectorAll('.photo-card').forEach(card => observer.observe(card));
   renderBrowsePagination(total);
 }
- 
+
 function renderBrowsePagination(total) {
   const totalPages = Math.ceil(total / BROWSE_PAGE_SIZE);
   const el = document.getElementById('pagination');
@@ -1406,7 +953,7 @@ function jumpBrowsePage() {
   if (!p || p < 1 || p > totalPages) { showToast('Trang không hợp lệ (1–' + totalPages + ')', 'error'); return; }
   input.value = ''; goBrowsePage(p);
 }
- 
+
 function buildPaginationHTML(cur, total, gofn) {
   const jumpId = gofn === 'goBrowsePage' ? 'browse-jump-input' : (gofn === 'goAlbumPage' ? 'album-jump-input' : 'viewer-jump-input');
   const jumpFn = gofn === 'goBrowsePage' ? 'jumpBrowsePage' : (gofn === 'goAlbumPage' ? 'jumpAlbumPage' : 'jumpViewerPage');
@@ -1428,12 +975,12 @@ function getPaginationRange(cur, total) {
   if (cur >= total-3) return [1,'...',total-4,total-3,total-2,total-1,total];
   return [1,'...',cur-1,cur,cur+1,'...',total];
 }
- 
+
 function setStatus(msg, type) { const el = document.getElementById('status-bar'); el.textContent = msg; el.className = 'status-bar' + (type ? ' ' + type : ''); }
 function showProgress(pct) { document.getElementById('progress-wrap').classList.add('active'); document.getElementById('progress-fill').style.width = pct + '%'; }
 function hideProgress()    { document.getElementById('progress-wrap').classList.remove('active'); document.getElementById('progress-fill').style.width = '0%'; }
 function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show' + (type ? ' ' + type : ''); setTimeout(() => t.className = 'toast', 3000); }
- 
+
 const ALBUM_DEFS = [
   { key: 'khai-mac',     label: 'KHAI MẠC / TRAO GIẢI',      icon: '🎪' },
   { key: 'start-finish', label: 'START / FINISH', icon: '🏁' },
@@ -1441,12 +988,12 @@ const ALBUM_DEFS = [
   { key: 'tong-hop', label: 'TỔNG HỢP',    icon: '🙌' },
   { key: 'btc', label: 'BAN TỔ CHỨC',    icon: '🏅' },
 ];
- 
+
 const ALBUM_PAGE_SIZE = 50;
 let activeAlbumKey   = null;
 let albumCurrentList = [];
 let albumPage        = 1;
- 
+
 function updateAlbumTabCounts() {
   ALBUM_DEFS.forEach(def => {
     const count = PHOTOS.filter(p => p.tab === def.key).length;
@@ -1517,7 +1064,7 @@ function openLightboxAlbum(globalIdx) {
   renderLightboxImage(); buildLbThumbs();
   document.addEventListener('keydown', lbKeyHandler);
 }
- 
+
 let _tabDb = null;
 function trackTabClick(key) { if (!_tabDb) return; _tabDb.ref('tab_clicks/' + key).transaction(cur => (cur || 0) + 1); }
 function initTabTracking(db) {
@@ -1527,7 +1074,7 @@ function initTabTracking(db) {
     db.ref('tab_clicks/' + key).on('value', snap => { const el = document.getElementById('tk-' + key); if (el) el.textContent = fmtClicks(snap.val() || 0); });
   });
 }
- 
+
 (function () {
   const firebaseConfig = {
     apiKey: "AIzaSyD9kOdlwT6jEtX3QdNZyq8h7khuNoammS8",
@@ -1549,7 +1096,7 @@ function initTabTracking(db) {
   };
   document.head.appendChild(s1);
 })();
- 
+
 function initFirebase(config) {
   try {
     firebase.initializeApp(config);
@@ -1570,7 +1117,7 @@ function initFirebase(config) {
     if (w) w.style.display = 'none';
   }
 }
- 
+
 function initHeartWidget(db) {
   const pill    = document.getElementById('heart-pill');
   const icon    = document.getElementById('heart-icon');
@@ -1611,13 +1158,3 @@ function initHeartWidget(db) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
