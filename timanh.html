@@ -97,7 +97,7 @@
     .runner-info-club-name { color: var(--accent); font-weight: 600; }
     .folder-link-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; font-family: var(--font-body); font-size: 13px; font-weight: 500; transition: all 0.2s; }
     .folder-link-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-w), 1fr)); gap: 8px; }
+    .result-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .result-card { position: relative; aspect-ratio: var(--thumb-ratio); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); transition: all 0.18s; }
     .result-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
     .result-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -133,7 +133,7 @@
     .section-title { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: 2px; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
     .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .count-badge { background: var(--surface2); border: 1px solid var(--border); padding: 2px 10px; border-radius: 20px; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--accent); }
-    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+    .photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .photo-card { position: relative; aspect-ratio: 3/2; border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); transition: all 0.18s; }
     .photo-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
     .photo-card img { width: 100%; height: 100%; object-fit: cover; }
@@ -202,7 +202,7 @@
     .album-back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, rgba(247,201,72,0.12), rgba(255,107,53,0.08)); border: 1.5px solid var(--accent); border-radius: 10px; color: var(--accent); font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; box-shadow: 0 0 10px rgba(247,201,72,0.1); }
     .album-back-btn:hover { background: linear-gradient(135deg, rgba(247,201,72,0.22), rgba(255,107,53,0.14)); box-shadow: 0 0 18px rgba(247,201,72,0.22); transform: translateY(-1px); }
     .album-back-btn:active { transform: translateY(0); }
-    .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--thumb-w), 1fr)); gap: 8px; }
+    .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .album-card { position: relative; aspect-ratio: var(--thumb-ratio); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); transition: all 0.18s; }
     .album-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 0 18px rgba(247,201,72,0.18); z-index: 2; }
     .album-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -213,7 +213,9 @@
       header { padding: 10px 12px; }
       .logo { font-size: clamp(9px, 3vw, 16px); letter-spacing: 0.5px; }
       .viewer-bib { font-size: 24px; }
-      .photo-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .photo-grid  { grid-template-columns: repeat(2, 1fr); }
+      .result-grid { grid-template-columns: repeat(2, 1fr); }
+      .album-grid  { grid-template-columns: repeat(2, 1fr); }
       .bib-input { font-size: 20px; letter-spacing: 3px; }
       .search-btn { padding: 15px 14px; font-size: 13px; }
       .bib-row { flex-wrap: nowrap; }
@@ -480,10 +482,10 @@ function buildBrowseOrder() {
   );
   BROWSE_PHOTOS = [...priority, ...rest];
 }
-const BROWSE_PAGE_SIZE = IS_MOBILE ? 24 : 50;
+const BROWSE_PAGE_SIZE = IS_MOBILE ? 12 : 24;
 let viewerAllList = [];
 let viewerPage    = 1;
-const VIEWER_PAGE_SIZE = 50;
+const VIEWER_PAGE_SIZE = 24;
 let viewerIndex   = 0;
 
 document.addEventListener('DOMContentLoaded', () => { fetchAll(); });
@@ -989,7 +991,7 @@ const ALBUM_DEFS = [
   { key: 'btc', label: 'BAN TỔ CHỨC',    icon: '🏅' },
 ];
 
-const ALBUM_PAGE_SIZE = 50;
+const ALBUM_PAGE_SIZE = 24;
 let activeAlbumKey   = null;
 let albumCurrentList = [];
 let albumPage        = 1;
